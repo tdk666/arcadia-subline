@@ -1,0 +1,51 @@
+{
+  "slug": "bastille",
+  "stationId": "33333333-3333-4333-8333-333333333333",
+  "lineId": "22222222-2222-4222-8222-222222222222",
+  "name": "Bastille",
+  "game": {
+    "archetype": "demolition",
+    "skin": "bastille",
+    "title": { "fr": "La Prise de la Bastille", "en": "Storming the Bastille" },
+    "tagline": {
+      "fr": "Abats les trois étendards royaux et fais tomber la forteresse.",
+      "en": "Knock down the three royal standards and bring the fortress down."
+    }
+  },
+  "quests": {
+    "bronze": {
+      "questId": "44444444-4444-4444-8444-444444444401",
+      "params": { "maxShots": 5, "hpMultiplier": 1, "targetPct": 0, "timeLimitS": 0, "reinforced": false }
+    },
+    "silver": {
+      "questId": "44444444-4444-4444-8444-444444444402",
+      "params": { "maxShots": 4, "hpMultiplier": 1.45, "targetPct": 35, "timeLimitS": 0, "reinforced": false }
+    },
+    "gold": {
+      "questId": "44444444-4444-4444-8444-444444444403",
+      "params": { "maxShots": 3, "hpMultiplier": 1.8, "targetPct": 50, "timeLimitS": 75, "reinforced": true }
+    }
+  },
+  "story": {
+    "teaser": {
+      "fr": "14 juillet 1789. Huit tours, des murs de trois mètres d'épaisseur… et seulement sept prisonniers à l'intérieur.",
+      "en": "July 14th, 1789. Eight towers, walls three metres thick… and only seven prisoners inside."
+    },
+    "body": {
+      "fr": "La Bastille n'était presque plus une prison : sept détenus, dont quatre faussaires. Mais elle était le symbole de l'arbitraire royal — on pouvait y être jeté sur simple « lettre de cachet », sans procès. Le 14 juillet 1789, près d'un millier de Parisiens viennent y chercher la poudre entreposée. L'assaut dure une après-midi ; la forteresse tombe, puis sera démolie pierre par pierre dans les mois qui suivent. Certaines de ses pierres ont servi à construire le pont de la Concorde — vous marchez peut-être dessus. Sur la place, la colonne de Juillet ne commémore pas 1789 mais la révolution de 1830. Et sur le quai de la ligne 5, des vestiges des fossés de la forteresse sont encore visibles.",
+      "en": "The Bastille was barely a prison anymore: seven inmates, four of them forgers. But it embodied royal arbitrary power — you could be locked up by a simple « lettre de cachet », without trial. On July 14th, 1789, nearly a thousand Parisians came for the gunpowder stored inside. The assault lasted one afternoon; the fortress fell, then was demolished stone by stone over the following months. Some of its stones were used to build the Pont de la Concorde — you may have walked on them. On the square, the July Column commemorates not 1789 but the revolution of 1830. And on the platform of line 5, remains of the fortress moat are still visible."
+    },
+    "facts": {
+      "fr": [
+        "Seulement 7 prisonniers le 14 juillet 1789",
+        "Ses pierres ont bâti le pont de la Concorde",
+        "Des vestiges sont visibles sur le quai de la ligne 5"
+      ],
+      "en": [
+        "Only 7 prisoners on July 14th, 1789",
+        "Its stones built the Pont de la Concorde",
+        "Remains are still visible on the line 5 platform"
+      ]
+    }
+  }
+}

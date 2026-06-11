@@ -1,0 +1,33 @@
+{
+  "id": "22222222-2222-4222-8222-222222222222",
+  "code": "M1",
+  "name": "Ligne 1",
+  "color": "#f2c200",
+  "stations": [
+    { "slug": "la-defense", "name": "La Défense" },
+    { "slug": "esplanade-de-la-defense", "name": "Esplanade de la Défense" },
+    { "slug": "pont-de-neuilly", "name": "Pont de Neuilly" },
+    { "slug": "les-sablons", "name": "Les Sablons" },
+    { "slug": "porte-maillot", "name": "Porte Maillot" },
+    { "slug": "argentine", "name": "Argentine" },
+    { "slug": "charles-de-gaulle-etoile", "name": "Charles de Gaulle — Étoile" },
+    { "slug": "george-v", "name": "George V" },
+    { "slug": "franklin-d-roosevelt", "name": "Franklin D. Roosevelt" },
+    { "slug": "champs-elysees-clemenceau", "name": "Champs-Élysées — Clemenceau" },
+    { "slug": "concorde", "name": "Concorde" },
+    { "slug": "tuileries", "name": "Tuileries" },
+    { "slug": "palais-royal", "name": "Palais Royal — Musée du Louvre" },
+    { "slug": "louvre-rivoli", "name": "Louvre — Rivoli" },
+    { "slug": "chatelet", "name": "Châtelet" },
+    { "slug": "hotel-de-ville", "name": "Hôtel de Ville" },
+    { "slug": "saint-paul", "name": "Saint-Paul" },
+    { "slug": "bastille", "name": "Bastille" },
+    { "slug": "gare-de-lyon", "name": "Gare de Lyon" },
+    { "slug": "reuilly-diderot", "name": "Reuilly — Diderot" },
+    { "slug": "nation", "name": "Nation" },
+    { "slug": "porte-de-vincennes", "name": "Porte de Vincennes" },
+    { "slug": "saint-mande", "name": "Saint-Mandé" },
+    { "slug": "berault", "name": "Bérault" },
+    { "slug": "chateau-de-vincennes", "name": "Château de Vincennes" }
+  ]
+}

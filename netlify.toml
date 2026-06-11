@@ -1,0 +1,19 @@
+# Build cloud Netlify — rien ne se construit sur la machine locale.
+[build]
+  command = "corepack enable && pnpm install --frozen-lockfile && pnpm build"
+  publish = "app/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# SPA : toutes les routes vers index.html (react-router)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Le service worker ne doit jamais être servi depuis le cache HTTP
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"

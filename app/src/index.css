@@ -1,0 +1,64 @@
+@import 'tailwindcss';
+
+/* ── Design tokens — DA "Cyberpunk Parisien Souterrain" ─────────────── */
+@theme {
+  --color-tunnel: #0d1014;
+  --color-tunnel-2: #10141a;
+  --color-quai: #161c25;
+  --color-quai-hi: #1d2530;
+  --color-rail: #2a3340;
+  --color-neon: #f2f4f8;
+  --color-neon-dim: #9aa6b4;
+  --color-neon-faint: #5d6975;
+  --color-cyan-metro: #6ec4e8;
+  --color-magenta-metro: #cf009e;
+  --color-gold-metro: #f2c200;
+  --color-guimard: #1f8a52;
+  --color-m1: #f2c200;
+
+  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #1a2230 0%, transparent 60%),
+    var(--color-tunnel);
+  color: var(--color-neon);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+/* zone sûre iOS (encoche / barre home) */
+.safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
+.safe-top { padding-top: env(safe-area-inset-top); }
+
+/* micro-interactions "juicy" */
+@keyframes pop-in {
+  0% { transform: scale(0.6); opacity: 0; }
+  70% { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop { animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+@keyframes slide-up {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-slide-up { animation: slide-up 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes count-glow {
+  0%, 100% { text-shadow: 0 0 12px rgba(242, 194, 0, 0.35); }
+  50% { text-shadow: 0 0 26px rgba(242, 194, 0, 0.8); }
+}
+.animate-glow { animation: count-glow 1.6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop, .animate-slide-up, .animate-glow { animation: none; }
+}

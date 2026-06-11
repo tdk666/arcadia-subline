@@ -1,0 +1,19 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build outputs
+dist/
+dev-dist/
+*.tsbuildinfo
+
+# env & secrets — les clés Supabase ne vont JAMAIS dans Git
+.env
+.env.*
+!.env.example
+
+# tooling
+.netlify/
+.vite/
+*.log
+.DS_Store

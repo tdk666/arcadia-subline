@@ -1,0 +1,90 @@
+import type { Dict } from './fr';
+
+export const en: Dict = {
+  app: { name: 'Arcadia SubLine', tagline: 'Conquer your line' },
+  nav: { map: 'Map', leaderboard: 'Ranking', profile: 'Profile' },
+  common: {
+    back: 'Back', cancel: 'Cancel', loading: 'Loading…', retry: 'Retry',
+    soon: 'Soon', error: 'Something went wrong', offline: 'Offline',
+  },
+  demo: {
+    banner: 'Demo mode — scores simulated locally',
+    detail: 'Plug in your Supabase keys to enable real scores.',
+  },
+  map: {
+    title: 'Line 1', subtitle: 'La Défense — Château de Vincennes',
+    conquered: '{n} station conquered', conqueredPlural: '{n} stations conquered',
+    playWithoutAccount: 'Play without an account — your first conquest awaits.',
+    challengeAvailable: 'Challenge available',
+  },
+  station: {
+    states: { locked: 'To conquer', discovered: 'Discovered', visited: 'Visited', mastered: 'Mastered' },
+    mastery: 'Mastery', play: 'Play', replay: 'Replay',
+    story: { title: 'The story', lockedHint: 'Win a game to unlock the knowledge card.' },
+    master: { title: 'Station Master', hint: 'Mastery ≥ 80 + verified on-site presence.', earned: 'You are Master of this station!' },
+    comingSoon: 'This station opens its challenge soon.',
+    tiers: { bronze: 'Bronze', silver: 'Silver', gold: 'Gold' },
+    tierLocked: 'Finish the previous tier',
+    tierDone: 'Cleared',
+    rules: {
+      bronze: '{shots} cannonballs · standard fortress',
+      silver: '{shots} cannonballs · reinforced walls · {pct}% to destroy',
+      gold: '{shots} cannonballs · iron plates · {pct}% · {time}s timer',
+    },
+  },
+  checkin: {
+    title: 'Are you there?',
+    subtitle: 'Confirm your presence to aim for Master status.',
+    cta: 'I am at {station}',
+    done: 'Presence confirmed',
+    activeUntil: 'Check-in active',
+    cooldown: 'Too soon after your last check-in elsewhere — wait a moment ({s}s).',
+    needAccount: 'Create an account to confirm your presence.',
+    optional: 'Optional — the game stays fully playable without it.',
+    methodManual: 'Declarative',
+    future: 'Coming: station sign photo (AI) and journey detection.',
+  },
+  game: {
+    quit: 'Quit this run?', quitConfirm: 'Quit', quitStay: 'Keep playing',
+    submitting: 'Computing server score…',
+  },
+  result: {
+    victory: 'Victory!', defeat: 'The fortress holds…',
+    score: 'Score', xp: 'XP', mastery: 'Mastery',
+    bestScore: 'No improvement on your best score — XP rewards the margin.',
+    flagged: 'Attempt flagged by the server (abnormal duration or telemetry).',
+    localOnly: 'Run not saved',
+    replay: 'Replay', nextTier: 'Next tier', toLeaderboard: 'See ranking', toStation: 'Back to station',
+    guestSave: {
+      title: 'Save your conquest!',
+      body: 'Create an account to save your score, your mastery and climb the line ranking.',
+      cta: 'Create my account', later: 'Later',
+    },
+  },
+  auth: {
+    signupTitle: 'Create an account', loginTitle: 'Sign in',
+    email: 'Email', password: 'Password (8+ characters)', displayName: 'Nickname',
+    signup: 'Create my account', login: 'Sign in',
+    toLogin: 'Already have an account? Sign in', toSignup: 'No account? Sign up',
+    signoutCta: 'Sign out',
+    errors: {
+      generic: 'Failed — check your credentials.',
+      demoMode: 'Demo mode: add your Supabase keys to enable accounts.',
+    },
+    pendingSync: 'Saving your guest victories…',
+  },
+  leaderboard: {
+    title: 'Ranking', subtitle: 'Line 1 — conquer your line',
+    empty: 'Nobody on the board yet. Be the first!',
+    you: 'you', rank: 'Rank', player: 'Player', score: 'Score',
+    guestHint: 'Create an account to appear on the ranking.',
+  },
+  profile: {
+    title: 'Profile', guest: 'Guest traveller',
+    xp: 'Total XP', streak: 'Streak', streakUnit: 'd', stations: 'Stations conquered',
+    language: 'Language', install: 'Install the app',
+    installHint: 'Add Arcadia to your home screen to play full-screen.',
+    connected: 'Signed in: {email}',
+    localProgress: 'Local progress (guest)',
+  },
+};

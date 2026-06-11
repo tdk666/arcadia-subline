@@ -1,0 +1,14 @@
+{
+  "name": "arcadia-subline",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Arcadia SubLine — le métro parisien comme plateau de jeu culturel",
+  "scripts": {
+    "dev": "pnpm --filter @arcadia/app dev",
+    "build": "pnpm --filter @arcadia/app build",
+    "preview": "pnpm --filter @arcadia/app preview",
+    "typecheck": "pnpm -r typecheck",
+    "icons": "node app/scripts/gen-icons.mjs"
+  },
+  "packageManager": "pnpm@10.33.0"
+}
