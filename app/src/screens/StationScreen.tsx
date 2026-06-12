@@ -8,6 +8,8 @@ import { presenceProviders } from '../lib/presence';
 import { useArcadia } from '../store';
 import { AuthSheet } from '../components/AuthSheet';
 
+const EMPTY_TIERS: DifficultyTier[] = [];
+
 const TIER_STYLE: Record<DifficultyTier, { ring: string; text: string }> = {
   bronze: { ring: 'border-[#b87333]', text: 'text-[#e0945a]' },
   silver: { ring: 'border-[#9aa6b4]', text: 'text-[#c9d2dc]' },
@@ -21,7 +23,7 @@ export function StationScreen() {
   const content = getStationContent(slug);
 
   const user = useArcadia((s) => s.user);
-  const tiersWon = useArcadia((s) => s.tiersWon[slug] ?? []);
+  const tiersWon = useArcadia((s) => s.tiersWon[slug]) ?? EMPTY_TIERS;
   const masteryLocal = useArcadia((s) => s.mastery[slug] ?? 0);
   const storyUnlocked = useArcadia((s) => s.storyUnlocked[slug] ?? false);
   const isTierUnlocked = useArcadia((s) => s.isTierUnlocked);
