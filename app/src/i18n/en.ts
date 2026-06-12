@@ -6,6 +6,30 @@ export const en: Dict = {
   common: {
     back: 'Back', cancel: 'Cancel', loading: 'Loading…', retry: 'Retry',
     soon: 'Soon', error: 'Something went wrong', offline: 'Offline',
+    skip: 'Skip', continue: 'Continue',
+  },
+  errorScreen: {
+    title: 'Train held at platform',
+    body: 'A technical incident interrupted the journey. Your conquests are safe.',
+    cta: 'Resume the journey',
+  },
+  onboarding: {
+    s1: {
+      kicker: 'Line 6 — above the Seine',
+      title: 'Look up.',
+      body: 'Every day, the train passes the Eiffel Tower. And every day, everyone stares at their screen. Not you. Not anymore.',
+    },
+    s2: {
+      kicker: 'Beneath your feet',
+      title: 'Paris is your board.',
+      body: '302 stations, 16 lines, two thousand years of History. The world’s greatest playground was sleeping under the city.',
+    },
+    s3: {
+      kicker: 'Your mission',
+      title: 'Conquer your line.',
+      body: 'Every station bears a name, every name a story, every story a challenge. Win them. Become Master of your stations.',
+    },
+    cta: 'Begin the conquest',
   },
   demo: {
     banner: 'Demo mode — scores simulated locally',
@@ -13,9 +37,13 @@ export const en: Dict = {
   },
   map: {
     title: 'Line 1', subtitle: 'La Défense — Château de Vincennes',
+    board: 'Your conquest board',
+    progress: 'Line conquest',
     conquered: '{n} station conquered', conqueredPlural: '{n} stations conquered',
     playWithoutAccount: 'Play without an account — your first conquest awaits.',
     challengeAvailable: 'Challenge available',
+    heroKicker: 'Today’s challenge',
+    heroCta: 'Storm it',
   },
   station: {
     states: { locked: 'To conquer', discovered: 'Discovered', visited: 'Visited', mastered: 'Mastered' },
@@ -31,6 +59,13 @@ export const en: Dict = {
       silver: '{shots} cannonballs · reinforced walls · {pct}% to destroy',
       gold: '{shots} cannonballs · iron plates · {pct}% · {time}s timer',
     },
+  },
+  brief: {
+    objective: 'Objective',
+    objectiveText: 'Knock down the {targets} royal standards',
+    objectiveExtra: 'and destroy {pct}% of the fortress',
+    objectiveTime: 'within {time} seconds',
+    cta: 'Storm the fortress!',
   },
   checkin: {
     title: 'Are you there?',
@@ -49,7 +84,8 @@ export const en: Dict = {
     submitting: 'Computing server score…',
   },
   result: {
-    victory: 'Victory!', defeat: 'The fortress holds…',
+    victory: 'The Bastille has fallen!', defeat: 'The fortress holds…',
+    victoryGeneric: 'Victory!',
     score: 'Score', xp: 'XP', mastery: 'Mastery',
     bestScore: 'No improvement on your best score — XP rewards the margin.',
     flagged: 'Attempt flagged by the server (abnormal duration or telemetry).',
@@ -60,6 +96,13 @@ export const en: Dict = {
       body: 'Create an account to save your score, your mastery and climb the line ranking.',
       cta: 'Create my account', later: 'Later',
     },
+  },
+  archive: {
+    unlocked: 'Archive unlocked',
+    open: 'Open the archive',
+    sealed: 'Sealed by History',
+    number: 'Memory no.{n}',
+    keep: 'Add to my collection',
   },
   auth: {
     signupTitle: 'Create an account', loginTitle: 'Sign in',
@@ -77,14 +120,22 @@ export const en: Dict = {
     title: 'Ranking', subtitle: 'Line 1 — conquer your line',
     empty: 'Nobody on the board yet. Be the first!',
     you: 'you', rank: 'Rank', player: 'Player', score: 'Score',
+    rival: 'Your next rival',
+    rivalGap: '{n} points away',
     guestHint: 'Create an account to appear on the ranking.',
   },
   profile: {
     title: 'Profile', guest: 'Guest traveller',
     xp: 'Total XP', streak: 'Streak', streakUnit: 'd', stations: 'Stations conquered',
+    rank: 'Title',
+    ranks: {
+      r0: 'Onlooker', r1: 'Citizen', r2: 'Rioter', r3: 'Sans-culotte',
+      r4: 'Conqueror', r5: 'Legend of the network',
+    },
     language: 'Language', install: 'Install the app',
     installHint: 'Add Arcadia to your home screen to play full-screen.',
     connected: 'Signed in: {email}',
     localProgress: 'Local progress (guest)',
+    replayIntro: 'Replay the intro',
   },
 };

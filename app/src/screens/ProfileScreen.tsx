@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react';
-import { useI18n, type Locale } from '../i18n';
+import { useI18n, type I18nKey, type Locale } from '../i18n';
 import { backend } from '../lib/backend';
 import { LINE } from '../lib/content';
 import { useArcadia } from '../store';
 import { AuthSheet } from '../components/AuthSheet';
+
+/** Titre révolutionnaire selon l'XP — l'identité progresse avec la conquête. */
+function rankLabel(t: (k: I18nKey) => string, xp: number): string {
+  const tier = xp >= 8000 ? 'r5' : xp >= 4000 ? 'r4' : xp >= 2000 ? 'r3' : xp >= 800 ? 'r2' : xp > 0 ? 'r1' : 'r0';
+  return t(`profile.ranks.${tier}` as I18nKey);
+}
 
 export function ProfileScreen() {
   const { t, locale, setLocale } = useI18n();
@@ -32,8 +38,13 @@ export function ProfileScreen() {
     <div className="px-4 pb-6 pt-5">
       <h1 className="font-display text-2xl font-extrabold tracking-tight">{t('profile.title')}</h1>
 
-      <div className="mt-4 rounded-2xl border border-rail bg-quai p-5">
-        <p className="font-display text-lg font-bold">
+      {/* carte d'identité du conquérant */}
+      <div className="relative mt-4 overflow-hidden rounded-2xl border border-rail bg-gradient-to-br from-[#1b1530] via-quai to-quai p-5">
+        <div className="pointer-events-none absolute -right-4 -top-6 text-[80px] opacity-10">◈</div>
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-magenta-metro">
+          {t('profile.rank')} — {rankLabel(t, stats?.xpTotal ?? 0)}
+        </p>
+        <p className="mt-1 font-display text-xl font-extrabold">
           {user ? user.displayName : t('profile.guest')}
         </p>
         <p className="mt-0.5 text-xs text-neon-faint">
@@ -89,6 +100,15 @@ export function ProfileScreen() {
           ))}
         </div>
       </div>
+
+      {/* revoir l'intro */}
+      <button
+        type="button"
+        className="mt-4 w-full rounded-2xl border border-rail bg-quai px-5 py-4 text-left text-sm font-semibold active:bg-quai-hi"
+        onClick={() => window.dispatchEvent(new Event('arcadia:replay-intro'))}
+      >
+        ▶ {t('profile.replayIntro')}
+      </button>
 
       {/* installation PWA */}
       <div className="mt-4 rounded-2xl border border-rail bg-quai px-5 py-4">

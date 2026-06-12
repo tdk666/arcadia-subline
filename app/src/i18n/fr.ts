@@ -4,6 +4,30 @@ export const fr = {
   common: {
     back: 'Retour', cancel: 'Annuler', loading: 'Chargement…', retry: 'Réessayer',
     soon: 'Bientôt', error: 'Une erreur est survenue', offline: 'Hors connexion',
+    skip: 'Passer', continue: 'Continuer',
+  },
+  errorScreen: {
+    title: 'Rame à quai',
+    body: 'Un incident technique interrompt le trajet. Tes conquêtes sont en sécurité.',
+    cta: 'Reprendre le voyage',
+  },
+  onboarding: {
+    s1: {
+      kicker: 'Ligne 6 — au-dessus de la Seine',
+      title: 'Lève les yeux.',
+      body: 'Chaque jour, la rame passe devant la tour Eiffel. Et chaque jour, tout le monde regarde son écran. Pas toi. Plus maintenant.',
+    },
+    s2: {
+      kicker: 'Sous tes pieds',
+      title: 'Paris est ton plateau.',
+      body: '302 stations, 16 lignes, deux mille ans d’Histoire. Le plus grand terrain de jeu du monde dormait sous la ville.',
+    },
+    s3: {
+      kicker: 'Ta mission',
+      title: 'Conquiers ta ligne.',
+      body: 'Chaque station porte un nom, chaque nom une histoire, chaque histoire un défi. Gagne-les. Deviens Maître de tes stations.',
+    },
+    cta: 'Commencer la conquête',
   },
   demo: {
     banner: 'Mode démo — scores simulés localement',
@@ -11,9 +35,13 @@ export const fr = {
   },
   map: {
     title: 'Ligne 1', subtitle: 'La Défense — Château de Vincennes',
+    board: 'Ton plateau de conquête',
+    progress: 'Conquête de la ligne',
     conquered: '{n} station conquise', conqueredPlural: '{n} stations conquises',
     playWithoutAccount: 'Joue sans compte — ta première conquête t’attend.',
     challengeAvailable: 'Défi disponible',
+    heroKicker: 'Défi du jour',
+    heroCta: 'À l’assaut',
   },
   station: {
     states: { locked: 'À conquérir', discovered: 'Découverte', visited: 'Visitée', mastered: 'Maîtrisée' },
@@ -29,6 +57,13 @@ export const fr = {
       silver: '{shots} boulets · murs renforcés · {pct} % à détruire',
       gold: '{shots} boulets · plaques de fer · {pct} % · {time} s chrono',
     },
+  },
+  brief: {
+    objective: 'Objectif',
+    objectiveText: 'Abats les {targets} étendards royaux',
+    objectiveExtra: 'et détruis {pct} % de la forteresse',
+    objectiveTime: 'en {time} secondes',
+    cta: 'À l’assaut !',
   },
   checkin: {
     title: 'Tu es sur place ?',
@@ -47,7 +82,8 @@ export const fr = {
     submitting: 'Calcul du score serveur…',
   },
   result: {
-    victory: 'Victoire !', defeat: 'La forteresse tient bon…',
+    victory: 'La Bastille est tombée !', defeat: 'La forteresse tient bon…',
+    victoryGeneric: 'Victoire !',
     score: 'Score', xp: 'XP', mastery: 'Maîtrise',
     bestScore: 'Pas de progression sur ton meilleur score — l’XP récompense la marge.',
     flagged: 'Tentative signalée par le serveur (durée ou télémétrie anormale).',
@@ -58,6 +94,13 @@ export const fr = {
       body: 'Crée un compte pour enregistrer ton score, ta maîtrise et grimper au classement de la ligne.',
       cta: 'Créer mon compte', later: 'Plus tard',
     },
+  },
+  archive: {
+    unlocked: 'Archive débloquée',
+    open: 'Ouvrir l’archive',
+    sealed: 'Scellé par l’Histoire',
+    number: 'Mémoire n°{n}',
+    keep: 'Ajouter à ma collection',
   },
   auth: {
     signupTitle: 'Créer un compte', loginTitle: 'Se connecter',
@@ -75,15 +118,23 @@ export const fr = {
     title: 'Classement', subtitle: 'Ligne 1 — conquiers ta ligne',
     empty: 'Personne au classement pour l’instant. Sois le premier !',
     you: 'toi', rank: 'Rang', player: 'Joueur', score: 'Score',
+    rival: 'Ton prochain rival',
+    rivalGap: 'à {n} points',
     guestHint: 'Crée un compte pour apparaître au classement.',
   },
   profile: {
     title: 'Profil', guest: 'Voyageur invité',
     xp: 'XP total', streak: 'Série', streakUnit: 'j', stations: 'Stations conquises',
+    rank: 'Titre',
+    ranks: {
+      r0: 'Badaud', r1: 'Citoyen·ne', r2: 'Émeutier·ère', r3: 'Sans-culotte',
+      r4: 'Conquérant·e', r5: 'Légende du réseau',
+    },
     language: 'Langue', install: 'Installer l’app',
     installHint: 'Ajoute Arcadia à ton écran d’accueil pour jouer en plein écran.',
     connected: 'Connecté : {email}',
     localProgress: 'Progression locale (invité)',
+    replayIntro: 'Revoir l’intro',
   },
 } as const;
 

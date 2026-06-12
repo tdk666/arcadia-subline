@@ -41,6 +41,28 @@ export function LeaderboardScreen() {
         <p className="mt-6 text-center text-sm text-neon-dim">{t('leaderboard.empty')}</p>
       )}
 
+      {/* rivalité vivante : la cible juste au-dessus de toi */}
+      {entries !== null && (() => {
+        const meIdx = entries.findIndex((e) => e.isMe);
+        if (meIdx <= 0) return null;
+        const rival = entries[meIdx - 1];
+        const gap = rival.score - entries[meIdx].score;
+        return (
+          <div className="animate-slide-up mt-4 flex items-center gap-3 rounded-2xl border border-magenta-metro/50 bg-magenta-metro/10 px-4 py-3">
+            <span className="text-xl">⚔</span>
+            <div className="min-w-0 flex-1">
+              <p className="font-mono text-[10px] uppercase tracking-widest text-magenta-metro">
+                {t('leaderboard.rival')}
+              </p>
+              <p className="truncate text-sm font-bold text-neon">{rival.displayName}</p>
+            </div>
+            <span className="font-mono text-xs font-bold text-magenta-metro">
+              {t('leaderboard.rivalGap', { n: gap.toLocaleString() })}
+            </span>
+          </div>
+        );
+      })()}
+
       {entries !== null && entries.length > 0 && (
         <ol className="mt-5 flex flex-col gap-1.5">
           {entries.map((e) => (

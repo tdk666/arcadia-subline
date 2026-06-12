@@ -26,6 +26,37 @@
       "params": { "maxShots": 3, "hpMultiplier": 1.8, "targetPct": 50, "timeLimitS": 75, "reinforced": true }
     }
   },
+  "briefs": {
+    "bronze": {
+      "date": { "fr": "14 juillet 1789 — matin", "en": "July 14th, 1789 — morning" },
+      "title": { "fr": "La rumeur enfle", "en": "The rumour swells" },
+      "body": {
+        "fr": "Le peuple de Paris marche sur la forteresse. Huit tours, des murs de trois mètres — et toi, un canon. On raconte que certains ont escaladé ses tours… toi, tu vas les faire tomber.",
+        "en": "The people of Paris march on the fortress. Eight towers, three-metre walls — and you, one cannon. Some say a few have climbed those towers… you are going to bring them down."
+      }
+    },
+    "silver": {
+      "date": { "fr": "14 juillet 1789 — après-midi", "en": "July 14th, 1789 — afternoon" },
+      "title": { "fr": "La garde se renforce", "en": "The guard digs in" },
+      "body": {
+        "fr": "Les invalides ont rejoint l'assaut, mais la garnison consolide les murs. Moins de poudre, des pierres plus dures. « Est-ce une révolte ? — Non Sire, c'est une révolution. »",
+        "en": "Veterans have joined the assault, but the garrison shores up the walls. Less powder, harder stone. “Is it a revolt? — No Sire, it is a revolution.”"
+      }
+    },
+    "gold": {
+      "date": { "fr": "14 juillet 1789 — l'assaut final", "en": "July 14th, 1789 — the final assault" },
+      "title": { "fr": "Avant la nuit", "en": "Before nightfall" },
+      "body": {
+        "fr": "Plaques de fer sur les courtines, trois boulets, et le jour qui tombe. Ce soir, Paris dansera sur les ruines — à toi d'écrire la première page de l'Histoire.",
+        "en": "Iron plates on the walls, three cannonballs, and the light is fading. Tonight Paris will dance on the ruins — yours is the first page of History."
+      }
+    }
+  },
+  "archive": {
+    "number": "001",
+    "collection": { "fr": "Mémoires de Paris", "en": "Memories of Paris" },
+    "era": { "fr": "Révolution française", "en": "French Revolution" }
+  },
   "story": {
     "teaser": {
       "fr": "14 juillet 1789. Huit tours, des murs de trois mètres d'épaisseur… et seulement sept prisonniers à l'intérieur.",

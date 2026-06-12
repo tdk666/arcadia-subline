@@ -28,6 +28,8 @@ export interface StationContent {
     tagline: LocalizedText;
   };
   quests: Record<DifficultyTier, { questId: string; params: Record<string, unknown> }>;
+  briefs: Record<DifficultyTier, { date: LocalizedText; title: LocalizedText; body: LocalizedText }>;
+  archive: { number: string; collection: LocalizedText; era: LocalizedText };
   story: {
     teaser: LocalizedText;
     body: LocalizedText;

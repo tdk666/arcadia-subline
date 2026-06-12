@@ -1,15 +1,19 @@
-import { Suspense, lazy, useMemo, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   getGame, TIER_ORDER,
   type DifficultyTier, type GameProps, type GameResult,
 } from '@arcadia/games';
-import { useI18n } from '../i18n';
+import { pickText, useI18n } from '../i18n';
 import { backend } from '../lib/backend';
 import { getStationContent, type StationContent } from '../lib/content';
 import { previewDemolitionScore } from '../lib/scoring';
 import { useArcadia, type LastResult } from '../store';
 import { ResultView } from '../components/ResultView';
+
+const TIER_COLOR: Record<DifficultyTier, string> = {
+  bronze: '#e0945a', silver: '#c9d2dc', gold: '#f2c200',
+};
 
 export function GameScreen() {
   const { slug = '', tier = 'bronze' } = useParams();
@@ -25,9 +29,18 @@ export function GameScreen() {
   const queuePending = useArcadia((s) => s.queuePending);
   const isTierUnlocked = useArcadia((s) => s.isTierUnlocked);
 
-  const [phase, setPhase] = useState<'play' | 'submitting' | 'result'>('play');
+  // brief → play → submitting → result ; runId force un moteur neuf au rejouer
+  const [phase, setPhase] = useState<'brief' | 'play' | 'submitting' | 'result'>('brief');
+  const [runId, setRunId] = useState(0);
   const [result, setResult] = useState<LastResult | null>(null);
   const [quitAsk, setQuitAsk] = useState(false);
+
+  const allowed = !!content && isTierUnlocked(slug, difficulty);
+
+  // redirection HORS rendu (la naviguer pendant le rendu casse React Router)
+  useEffect(() => {
+    if (!allowed) navigate(`/station/${slug}`, { replace: true });
+  }, [allowed, navigate, slug]);
 
   const Game = useMemo(() => {
     if (!content) return null;
@@ -35,12 +48,11 @@ export function GameScreen() {
     return lazy(def.load) as React.ComponentType<GameProps>;
   }, [content]);
 
-  if (!content || !Game || !isTierUnlocked(slug, difficulty)) {
-    navigate(`/station/${slug}`, { replace: true });
-    return null;
-  }
+  if (!allowed || !content || !Game) return null;
 
   const quest = content.quests[difficulty];
+  const brief = content.briefs[difficulty];
+  const params = quest.params as Record<string, number>;
 
   async function onFinish(gameResult: GameResult) {
     const c = content as StationContent;
@@ -77,9 +89,61 @@ export function GameScreen() {
     setPhase('result');
   }
 
+  function replay(nextTier?: DifficultyTier) {
+    if (nextTier) {
+      navigate(`/play/${slug}/${nextTier}`, { replace: true });
+    }
+    setResult(null);
+    setRunId((n) => n + 1);
+    setPhase('brief');
+  }
+
   return (
-    <div className="fixed inset-0 bg-tunnel">
-      {phase !== 'result' && (
+    <div className="fixed inset-0 mx-auto max-w-md bg-tunnel">
+      {/* ── BRIEFING : le cadre narratif pose l'enjeu avant l'assaut ── */}
+      {phase === 'brief' && (
+        <div className="flex h-full flex-col items-center justify-center gap-6 px-7 text-center">
+          <div className="animate-slide-up w-full">
+            <p className="font-mono text-[11px] uppercase tracking-[0.25em]" style={{ color: TIER_COLOR[difficulty] }}>
+              {pickText(brief.date, locale)}
+            </p>
+            <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-neon">
+              {pickText(brief.title, locale)}
+            </h1>
+            <p className="mt-4 text-[15px] leading-relaxed text-neon-dim">
+              {pickText(brief.body, locale)}
+            </p>
+          </div>
+
+          <div className="animate-slide-up w-full rounded-2xl border border-rail bg-quai/80 px-5 py-4 text-left" style={{ animationDelay: '0.12s' }}>
+            <p className="font-mono text-[10px] uppercase tracking-widest text-neon-faint">{t('brief.objective')}</p>
+            <p className="mt-1.5 text-sm font-semibold text-neon">
+              ⚜ {t('brief.objectiveText', { targets: 3 })}
+              {params.targetPct > 0 && <><br />💥 {t('brief.objectiveExtra', { pct: params.targetPct })}</>}
+              {params.timeLimitS > 0 && <><br />⏱ {t('brief.objectiveTime', { time: params.timeLimitS })}</>}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setPhase('play')}
+            className="animate-pop w-full max-w-xs rounded-2xl py-4 font-display text-lg font-extrabold text-tunnel shadow-[0_0_30px_rgba(242,194,0,0.35)] transition active:scale-[0.97]"
+            style={{ background: TIER_COLOR[difficulty], animationDelay: '0.25s' }}
+          >
+            ⚔ {t('brief.cta')}
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate(`/station/${slug}`)}
+            className="font-mono text-xs text-neon-faint active:text-neon-dim"
+          >
+            ← {t('common.back')}
+          </button>
+        </div>
+      )}
+
+      {/* ── JEU ── */}
+      {(phase === 'play' || phase === 'submitting') && (
         <Suspense
           fallback={
             <div className="flex h-full items-center justify-center font-mono text-sm text-neon-faint">
@@ -88,6 +152,7 @@ export function GameScreen() {
           }
         >
           <Game
+            key={runId}
             ctx={{
               questId: quest.questId,
               stationId: content.stationId,
@@ -110,7 +175,12 @@ export function GameScreen() {
       )}
 
       {phase === 'result' && result && (
-        <ResultView result={result} stationName={content.name} />
+        <ResultView
+          result={result}
+          station={content}
+          onReplay={() => replay()}
+          onNextTier={(nt) => replay(nt)}
+        />
       )}
 
       {quitAsk && (

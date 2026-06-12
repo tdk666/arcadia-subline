@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { TIER_ORDER } from '@arcadia/games';
-import { useI18n } from '../i18n';
+import { Link } from 'react-router-dom';
+import { TIER_ORDER, type DifficultyTier } from '@arcadia/games';
+import { pickText, useI18n } from '../i18n';
 import { backend } from '../lib/backend';
+import type { StationContent } from '../lib/content';
 import { useArcadia, type LastResult } from '../store';
 import { AuthSheet } from './AuthSheet';
 
@@ -25,21 +26,104 @@ function CountUp({ value }: { value: number }) {
   return <>{shown}</>;
 }
 
-export function ResultView({ result, stationName }: { result: LastResult; stationName: string }) {
+/* ── LE PAYOFF CULTUREL : l'archive comme objet de collection ───────── */
+
+function ArchiveCard({ station, onClose }: { station: StationContent; onClose: () => void }) {
+  const { t, locale } = useI18n();
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 px-5" onClick={onClose}>
+      <div
+        className="animate-stamp relative max-h-[82vh] w-full max-w-sm overflow-y-auto rounded-2xl border-2 border-guimard/70 bg-[#11181380] bg-quai p-6"
+        style={{ background: 'linear-gradient(165deg, #14211a 0%, #161c25 45%)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* balayage lumineux de révélation */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
+          <div className="animate-shine absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        </div>
+
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#4dd08a]">
+              {pickText(station.archive.collection, locale)}
+            </p>
+            <p className="mt-0.5 font-mono text-[10px] text-neon-faint">
+              {t('archive.number', { n: station.archive.number })} · {pickText(station.archive.era, locale)}
+            </p>
+          </div>
+          {/* sceau */}
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#4dd08a]/70 font-display text-xl text-[#4dd08a]">
+            ⚜
+          </div>
+        </div>
+
+        <h2 className="mt-4 font-display text-2xl font-extrabold tracking-tight text-neon">
+          {station.name}
+        </h2>
+        <p className="mt-1 text-sm italic text-[#4dd08a]">{pickText(station.story.teaser, locale)}</p>
+
+        <p className="mt-4 text-sm leading-relaxed text-neon-dim">
+          {pickText(station.story.body, locale)}
+        </p>
+
+        <ul className="mt-4 flex flex-col gap-2">
+          {(station.story.facts[locale] ?? station.story.facts.fr).map((f, i) => (
+            <li
+              key={f}
+              className="animate-slide-up flex items-center gap-2.5 rounded-lg border border-guimard/30 bg-guimard/10 px-3 py-2 text-xs text-neon"
+              style={{ animationDelay: `${0.5 + i * 0.15}s` }}
+            >
+              <span className="text-[#4dd08a]">◈</span>{f}
+            </li>
+          ))}
+        </ul>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-5 w-full rounded-xl bg-guimard py-3 font-display font-bold text-white active:scale-[0.98]"
+        >
+          {t('archive.keep')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Écran de résultat ──────────────────────────────────────────────── */
+
+export function ResultView({
+  result, station, onReplay, onNextTier,
+}: {
+  result: LastResult;
+  station: StationContent;
+  onReplay: () => void;
+  onNextTier: (tier: DifficultyTier) => void;
+}) {
   const { t } = useI18n();
-  const navigate = useNavigate();
   const user = useArcadia((s) => s.user);
   const [authOpen, setAuthOpen] = useState(false);
+  const [archiveOpen, setArchiveOpen] = useState(false);
   // point de conversion : APRÈS la victoire, si invité en mode Supabase
   const showGuestSave = result.success && !user && backend.mode === 'supabase';
+
+  const archiveSeenKey = `arcadia.archive.seen.${station.slug}`;
+  const archiveIsNew = result.success && !localStorage.getItem(archiveSeenKey);
 
   const tierIdx = TIER_ORDER.indexOf(result.tier);
   const nextTier = tierIdx >= 0 && tierIdx < TIER_ORDER.length - 1 ? TIER_ORDER[tierIdx + 1] : null;
 
+  function openArchive() {
+    localStorage.setItem(archiveSeenKey, '1');
+    setArchiveOpen(true);
+  }
+
   return (
-    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-5 bg-tunnel/95 px-6 text-center">
+    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 overflow-y-auto bg-tunnel/95 px-6 py-8 text-center">
       <div className="animate-pop">
-        <p className="font-mono text-xs uppercase tracking-widest text-neon-faint">{stationName} · {t(`station.tiers.${result.tier}`)}</p>
+        <p className="font-mono text-xs uppercase tracking-widest text-neon-faint">
+          {station.name} · {t(`station.tiers.${result.tier}`)}
+        </p>
         <h1
           className={`mt-1 font-display text-4xl font-extrabold tracking-tight ${
             result.success ? 'animate-glow text-gold-metro' : 'text-neon-dim'
@@ -79,8 +163,31 @@ export function ResultView({ result, stationName }: { result: LastResult; statio
         )}
       </div>
 
+      {/* la récompense culturelle : un objet à ouvrir, pas un bloc de texte */}
+      {result.success && (
+        <button
+          type="button"
+          onClick={openArchive}
+          className="animate-slide-up flex w-full max-w-xs items-center gap-3 rounded-2xl border-2 border-guimard/60 bg-guimard/10 px-4 py-3 text-left transition active:scale-[0.98]"
+          style={{ animationDelay: '0.2s' }}
+        >
+          <span className={`flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#4dd08a] text-xl ${archiveIsNew ? 'animate-glow' : ''}`}>
+            ⚜
+          </span>
+          <span className="flex-1">
+            <span className="block font-display text-sm font-bold text-[#4dd08a]">
+              {archiveIsNew ? `★ ${t('archive.unlocked')}` : t('station.story.title')}
+            </span>
+            <span className="block font-mono text-[10px] text-neon-faint">
+              {t('archive.number', { n: station.archive.number })} — {t('archive.open')}
+            </span>
+          </span>
+          <span className="text-neon-faint">›</span>
+        </button>
+      )}
+
       {showGuestSave && (
-        <div className="animate-slide-up w-full max-w-xs rounded-2xl border border-gold-metro/50 bg-gold-metro/10 p-4">
+        <div className="animate-slide-up w-full max-w-xs rounded-2xl border border-gold-metro/50 bg-gold-metro/10 p-4" style={{ animationDelay: '0.3s' }}>
           <p className="font-display font-bold text-gold-metro">★ {t('result.guestSave.title')}</p>
           <p className="mt-1 text-xs text-neon-dim">{t('result.guestSave.body')}</p>
           <button
@@ -98,7 +205,7 @@ export function ResultView({ result, stationName }: { result: LastResult; statio
           <button
             type="button"
             className="rounded-xl bg-cyan-metro py-3 font-display font-bold text-tunnel active:scale-[0.98]"
-            onClick={() => { navigate(`/play/${result.slug}/${nextTier}`); navigate(0); }}
+            onClick={() => onNextTier(nextTier)}
           >
             ⬆ {t('result.nextTier')} · {t(`station.tiers.${nextTier}`)}
           </button>
@@ -106,7 +213,7 @@ export function ResultView({ result, stationName }: { result: LastResult; statio
           <button
             type="button"
             className="rounded-xl bg-cyan-metro py-3 font-display font-bold text-tunnel active:scale-[0.98]"
-            onClick={() => navigate(0)}
+            onClick={onReplay}
           >
             ↻ {t('result.replay')}
           </button>
@@ -127,6 +234,7 @@ export function ResultView({ result, stationName }: { result: LastResult; statio
         </div>
       </div>
 
+      {archiveOpen && <ArchiveCard station={station} onClose={() => setArchiveOpen(false)} />}
       {authOpen && (
         <AuthSheet intro={t('result.guestSave.body')} onClose={() => setAuthOpen(false)} />
       )}
