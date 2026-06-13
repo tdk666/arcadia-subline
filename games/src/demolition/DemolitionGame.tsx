@@ -204,7 +204,7 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
             <circle cx="16" cy="46" r="6" fill="#e0964a" opacity="0.9" />
           </svg>
           <span className="block pl-2 text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: '#e3c463' }}>
-            Tirez
+            {ctx.locale.startsWith('en') ? 'Drag' : 'Tirez'}
           </span>
         </div>
       )}
