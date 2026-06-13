@@ -100,6 +100,8 @@ export class DemolitionEngine {
   private interacted = false;
   private dragging = false;
   private dragPos: { x: number; y: number } | null = null;
+  private dragFrac = 0;            // tension de la fronde (0→1), pilote le feel de charge
+  private chargedHaptic = false;   // un seul buzz quand la charge atteint le max
   private settleSince = 0;
   private flightSince = 0;
   private trail: { x: number; y: number }[] = [];
@@ -108,6 +110,7 @@ export class DemolitionEngine {
   private rings: Ring[] = [];
   private shake = 0;
   private zoomPulse = 0;
+  private hitstop = 0;             // gel d'image (ms) sur impact lourd — « ça cogne »
   private timescale = 1;
   private timescaleTarget = 1;
   private slowMoUntil = 0;
@@ -239,6 +242,7 @@ export class DemolitionEngine {
       this.sfx?.impact(Math.min(1, speed / 14));
       if (ballInvolved && speed > 7) {
         this.haptic(20);
+        this.addHitstop(28 + Math.min(speed * 2.5, 30)); // impact lourd : ça cogne
         this.zoomPulse = Math.min(this.zoomPulse + 0.025, 0.06);
         const x = (bodyA.position.x + bodyB.position.x) / 2;
         const y = (bodyA.position.y + bodyB.position.y) / 2;
@@ -259,6 +263,7 @@ export class DemolitionEngine {
       this.debris(body, meta.material);
       this.burst(body.position.x, body.position.y, MATERIAL[meta.material].rim, 10);
       this.addShake(7);
+      this.addHitstop(32); // la pierre cède
       this.sfx?.blockDestroyed();
       this.haptic(30);
       this.pushHud();
@@ -276,6 +281,7 @@ export class DemolitionEngine {
     this.burst(body.position.x, body.position.y, '#f2c200', 26);
     this.rings.push({ x: body.position.x, y: body.position.y, r: 8, maxR: 90, life: 420, maxLife: 420, color: '#f2c200' });
     this.addShake(9);
+    if (!isLast) this.addHitstop(55); // étendard abattu : temps suspendu un éclair
     this.sfx?.targetDown(isLast);
     this.haptic(isLast ? [40, 60, 80] : 40);
     if (isLast && !this.reducedMotion) {
@@ -319,6 +325,8 @@ export class DemolitionEngine {
     this.shotsUsed++;
     this.dragging = false;
     this.dragPos = null;
+    this.dragFrac = 0;
+    this.chargedHaptic = false;
     this.sfx?.launch();
     this.haptic(15);
     this.addShake(4);
@@ -339,6 +347,15 @@ export class DemolitionEngine {
     this.raf = requestAnimationFrame(this.loop);
     const dt = Math.min(t - this.lastT, 50);
     this.lastT = t;
+
+    // HITSTOP : on gèle la simulation quelques ms sur un impact lourd. Le monde
+    // se fige, le shake reste plein → l'impact « cogne » avant de reprendre.
+    if (this.hitstop > 0) {
+      this.hitstop -= dt;
+      this.acc = 0;          // pas de rattrapage physique au dégel
+      this.render(t);
+      return;
+    }
 
     // retour fluide du ralenti vers le temps réel
     if (this.slowMoUntil && t > this.slowMoUntil) {
@@ -500,6 +517,12 @@ export class DemolitionEngine {
     this.shake = Math.min(this.shake + v, 16);
   }
 
+  /** Gel d'image bref. Jamais pendant le ralenti final (lecture brouillée). */
+  private addHitstop(ms: number) {
+    if (this.reducedMotion || this.timescale < 0.85) return;
+    this.hitstop = Math.min(70, Math.max(this.hitstop, ms));
+  }
+
   private burst(x: number, y: number, color: string, n: number) {
     if (this.reducedMotion) n = Math.min(n, 4);
     for (let i = 0; i < n; i++) {
@@ -581,6 +604,7 @@ export class DemolitionEngine {
       const d = Math.hypot(p.x - this.ball.position.x, p.y - this.ball.position.y);
       if (d < 120) {
         this.dragging = true;
+        this.chargedHaptic = false;
         if (!this.interacted) { this.interacted = true; this.pushHud(); }
         this.canvas.setPointerCapture(e.pointerId);
         move(e);
@@ -593,6 +617,10 @@ export class DemolitionEngine {
       let dy = p.y - this.level.slingY;
       const d = Math.hypot(dx, dy);
       if (d > MAX_DRAG) { dx = (dx / d) * MAX_DRAG; dy = (dy / d) * MAX_DRAG; }
+      this.dragFrac = Math.min(1, d / MAX_DRAG);
+      // un seul buzz quand l'élastique est tendu à fond (limite de portée)
+      if (this.dragFrac > 0.96 && !this.chargedHaptic) { this.chargedHaptic = true; this.haptic(8); }
+      else if (this.dragFrac < 0.9) this.chargedHaptic = false;
       this.dragPos = { x: this.level.slingX + dx, y: this.level.slingY + dy };
       Body.setPosition(this.ball, this.dragPos);
     };
@@ -656,6 +684,7 @@ export class DemolitionEngine {
     this.drawCrowd(ctx, t);
     this.drawGround(ctx);
     this.drawSling(ctx);
+    this.drawNextPave(ctx);
     this.drawBodies(ctx, t);
     this.drawTorches(ctx, t);
     if (this.dragging && this.dragPos) this.drawAim(ctx);
@@ -846,10 +875,15 @@ export class DemolitionEngine {
     ctx.moveTo(slingX + 15, groundY);
     ctx.lineTo(slingX + 7, slingY + 6);
     ctx.stroke();
-    // élastique cuir/corde vers le pavé en attente
+    // élastique cuir : s'épaissit et chauffe vers le vermillon avec la tension
     if (this.ball && !this.ballInFlight) {
-      ctx.strokeStyle = '#3a2814';
-      ctx.lineWidth = 3.5;
+      const f = this.dragging ? this.dragFrac : 0;
+      // teinte cuir → ambre → vermillon selon la charge
+      const taut = f > 0.5
+        ? this.mixHex('#8a5a24', '#bb2e2a', (f - 0.5) * 2)
+        : this.mixHex('#3a2814', '#8a5a24', f * 2);
+      ctx.strokeStyle = taut;
+      ctx.lineWidth = 3.5 + f * 3.5;
       ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(slingX - 9, slingY + 2);
@@ -857,6 +891,16 @@ export class DemolitionEngine {
       ctx.lineTo(slingX + 9, slingY + 2);
       ctx.stroke();
     }
+  }
+
+  /** Interpolation linéaire entre deux couleurs hex. */
+  private mixHex(a: string, b: string, k: number): string {
+    k = Math.max(0, Math.min(1, k));
+    const na = parseInt(a.slice(1), 16), nb = parseInt(b.slice(1), 16);
+    const r = Math.round(((na >> 16) & 255) + (((nb >> 16) & 255) - ((na >> 16) & 255)) * k);
+    const g = Math.round(((na >> 8) & 255) + (((nb >> 8) & 255) - ((na >> 8) & 255)) * k);
+    const bl = Math.round((na & 255) + ((nb & 255) - (na & 255)) * k);
+    return `rgb(${r},${g},${bl})`;
   }
 
   /** hex (#rrggbb) → rgba(...) avec alpha — pour les halos/dégradés chauds. */
@@ -1016,7 +1060,18 @@ export class DemolitionEngine {
         ctx.fill();
       }
     }
-    const s = BALL_R * 1.9;
+    // charge : le pavé enfle légèrement et s'auréole d'ambre quand on tend
+    const f = !this.ballInFlight && this.dragging ? this.dragFrac : 0;
+    if (f > 0.05) {
+      const halo = ctx.createRadialGradient(body.position.x, body.position.y, BALL_R * 0.6, body.position.x, body.position.y, BALL_R * (1.8 + f));
+      halo.addColorStop(0, this.hexA('#e0964a', 0.35 * f));
+      halo.addColorStop(1, this.hexA('#e0964a', 0));
+      ctx.fillStyle = halo;
+      ctx.beginPath();
+      ctx.arc(body.position.x, body.position.y, BALL_R * (1.8 + f), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    const s = BALL_R * 1.9 * (1 + f * 0.12);
     const r = 4;
     ctx.save();
     ctx.translate(body.position.x, body.position.y);
@@ -1046,6 +1101,30 @@ export class DemolitionEngine {
     ctx.beginPath();
     ctx.moveTo(-s / 2 + 3, 0.5); ctx.lineTo(s / 2 - 3, 0.5);
     ctx.moveTo(0.5, -s / 2 + 3); ctx.lineTo(0.5, s / 2 - 3);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  /** Pavé SUIVANT pré-chargé dans le creux de la fronde pendant un tir — le
+   *  rythme ne casse pas entre deux coups (continuité « encore un coup »). */
+  private drawNextPave(ctx: CanvasRenderingContext2D) {
+    if (!this.ballInFlight || this.shotsUsed >= this.params.maxShots) return;
+    const { slingX, slingY } = this.level;
+    const s = BALL_R * 1.5;
+    ctx.save();
+    ctx.globalAlpha = 0.5;
+    ctx.translate(slingX, slingY + 2);
+    const g = ctx.createLinearGradient(-s / 2, -s / 2, s / 2, s / 2);
+    g.addColorStop(0, '#cdbf9b');
+    g.addColorStop(1, '#7d735a');
+    ctx.fillStyle = g;
+    this.roundRect(ctx, -s / 2, -s / 2, s, s, 3);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(21,17,12,0.3)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-s / 2 + 2, 0); ctx.lineTo(s / 2 - 2, 0);
+    ctx.moveTo(0, -s / 2 + 2); ctx.lineTo(0, s / 2 - 2);
     ctx.stroke();
     ctx.restore();
   }
