@@ -102,6 +102,7 @@ export class DemolitionEngine {
   private dragging = false;
   private dragPos: { x: number; y: number } | null = null;
   private dragStart: { x: number; y: number } | null = null; // origine du geste (visée relative)
+  private dragStartScreen: { x: number; y: number } | null = null; // origine en px écran (zone morte)
   private pullArmed = false;       // le recul a dépassé la zone morte → tir autorisé
   private dragFrac = 0;            // tension de la fronde (0→1), pilote le feel de charge
   private chargedHaptic = false;   // un seul buzz quand la charge atteint le max
@@ -332,6 +333,7 @@ export class DemolitionEngine {
     this.dragging = false;
     this.dragPos = null;
     this.dragStart = null;
+    this.dragStartScreen = null;
     this.dragFrac = 0;
     this.pullArmed = false;
     this.chargedHaptic = false;
@@ -348,6 +350,7 @@ export class DemolitionEngine {
     this.dragging = false;
     this.dragPos = null;
     this.dragStart = null;
+    this.dragStartScreen = null;
     this.dragFrac = 0;
     this.pullArmed = false;
   }
@@ -616,31 +619,37 @@ export class DemolitionEngine {
   }
 
   private bindInput() {
-    // VISÉE RELATIVE : on touche n'importe où puis on tire dans le sens du recul.
-    // Le point de départ du geste n'a pas d'importance → jouable même au bord,
-    // sans devoir attraper un pavé minuscule (correctif du « tir impossible »).
+    // PATTERN ROBUSTE : down sur le canvas, move/up sur WINDOW (le relâché ne
+    // peut JAMAIS être manqué → le pavé ne reste jamais collé en l'air). Zone
+    // morte mesurée en PIXELS ÉCRAN (indépendante du transform du canvas).
+    const DEADZONE_PX = 16;
+
     const down = (e: PointerEvent) => {
       if (this.ended || this.ballInFlight || !this.ball) return;
-      // on NOTE seulement l'origine du geste — RIEN ne bouge, RIEN ne tire au toucher.
       this.dragging = true;
       this.pullArmed = false;
       this.chargedHaptic = false;
       this.dragStart = this.toWorld(e);
+      this.dragStartScreen = { x: e.clientX, y: e.clientY };
       this.dragPos = null;
-      try { this.canvas.setPointerCapture(e.pointerId); } catch { /* noop */ }
+      e.preventDefault();
     };
     const move = (e: PointerEvent) => {
-      if (!this.dragging || !this.ball || !this.dragStart) return;
+      if (!this.dragging || !this.ball || !this.dragStart || !this.dragStartScreen) return;
+      // 1) zone morte en px écran : tant qu'on n'a pas franchi le seuil, RIEN.
+      const sLen = Math.hypot(e.clientX - this.dragStartScreen.x, e.clientY - this.dragStartScreen.y);
+      if (sLen < DEADZONE_PX && !this.pullArmed) {
+        this.dragPos = null;
+        this.dragFrac = 0;
+        return;
+      }
+      if (!this.pullArmed) { this.pullArmed = true; this.interacted = true; }
+      // 2) recul en coordonnées monde (même échelle que le rendu)
       const p = this.toWorld(e);
       let dx = p.x - this.dragStart.x;
       let dy = p.y - this.dragStart.y;
       const d = Math.hypot(dx, dy);
       if (d > MAX_DRAG) { dx = (dx / d) * MAX_DRAG; dy = (dy / d) * MAX_DRAG; }
-      // ZONE MORTE : tant que le recul est minime, c'est un effleurement, pas un tir.
-      if (d >= PULL_DEADZONE) {
-        if (!this.pullArmed) { this.pullArmed = true; if (!this.interacted) { this.interacted = true; } }
-      }
-      if (!this.pullArmed) { this.dragPos = null; this.dragFrac = 0; return; }
       this.dragFrac = Math.min(1, d / MAX_DRAG);
       if (this.dragFrac > 0.96 && !this.chargedHaptic) { this.chargedHaptic = true; this.haptic(8); }
       else if (this.dragFrac < 0.9) this.chargedHaptic = false;
@@ -650,19 +659,20 @@ export class DemolitionEngine {
       this.pushHud();
     };
     const up = () => {
+      if (!this.dragging) return;
       // on ne tire QUE sur un recul délibéré relâché ; sinon on annule proprement.
-      if (this.dragging && this.pullArmed && this.dragPos) this.launch();
+      if (this.pullArmed && this.dragPos) this.launch();
       else this.resetDrag();
     };
     this.canvas.addEventListener('pointerdown', down);
-    this.canvas.addEventListener('pointermove', move);
-    this.canvas.addEventListener('pointerup', up);
-    this.canvas.addEventListener('pointercancel', up);
+    window.addEventListener('pointermove', move, { passive: false });
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
     this.cleanupInput = () => {
       this.canvas.removeEventListener('pointerdown', down);
-      this.canvas.removeEventListener('pointermove', move);
-      this.canvas.removeEventListener('pointerup', up);
-      this.canvas.removeEventListener('pointercancel', up);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
     };
   }
 
