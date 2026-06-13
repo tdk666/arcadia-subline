@@ -46,6 +46,8 @@ export interface HudState {
   phase: 'aim' | 'flight' | 'ended';
   /** Le joueur a déjà saisi le boulet au moins une fois (pilote le hint geste). */
   interacted: boolean;
+  /** Télémétrie de debug (overlay ?debug=1) — diagnostic input à distance. */
+  dbg: { downs: number; dragging: boolean; armed: boolean; frac: number; ballY: number; inFlight: boolean };
 }
 
 export interface Outcome {
@@ -104,6 +106,7 @@ export class DemolitionEngine {
   private dragStart: { x: number; y: number } | null = null; // origine du geste (visée relative)
   private dragStartScreen: { x: number; y: number } | null = null; // origine en px écran (zone morte)
   private pullArmed = false;       // le recul a dépassé la zone morte → tir autorisé
+  private dbgDowns = 0;            // nb de pointerdown reçus (debug input)
   private dragFrac = 0;            // tension de la fronde (0→1), pilote le feel de charge
   private chargedHaptic = false;   // un seul buzz quand la charge atteint le max
   private settleSince = 0;
@@ -165,8 +168,8 @@ export class DemolitionEngine {
     this.spawnBall();
     this.startedAt = performance.now();
     this.lastT = this.startedAt;
+    this.pushHud();              // le HUD existe AVANT la 1re frame (tuto garanti)
     this.loop(this.startedAt);
-    this.pushHud();
   }
 
   destroy() {
@@ -359,33 +362,39 @@ export class DemolitionEngine {
 
   private loop = (t: number) => {
     this.raf = requestAnimationFrame(this.loop);
-    const dt = Math.min(t - this.lastT, 50);
-    this.lastT = t;
+    // FILET DE SÉCURITÉ : une erreur de rendu/physique ne doit JAMAIS figer la
+    // partie ni masquer le HUD. On loggue une fois et on continue la boucle.
+    try {
+      const dt = Math.min(t - this.lastT, 50);
+      this.lastT = t;
 
-    // HITSTOP : on gèle la simulation quelques ms sur un impact lourd. Le monde
-    // se fige, le shake reste plein → l'impact « cogne » avant de reprendre.
-    if (this.hitstop > 0) {
-      this.hitstop -= dt;
-      this.acc = 0;          // pas de rattrapage physique au dégel
+      // HITSTOP : on gèle la simulation quelques ms sur un impact lourd.
+      if (this.hitstop > 0) {
+        this.hitstop -= dt;
+        this.acc = 0;          // pas de rattrapage physique au dégel
+        this.render(t);
+        return;
+      }
+
+      // retour fluide du ralenti vers le temps réel
+      if (this.slowMoUntil && t > this.slowMoUntil) {
+        this.timescaleTarget = 1;
+        this.slowMoUntil = 0;
+      }
+      this.timescale += (this.timescaleTarget - this.timescale) * Math.min(1, dt * 0.004);
+
+      this.acc += dt;
+      while (this.acc >= 1000 / 60) {
+        Engine.update(this.engine, (1000 / 60) * this.timescale);
+        this.acc -= 1000 / 60;
+      }
+      this.tickGame(t, dt);
       this.render(t);
-      return;
+    } catch (err) {
+      if (!this.loggedError) { this.loggedError = true; console.error('[demolition] loop error:', err); }
     }
-
-    // retour fluide du ralenti vers le temps réel
-    if (this.slowMoUntil && t > this.slowMoUntil) {
-      this.timescaleTarget = 1;
-      this.slowMoUntil = 0;
-    }
-    this.timescale += (this.timescaleTarget - this.timescale) * Math.min(1, dt * 0.004);
-
-    this.acc += dt;
-    while (this.acc >= 1000 / 60) {
-      Engine.update(this.engine, (1000 / 60) * this.timescale);
-      this.acc -= 1000 / 60;
-    }
-    this.tickGame(t, dt);
-    this.render(t);
   };
+  private loggedError = false;
 
   private tickGame(t: number, dt: number) {
     // particules (en temps réel : contraste stylé pendant le ralenti)
@@ -528,6 +537,14 @@ export class DemolitionEngine {
       timeLeftS,
       phase: this.ended ? 'ended' : this.ballInFlight ? 'flight' : 'aim',
       interacted: this.interacted,
+      dbg: {
+        downs: this.dbgDowns,
+        dragging: this.dragging,
+        armed: this.pullArmed,
+        frac: Math.round(this.dragFrac * 100) / 100,
+        ballY: this.ball ? Math.round(this.ball.position.y) : -1,
+        inFlight: this.ballInFlight,
+      },
     });
   }
 
@@ -625,6 +642,8 @@ export class DemolitionEngine {
     const DEADZONE_PX = 16;
 
     const down = (e: PointerEvent) => {
+      this.dbgDowns++;
+      this.pushHud();
       if (this.ended || this.ballInFlight || !this.ball) return;
       this.dragging = true;
       this.pullArmed = false;

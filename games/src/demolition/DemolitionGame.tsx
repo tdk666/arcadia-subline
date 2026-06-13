@@ -104,6 +104,7 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
   }
 
   const urgent = hud?.timeLeftS != null && (hud.timeLeftS ?? 99) <= 10;
+  const debug = typeof location !== 'undefined' && new URLSearchParams(location.search).has('debug');
 
   return (
     <div
@@ -112,6 +113,15 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
       onPointerDown={unlockAudio}
     >
       <canvas ref={canvasRef} className="h-full w-full" />
+
+      {/* overlay debug (?debug=1) — diagnostic input à distance */}
+      {debug && hud && (
+        <div className="pointer-events-none absolute left-1/2 top-12 z-50 -translate-x-1/2 rounded bg-black/80 px-3 py-2 text-center font-mono text-[11px] leading-tight text-lime-300">
+          downs:{hud.dbg.downs} drag:{String(hud.dbg.dragging)} armed:{String(hud.dbg.armed)}<br />
+          frac:{hud.dbg.frac} ballY:{hud.dbg.ballY} flight:{String(hud.dbg.inFlight)}<br />
+          phase:{hud.phase} interacted:{String(hud.interacted)}
+        </div>
+      )}
 
       {/* ── PLAQUE ÉMAILLÉE (nom de station + palier) ── */}
       <div
