@@ -193,18 +193,20 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
         </>
       )}
 
-      {/* ── Hint geste : main qui tire la fronde (DA, pas d'emoji) ── */}
+      {/* ── Coach de tir : doigt fantôme qui tire la fronde puis relâche ── */}
       {hud && !hud.interacted && hud.phase === 'aim' && (
-        <div className="pointer-events-none absolute bottom-[22%] left-[12%] animate-pulse">
-          <svg width="92" height="64" viewBox="0 0 92 64" aria-hidden>
-            <path d="M78 14 Q40 8 16 44" fill="none" stroke="#e3c463" strokeWidth="2.5"
+        <div className="pointer-events-none absolute bottom-[24%] left-[16%] flex flex-col items-center">
+          {/* trajectoire de recul suggérée */}
+          <svg width="80" height="64" viewBox="0 0 80 64" aria-hidden className="absolute -left-2 -top-1 opacity-70">
+            <path d="M58 12 Q34 18 18 44" fill="none" stroke="#e3c463" strokeWidth="2"
               strokeLinecap="round" strokeDasharray="2 6" />
-            <path d="M24 34 L14 46 L28 48" fill="none" stroke="#e3c463" strokeWidth="2.5"
-              strokeLinecap="round" strokeLinejoin="round" />
-            <circle cx="16" cy="46" r="6" fill="#e0964a" opacity="0.9" />
           </svg>
-          <span className="block pl-2 text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: '#e3c463' }}>
-            {ctx.locale.startsWith('en') ? 'Drag' : 'Tirez'}
+          {/* doigt fantôme animé */}
+          <div className="relative h-14 w-14">
+            <span className="absolute left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 animate-coach-pull rounded-full border-2 border-white/85 bg-white/25" />
+          </div>
+          <span className="mt-1 rounded-full bg-black/55 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.15em] backdrop-blur" style={{ color: '#e3c463' }}>
+            {ctx.locale.startsWith('en') ? 'Pull back & release' : 'Tire vers l’arrière, relâche'}
           </span>
         </div>
       )}

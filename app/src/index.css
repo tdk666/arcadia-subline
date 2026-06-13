@@ -123,6 +123,17 @@ body {
 }
 .animate-shine { animation: shine-sweep 1.6s ease-in-out 0.4s both; }
 
+/* coach de tir : un doigt fantôme tire la fronde vers l'arrière puis relâche */
+@keyframes coach-pull {
+  0% { transform: translate(0, 0); opacity: 0; }
+  12% { opacity: 1; }
+  50% { transform: translate(-36px, 28px); opacity: 1; }
+  66% { transform: translate(-36px, 28px); opacity: 1; }
+  76% { transform: translate(0, 0); opacity: 0.9; }
+  100% { transform: translate(0, 0); opacity: 0; }
+}
+.animate-coach-pull { animation: coach-pull 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+
 /* invite à pivoter le téléphone (mini-jeu paysage) */
 @keyframes rotate-hint {
   0%, 18% { transform: rotate(0deg); }

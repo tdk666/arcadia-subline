@@ -19,6 +19,7 @@ const MATERIAL = {
 
 const BALL_R = 15;
 const MAX_DRAG = 95;
+const PULL_DEADZONE = 26;   // recul minimum (world u ≈ 18 px) pour qu'un geste compte comme un tir
 const LAUNCH_POWER = 0.205;
 const SETTLE_SPEED = 0.18;
 const SETTLE_MS = 900;
@@ -101,6 +102,7 @@ export class DemolitionEngine {
   private dragging = false;
   private dragPos: { x: number; y: number } | null = null;
   private dragStart: { x: number; y: number } | null = null; // origine du geste (visée relative)
+  private pullArmed = false;       // le recul a dépassé la zone morte → tir autorisé
   private dragFrac = 0;            // tension de la fronde (0→1), pilote le feel de charge
   private chargedHaptic = false;   // un seul buzz quand la charge atteint le max
   private settleSince = 0;
@@ -331,6 +333,7 @@ export class DemolitionEngine {
     this.dragPos = null;
     this.dragStart = null;
     this.dragFrac = 0;
+    this.pullArmed = false;
     this.chargedHaptic = false;
     this.sfx?.launch();
     this.haptic(15);
@@ -346,6 +349,7 @@ export class DemolitionEngine {
     this.dragPos = null;
     this.dragStart = null;
     this.dragFrac = 0;
+    this.pullArmed = false;
   }
 
   /* ── Boucle ─────────────────────────────────────────────────────── */
@@ -617,30 +621,38 @@ export class DemolitionEngine {
     // sans devoir attraper un pavé minuscule (correctif du « tir impossible »).
     const down = (e: PointerEvent) => {
       if (this.ended || this.ballInFlight || !this.ball) return;
+      // on NOTE seulement l'origine du geste — RIEN ne bouge, RIEN ne tire au toucher.
       this.dragging = true;
+      this.pullArmed = false;
       this.chargedHaptic = false;
       this.dragStart = this.toWorld(e);
-      if (!this.interacted) { this.interacted = true; this.pushHud(); }
+      this.dragPos = null;
       try { this.canvas.setPointerCapture(e.pointerId); } catch { /* noop */ }
-      move(e);
     };
     const move = (e: PointerEvent) => {
       if (!this.dragging || !this.ball || !this.dragStart) return;
       const p = this.toWorld(e);
-      // recul = déplacement du doigt depuis le début du geste (relatif)
       let dx = p.x - this.dragStart.x;
       let dy = p.y - this.dragStart.y;
       const d = Math.hypot(dx, dy);
       if (d > MAX_DRAG) { dx = (dx / d) * MAX_DRAG; dy = (dy / d) * MAX_DRAG; }
+      // ZONE MORTE : tant que le recul est minime, c'est un effleurement, pas un tir.
+      if (d >= PULL_DEADZONE) {
+        if (!this.pullArmed) { this.pullArmed = true; if (!this.interacted) { this.interacted = true; } }
+      }
+      if (!this.pullArmed) { this.dragPos = null; this.dragFrac = 0; return; }
       this.dragFrac = Math.min(1, d / MAX_DRAG);
       if (this.dragFrac > 0.96 && !this.chargedHaptic) { this.chargedHaptic = true; this.haptic(8); }
       else if (this.dragFrac < 0.9) this.chargedHaptic = false;
-      // le pavé recule depuis l'ancre de la fronde ; le tir partira à l'opposé
+      // le pavé recule depuis l'ancre ; le tir partira EXACTEMENT à l'opposé du recul
       this.dragPos = { x: this.level.slingX + dx, y: this.level.slingY + dy };
       Body.setPosition(this.ball, this.dragPos);
+      this.pushHud();
     };
     const up = () => {
-      if (this.dragging) this.launch();
+      // on ne tire QUE sur un recul délibéré relâché ; sinon on annule proprement.
+      if (this.dragging && this.pullArmed && this.dragPos) this.launch();
+      else this.resetDrag();
     };
     this.canvas.addEventListener('pointerdown', down);
     this.canvas.addEventListener('pointermove', move);
@@ -706,6 +718,7 @@ export class DemolitionEngine {
     if (this.dragging && this.dragPos) this.drawAim(ctx);
     this.drawRings(ctx);
     this.drawParticles(ctx);
+    if (this.won) this.drawVictoryFlag(ctx, t); // le tricolore planté sur les ruines
 
     // vignette de ralenti : le monde retient son souffle
     if (this.timescale < 0.9) {
@@ -1009,6 +1022,52 @@ export class DemolitionEngine {
   private hexA(hex: string, a: number): string {
     const n = parseInt(hex.slice(1), 16);
     return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+  }
+
+  /** VICTOIRE : un grand drapeau tricolore se plante et se déploie sur la
+   *  forteresse tombée — le geste fondateur du 14 juillet, payoff culturel. */
+  private drawVictoryFlag(ctx: CanvasRenderingContext2D, t: number) {
+    const { level } = this;
+    const k = Math.min(1, Math.max(0, (t - this.endedAt) / 700)); // montée
+    const ease = 1 - Math.pow(1 - k, 3);
+    const baseX = level.worldW * 0.73;
+    const baseY = level.groundY - 70;          // au sommet des ruines
+    const poleH = 120 * ease;
+    const topY = baseY - poleH;
+    // hampe
+    ctx.strokeStyle = '#2b2114';
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(baseX, baseY);
+    ctx.lineTo(baseX, topY);
+    ctx.stroke();
+    ctx.fillStyle = '#c9a227'; // pointe dorée
+    ctx.beginPath();
+    ctx.arc(baseX, topY, 4, 0, Math.PI * 2);
+    ctx.fill();
+    if (k < 0.2) return;
+    // drapeau tricolore qui ondule
+    const fw = 96 * ease, fh = 60 * ease;
+    const cols = ['#0a3d91', '#f4f1e8', '#c1121f'];
+    for (let b = 0; b < 3; b++) {
+      ctx.beginPath();
+      const bx = baseX + b * (fw / 3);
+      for (let s = 0; s <= 10; s++) {
+        const yy = topY + 4 + (s / 10) * fh;
+        const wave = Math.sin(t * 0.006 + s * 0.5 + b) * 4 * ease;
+        const xx = bx + wave;
+        if (s === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
+      }
+      for (let s = 10; s >= 0; s--) {
+        const yy = topY + 4 + (s / 10) * fh;
+        const wave = Math.sin(t * 0.006 + s * 0.5 + b) * 4 * ease;
+        ctx.lineTo(bx + fw / 3 + wave, yy);
+      }
+      ctx.closePath();
+      ctx.fillStyle = cols[b];
+      ctx.fill();
+    }
   }
 
   private drawAim(ctx: CanvasRenderingContext2D) {
