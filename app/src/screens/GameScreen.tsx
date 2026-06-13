@@ -104,7 +104,10 @@ export function GameScreen() {
 
   return (
     <div className="fixed inset-0 bg-encre">
-      {/* ── BRIEFING : le cadre narratif pose l'enjeu avant l'assaut (portrait) ── */}
+      {/* UNE seule rotation pour brief + assaut (même axe paysage, plus de
+          bascule au milieu). Le résultat/archive se lit dans n'importe quel sens. */}
+      <OrientationGate active={orientation === 'landscape' && phase !== 'result'}>
+      {/* ── BRIEFING : le cadre narratif pose l'enjeu avant l'assaut ── */}
       {phase === 'brief' && (
         <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center gap-6 px-7 text-center">
           <div className="animate-slide-up w-full">
@@ -148,31 +151,29 @@ export function GameScreen() {
 
       {/* ── JEU (plein cadre paysage) ── */}
       {(phase === 'play' || phase === 'submitting') && (
-        <OrientationGate active={orientation === 'landscape'}>
-          <Suspense
-            fallback={
-              <div className="flex h-full items-center justify-center text-sm text-pierre-faint">
-                {t('common.loading')}
-              </div>
-            }
-          >
-            <Game
-              key={runId}
-              ctx={{
-                questId: quest.questId,
-                stationId: content.stationId,
-                stationSlug: content.slug,
-                stationName: content.name,
-                difficulty,
-                params: quest.params,
-                locale,
-                reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-              }}
-              onFinish={onFinish}
-              onQuit={() => setQuitAsk(true)}
-            />
-          </Suspense>
-        </OrientationGate>
+        <Suspense
+          fallback={
+            <div className="flex h-full items-center justify-center text-sm text-pierre-faint">
+              {t('common.loading')}
+            </div>
+          }
+        >
+          <Game
+            key={runId}
+            ctx={{
+              questId: quest.questId,
+              stationId: content.stationId,
+              stationSlug: content.slug,
+              stationName: content.name,
+              difficulty,
+              params: quest.params,
+              locale,
+              reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+            }}
+            onFinish={onFinish}
+            onQuit={() => setQuitAsk(true)}
+          />
+        </Suspense>
       )}
 
       {phase === 'submitting' && (
@@ -213,6 +214,7 @@ export function GameScreen() {
           </div>
         </div>
       )}
+      </OrientationGate>
     </div>
   );
 }

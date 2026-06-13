@@ -92,7 +92,7 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
       },
     });
     engine.start();
-    return () => engine.destroy();
+    return () => { engine.destroy(); sfx.dispose(); };
     // le moteur vit exactement aussi longtemps que l'écran de jeu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ctx.questId]);

@@ -34,7 +34,7 @@ function ArchiveCard({ station, onClose }: { station: StationContent; onClose: (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 px-5" onClick={onClose}>
       <div
         className="animate-stamp relative max-h-[82vh] w-full max-w-sm overflow-y-auto rounded-2xl border-2 border-guimard/70 bg-[#11181380] bg-plomb p-6"
-        style={{ background: 'linear-gradient(165deg, #14211a 0%, #161c25 45%)' }}
+        style={{ background: 'linear-gradient(165deg, #14211a 0%, #1e2a20 45%)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* balayage lumineux de révélation */}

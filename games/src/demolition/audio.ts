@@ -9,6 +9,14 @@ export class DemolitionSfx {
   private master: GainNode | null = null;
   muted = false;
 
+  /* ── Tambours révolutionnaires génératifs ─────────────────────────── */
+  private musicBus: GainNode | null = null;
+  private musicTimer: ReturnType<typeof setInterval> | null = null;
+  private nextNoteAt = 0;
+  private step = 0;          // pas dans la mesure (0..15, doubles-croches)
+  private intensity = 0;     // 0 (bronze, calme) → 1 (assaut final, déchaîné)
+  private baseFloor = 0;     // plancher d'intensité imposé par le palier
+
   /** À appeler depuis un handler de geste (tap "À l'assaut !"). */
   unlock() {
     if (this.ctx) {
@@ -20,6 +28,10 @@ export class DemolitionSfx {
       this.master = this.ctx.createGain();
       this.master.gain.value = 0.5;
       this.master.connect(this.ctx.destination);
+      // bus dédié à la musique (sous le master → coupé par le mute lui aussi)
+      this.musicBus = this.ctx.createGain();
+      this.musicBus.gain.value = 0.0;
+      this.musicBus.connect(this.master);
     } catch {
       this.ctx = null; // pas d'audio dispo : le jeu reste muet, jamais cassé
     }
@@ -131,5 +143,121 @@ export class DemolitionSfx {
   /** Tic d'urgence du chrono (palier Or, dernières secondes). */
   tick() {
     this.tone(1320, 0.05, 0.15, { type: 'square' });
+  }
+
+  /* ══ TAMBOURS RÉVOLUTIONNAIRES GÉNÉRATIFS ════════════════════════════
+     Une rythmique de marche qui s'emballe avec la destruction : plancher
+     posé par le palier, tempo + densité pilotés par l'intensité. Scheduler
+     à fenêtre glissante (lookahead) caché derrière l'horloge WebAudio. */
+
+  /** Démarre la boucle. `floor` = intensité minimale du palier (0/0.25/0.5). */
+  startMusic(floor = 0) {
+    if (!this.ctx || !this.musicBus || this.musicTimer) return;
+    this.baseFloor = floor;
+    this.intensity = floor;
+    this.step = 0;
+    this.nextNoteAt = this.ctx.currentTime + 0.08;
+    this.musicBus.gain.setTargetAtTime(0.5, this.ctx.currentTime, 0.4); // fade-in
+    this.musicTimer = setInterval(() => this.scheduler(), 25);
+  }
+
+  stopMusic() {
+    if (this.musicTimer) { clearInterval(this.musicTimer); this.musicTimer = null; }
+    if (this.musicBus && this.ctx) {
+      this.musicBus.gain.setTargetAtTime(0, this.ctx.currentTime, 0.25);
+    }
+  }
+
+  /** Libère l'AudioContext (au démontage de l'écran) — évite d'en accumuler. */
+  dispose() {
+    this.stopMusic();
+    try { void this.ctx?.close(); } catch { /* déjà fermé */ }
+    this.ctx = null;
+    this.master = null;
+    this.musicBus = null;
+  }
+
+  /** Pilote l'emballement (0→1). Ne descend jamais sous le plancher du palier. */
+  setMusicIntensity(v: number) {
+    this.intensity = Math.max(this.baseFloor, Math.min(1, v));
+  }
+
+  /** Fenêtre glissante : programme les pas tant qu'ils tombent < +100 ms. */
+  private scheduler() {
+    if (!this.ctx) return;
+    const stepsPerBeat = 4;                       // doubles-croches
+    while (this.nextNoteAt < this.ctx.currentTime + 0.1) {
+      // tempo : 82 BPM au repos → 156 BPM déchaîné
+      const bpm = 82 + this.intensity * 74;
+      const stepDur = 60 / bpm / stepsPerBeat;
+      this.scheduleStep(this.step, this.nextNoteAt);
+      this.nextNoteAt += stepDur;
+      this.step = (this.step + 1) % 16;
+    }
+  }
+
+  /** Voix de tambour pour un pas donné, selon l'intensité (couches qui s'ajoutent). */
+  private scheduleStep(step: number, at: number) {
+    const I = this.intensity;
+    const beat = step % 4 === 0;
+    const half = step % 8 === 0;
+
+    // grosse caisse : sur chaque temps ; doublée quand ça chauffe
+    if (beat) this.kick(at, 0.9);
+    if (I > 0.55 && step % 4 === 2) this.kick(at, 0.6);
+
+    // caisse claire (roulement) sur les contretemps, densité ∝ intensité
+    if (half) this.snare(at, 0.5 + I * 0.3);
+    if (I > 0.35 && step % 4 === 2) this.snare(at, 0.3);
+    if (I > 0.7 && step % 2 === 1) this.snare(at, 0.18 + Math.random() * 0.1); // roulement
+
+    // toms d'ornement à haute intensité (la charge finale)
+    if (I > 0.8 && (step === 14 || step === 15)) {
+      this.tom(at, 220 - (step - 14) * 40, 0.4);
+    }
+  }
+
+  private kick(at: number, gain: number) {
+    if (!this.ctx || !this.musicBus) return;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(140, at);
+    o.frequency.exponentialRampToValueAtTime(46, at + 0.12);
+    g.gain.setValueAtTime(0, at);
+    g.gain.linearRampToValueAtTime(gain * 0.6, at + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.001, at + 0.18);
+    o.connect(g).connect(this.musicBus);
+    o.start(at); o.stop(at + 0.2);
+  }
+
+  private snare(at: number, gain: number) {
+    if (!this.ctx || !this.musicBus) return;
+    const len = Math.floor(this.ctx.sampleRate * 0.12);
+    const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    const f = this.ctx.createBiquadFilter();
+    f.type = 'highpass'; f.frequency.value = 1400;
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(gain * 0.5, at);
+    g.gain.exponentialRampToValueAtTime(0.001, at + 0.12);
+    src.connect(f).connect(g).connect(this.musicBus);
+    src.start(at); src.stop(at + 0.13);
+  }
+
+  private tom(at: number, freq: number, gain: number) {
+    if (!this.ctx || !this.musicBus) return;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(freq, at);
+    o.frequency.exponentialRampToValueAtTime(freq * 0.5, at + 0.16);
+    g.gain.setValueAtTime(gain * 0.5, at);
+    g.gain.exponentialRampToValueAtTime(0.001, at + 0.18);
+    o.connect(g).connect(this.musicBus);
+    o.start(at); o.stop(at + 0.2);
   }
 }

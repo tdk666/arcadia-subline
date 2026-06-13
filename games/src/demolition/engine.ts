@@ -168,6 +168,7 @@ export class DemolitionEngine {
   destroy() {
     cancelAnimationFrame(this.raf);
     if (this.endTimer) clearTimeout(this.endTimer);
+    this.sfx?.stopMusic(); // ne jamais laisser le scheduler tourner après l'écran
     this.cleanupInput();
     Engine.clear(this.engine);
   }
@@ -316,6 +317,8 @@ export class DemolitionEngine {
     if (!this.armed) {
       this.armed = true;
       for (const b of Composite.allBodies(this.engine.world)) Sleeping.set(b, false);
+      // les tambours entrent en scène, plancher selon le palier
+      this.sfx?.startMusic({ bronze: 0, silver: 0.22, gold: 0.45 }[this.tier]);
     }
     Body.setStatic(this.ball, false);
     Body.setVelocity(this.ball, { x: dx * LAUNCH_POWER, y: dy * LAUNCH_POWER });
@@ -467,6 +470,7 @@ export class DemolitionEngine {
     this.ended = true;
     this.endedAt = t;
     this.won = this.isWin();
+    this.sfx?.stopMusic(); // les tambours cèdent la place à la fanfare (ou au silence)
     if (this.won) {
       this.fireworkWaves = 4;
       this.nextFireworkAt = t;
@@ -499,6 +503,12 @@ export class DemolitionEngine {
     const timeLeftS = this.params.timeLimitS > 0
       ? Math.max(0, Math.ceil(this.params.timeLimitS - (((this.ended ? this.endedAt : t) - this.startedAt) / 1000)))
       : null;
+    // les tambours s'emballent avec la destruction et la chute des étendards
+    if (this.armed && !this.ended) {
+      const dest = this.destructible ? this.destroyed / this.destructible : 0;
+      const tgt = this.totalTargets ? this.targetsDown / this.totalTargets : 0;
+      this.sfx?.setMusicIntensity(0.55 * dest + 0.45 * tgt);
+    }
     this.onHud({
       shotsLeft: Math.max(0, this.params.maxShots - this.shotsUsed),
       destructionPct: this.destructionPct(),

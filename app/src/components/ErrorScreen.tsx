@@ -15,13 +15,13 @@ export function ErrorScreen() {
     <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center gap-6 px-8 text-center">
       {/* rame stylisée à l'arrêt */}
       <svg width="180" height="70" viewBox="0 0 180 70" aria-hidden>
-        <rect x="10" y="14" width="160" height="38" rx="10" fill="#161c25" stroke="#2a3340" strokeWidth="2" />
+        <rect x="10" y="14" width="160" height="38" rx="10" fill="#241f18" stroke="#3a2f1e" strokeWidth="2" />
         <rect x="24" y="24" width="26" height="16" rx="3" fill="#15110c" stroke="#e0964a" strokeWidth="1.5" />
         <rect x="58" y="24" width="26" height="16" rx="3" fill="#15110c" stroke="#e0964a" strokeWidth="1.5" />
         <rect x="92" y="24" width="26" height="16" rx="3" fill="#15110c" stroke="#e0964a" strokeWidth="1.5" />
         <rect x="126" y="24" width="26" height="16" rx="3" fill="#15110c" stroke="#bb2e2a" strokeWidth="1.5" />
-        <circle cx="40" cy="58" r="6" fill="#2a3340" />
-        <circle cx="140" cy="58" r="6" fill="#2a3340" />
+        <circle cx="40" cy="58" r="6" fill="#3a2f1e" />
+        <circle cx="140" cy="58" r="6" fill="#3a2f1e" />
         <line x1="0" y1="66" x2="180" y2="66" stroke="#f2c200" strokeWidth="2.5" />
       </svg>
       <div>

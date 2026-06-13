@@ -32,9 +32,9 @@ function SceneEiffel() {
       </g>
       <circle cx="160" cy="26" r="3" fill="#f2c200" className="animate-glow" />
       {/* viaduc + rame ligne 6 */}
-      <line x1="0" y1="208" x2="320" y2="208" stroke="#2a3340" strokeWidth="5" />
+      <line x1="0" y1="208" x2="320" y2="208" stroke="#3a2f1e" strokeWidth="5" />
       <g className="ob-train">
-        <rect x="-150" y="186" width="120" height="20" rx="6" fill="#161c25" stroke="#e0964a" strokeWidth="1.6" />
+        <rect x="-150" y="186" width="120" height="20" rx="6" fill="#241f18" stroke="#e0964a" strokeWidth="1.6" />
         {[0, 1, 2, 3].map((i) => (
           <rect key={i} x={-140 + i * 28} y="191" width="18" height="10" rx="2" fill="#15110c" stroke="#e0964a" strokeWidth="1" />
         ))}
@@ -84,7 +84,7 @@ function SceneBastille() {
       {/* trois médailles de palier */}
       {[{ x: 110, c: '#e0945a' }, { x: 160, c: '#c9d2dc' }, { x: 210, c: '#f2c200' }].map((m, i) => (
         <g key={i} className="ob-station" style={{ animationDelay: `${0.5 + i * 0.25}s` }}>
-          <circle cx={m.x} cy="160" r="20" fill="#161c25" stroke={m.c} strokeWidth="3" />
+          <circle cx={m.x} cy="160" r="20" fill="#241f18" stroke={m.c} strokeWidth="3" />
           <text x={m.x} y="167" textAnchor="middle" fill={m.c} fontSize="18">★</text>
         </g>
       ))}
