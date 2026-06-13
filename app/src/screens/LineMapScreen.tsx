@@ -1,152 +1,214 @@
-import { Link } from 'react-router-dom';
+import { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { pickText, useI18n } from '../i18n';
 import { getStationContent, isPlayable, LINE } from '../lib/content';
 import { useArcadia } from '../store';
 
+/**
+ * LE PLATEAU DE CONQUÊTE — la ligne 1 comme une carte vivante (pas une liste).
+ * Tracé géographique stylisé d'ouest (La Défense) en est (Vincennes), la Seine
+ * qui serpente, des repères parisiens, et chaque station en médaillon : conquise
+ * = territoire illuminé, à conquérir = sceau d'ambre qui pulse. On swipe la ligne.
+ */
+
+const NODE_DX = 132;        // espacement horizontal entre stations
+const PAD_X = 80;
+const MID_Y = 190;
+const AMP = 46;             // amplitude de l'ondulation du tracé
+
+// repères parisiens posés près de leur station (glyphe + station index)
+const LANDMARKS: { i: number; glyph: string; label: string }[] = [
+  { i: 6, glyph: '⌂', label: 'Arc de Triomphe' },
+  { i: 12, glyph: '▣', label: 'Louvre' },
+  { i: 14, glyph: '†', label: 'Notre-Dame' },
+  { i: 17, glyph: '⚑', label: 'Colonne de Juillet' },
+];
+
+function nodePos(i: number) {
+  return { x: PAD_X + i * NODE_DX, y: MID_Y + Math.sin(i * 0.62) * AMP };
+}
+
 export function LineMapScreen() {
   const { t, locale } = useI18n();
+  const navigate = useNavigate();
   const tiersWon = useArcadia((s) => s.tiersWon);
   const user = useArcadia((s) => s.user);
+  const scroller = useRef<HTMLDivElement>(null);
+
   const conquered = LINE.stations.filter((s) => (tiersWon[s.slug] ?? []).length > 0).length;
   const pct = Math.round((conquered / LINE.stations.length) * 100);
-
-  // carte-héros : la première station jouable non (entièrement) conquise
   const hero = LINE.stations
     .map((s) => getStationContent(s.slug))
     .find((c) => c && (tiersWon[c.slug] ?? []).length < 3);
 
-  return (
-    <div className="px-4 pb-6 pt-5">
-      {/* plaque de ligne */}
-      <header className="flex items-center gap-3">
-        <span
-          className="flex h-11 w-11 items-center justify-center rounded-full font-display text-xl font-extrabold text-encre shadow-[0_0_18px_rgba(242,194,0,0.35)]"
-          style={{ background: LINE.color }}
-        >
-          1
-        </span>
-        <div className="min-w-0 flex-1">
-          <h1 className="font-display text-2xl font-extrabold tracking-tight">{t('map.title')}</h1>
-          <p className="truncate text-xs text-pierre-dim">{t('map.subtitle')}</p>
-        </div>
-      </header>
+  const W = PAD_X * 2 + (LINE.stations.length - 1) * NODE_DX;
+  const H = 380;
+  const linePath = LINE.stations
+    .map((_, i) => { const p = nodePos(i); return `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`; })
+    .join(' ');
+  // portion conquise du tracé (jusqu'à la dernière station gagnée)
+  const lastWon = LINE.stations.reduce((acc, s, i) => ((tiersWon[s.slug] ?? []).length ? i : acc), -1);
+  const wonPath = lastWon >= 0
+    ? LINE.stations.slice(0, lastWon + 1).map((_, i) => { const p = nodePos(i); return `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`; }).join(' ')
+    : '';
 
-      {/* jauge de conquête : le plateau a un état, une progression, un but */}
-      <div className="mt-4 rounded-2xl border border-rail bg-plomb px-4 py-3">
-        <div className="flex items-baseline justify-between">
-          <p className="font-mono text-[10px] uppercase tracking-widest text-pierre-faint">
-            {t('map.progress')}
-          </p>
-          <p className="font-display text-sm font-extrabold text-laiton">{pct}%</p>
-        </div>
-        <div className="mt-2 h-2 overflow-hidden rounded-full bg-encre-2">
-          <div
-            className="h-full rounded-full transition-all duration-700"
-            style={{
-              width: `${Math.max(pct, 2)}%`,
-              background: `linear-gradient(90deg, ${LINE.color}, #ff7e2e)`,
-              boxShadow: `0 0 10px ${LINE.color}`,
-            }}
-          />
-        </div>
-        <p className="mt-1.5 font-mono text-[11px] text-pierre-faint">
-          {conquered > 1 ? t('map.conqueredPlural', { n: conquered }) : t('map.conquered', { n: conquered })}
-          {!user && <> · {t('map.playWithoutAccount')}</>}
-        </p>
+  return (
+    <div className="flex h-full flex-col">
+      {/* ── En-tête + jauge (fixe) ── */}
+      <div className="px-4 pt-5">
+        <header className="flex items-center gap-3">
+          <span
+            className="flex h-11 w-11 items-center justify-center rounded-full font-display text-xl font-extrabold text-encre shadow-[0_0_18px_rgba(201,162,39,0.35)]"
+            style={{ background: LINE.color }}
+          >
+            1
+          </span>
+          <div className="min-w-0 flex-1">
+            <h1 className="font-display text-2xl font-extrabold tracking-tight">{t('map.title')}</h1>
+            <p className="truncate text-xs text-pierre-dim">{t('map.subtitle')}</p>
+          </div>
+          <div className="text-right">
+            <p className="font-display text-lg font-extrabold text-laiton">{pct}%</p>
+            <p className="font-mono text-[9px] uppercase tracking-widest text-pierre-faint">{t('map.progress')}</p>
+          </div>
+        </header>
       </div>
 
-      {/* carte-héros : le défi du jour appelle à l'assaut */}
+      {/* ── LE PLATEAU défilable ── */}
+      <div ref={scroller} className="relative mt-3 min-h-0 flex-1 overflow-x-auto overflow-y-hidden">
+        <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="block h-full">
+          <defs>
+            <linearGradient id="board-bg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#1a140d" />
+              <stop offset="1" stopColor="#120d08" />
+            </linearGradient>
+            <linearGradient id="line-grad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stopColor="#9c7d18" />
+              <stop offset="1" stopColor="#3a2f1e" />
+            </linearGradient>
+          </defs>
+          <rect width={W} height={H} fill="url(#board-bg)" />
+
+          {/* la Seine : ruban translucide qui serpente près du centre */}
+          <path
+            d={`M 0 ${H * 0.74} C ${W * 0.25} ${H * 0.6}, ${W * 0.45} ${H * 0.9}, ${W * 0.62} ${H * 0.72} S ${W * 0.9} ${H * 0.6}, ${W} ${H * 0.78} L ${W} ${H} L 0 ${H} Z`}
+            fill="#0a5a9e" opacity="0.14"
+          />
+          <path
+            d={`M 0 ${H * 0.74} C ${W * 0.25} ${H * 0.6}, ${W * 0.45} ${H * 0.9}, ${W * 0.62} ${H * 0.72} S ${W * 0.9} ${H * 0.6}, ${W} ${H * 0.78}`}
+            fill="none" stroke="#3f86c4" strokeWidth="1.5" opacity="0.3"
+          />
+
+          {/* repères parisiens (glyphes ambre discrets au-dessus de leur station) */}
+          {LANDMARKS.map((lm) => {
+            const p = nodePos(lm.i);
+            return (
+              <g key={lm.label} opacity="0.5">
+                <text x={p.x} y={p.y - 64} textAnchor="middle" fontSize="26" fill="#c9a227">{lm.glyph}</text>
+                <text x={p.x} y={p.y - 48} textAnchor="middle" fontSize="9" fill="#8a7c63"
+                  fontFamily="'Work Sans',sans-serif">{lm.label}</text>
+              </g>
+            );
+          })}
+
+          {/* tracé de la ligne : gris chaud, puis portion conquise en or lumineux */}
+          <path d={linePath} fill="none" stroke="url(#line-grad)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+          {wonPath && (
+            <path d={wonPath} fill="none" stroke={LINE.color} strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"
+              style={{ filter: 'drop-shadow(0 0 6px rgba(242,194,0,0.6))' }} />
+          )}
+
+          {/* terminus ouest/est */}
+          {[0, LINE.stations.length - 1].map((i) => {
+            const p = nodePos(i);
+            return <circle key={i} cx={p.x} cy={p.y} r="11" fill="none" stroke="#8a7c63" strokeWidth="3" />;
+          })}
+
+          {/* stations : médaillons */}
+          {LINE.stations.map((station, i) => {
+            const p = nodePos(i);
+            const won = (tiersWon[station.slug] ?? []).length > 0;
+            const fullyWon = (tiersWon[station.slug] ?? []).length >= 3;
+            const playable = isPlayable(station.slug);
+            const isHero = hero?.slug === station.slug;
+            const labelBelow = i % 2 === 0;
+            return (
+              <g
+                key={station.slug}
+                style={{ cursor: playable ? 'pointer' : 'default' }}
+                onClick={() => playable && navigate(`/station/${station.slug}`)}
+              >
+                {/* halo territoire pour les conquises */}
+                {won && <circle cx={p.x} cy={p.y} r="22" fill={LINE.color} opacity="0.12" />}
+                {/* anneau pulse pour le défi en cours */}
+                {isHero && playable && (
+                  <circle cx={p.x} cy={p.y} r="18" fill="none" stroke="#e0964a" strokeWidth="2.5" className="animate-glow" />
+                )}
+                <circle
+                  cx={p.x} cy={p.y} r="12"
+                  fill={won ? LINE.color : playable ? '#241f18' : '#1b150d'}
+                  stroke={won ? '#fff6d0' : playable ? '#e0964a' : '#5d5240'}
+                  strokeWidth={playable ? 3 : 2}
+                  style={won ? { filter: 'drop-shadow(0 0 8px rgba(242,194,0,0.7))' } : undefined}
+                />
+                {fullyWon && <text x={p.x} y={p.y + 4} textAnchor="middle" fontSize="13" fill="#15110c">★</text>}
+                {!won && playable && <circle cx={p.x} cy={p.y} r="3.5" fill="#e0964a" />}
+
+                {/* étiquette */}
+                <text
+                  x={p.x} y={labelBelow ? p.y + 30 : p.y - 22}
+                  textAnchor="middle" fontSize="11"
+                  fill={playable ? '#e7dcc4' : '#8a7c63'}
+                  fontFamily="'Work Sans',sans-serif"
+                  fontWeight={playable ? 600 : 400}
+                >
+                  {station.name.length > 16 ? station.name.slice(0, 15) + '…' : station.name}
+                </text>
+                {playable && !won && (
+                  <text x={p.x} y={labelBelow ? p.y + 43 : p.y - 35} textAnchor="middle" fontSize="8"
+                    fill="#c9a227" fontFamily="'Work Sans',sans-serif" letterSpacing="1">
+                    {t('map.challengeAvailable').toUpperCase()}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+
+      {/* ── Carte-héros : le défi du jour appelle à l'assaut (fixe en bas) ── */}
       {hero && (
-        <Link
-          to={`/station/${hero.slug}`}
-          className="relative mt-4 block overflow-hidden rounded-2xl border border-laiton/40 bg-gradient-to-br from-[#23170f] via-plomb to-plomb p-4 transition active:scale-[0.99]"
-        >
-          <div className="pointer-events-none absolute -right-6 -top-8 text-[88px] opacity-15">⚜</div>
-          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-laiton">
-            ★ {t('map.heroKicker')}
-          </p>
-          <h2 className="mt-1 font-display text-xl font-extrabold tracking-tight text-pierre">
-            {pickText(hero.game.title, locale)}
-          </h2>
-          <p className="mt-0.5 text-xs italic text-pierre-dim">{pickText(hero.game.tagline, locale)}</p>
-          <div className="mt-3 flex items-center justify-between">
-            <div className="flex gap-1.5">
-              {(['bronze', 'silver', 'gold'] as const).map((tr) => (
-                <span
-                  key={tr}
-                  className={`h-2.5 w-2.5 rounded-full border ${
+        <div className="px-4 pb-4">
+          <button
+            type="button"
+            onClick={() => navigate(`/station/${hero.slug}`)}
+            className="relative block w-full overflow-hidden rounded-2xl border border-laiton/40 bg-gradient-to-br from-[#23170f] via-plomb to-plomb p-4 text-left transition active:scale-[0.99]"
+          >
+            <div className="pointer-events-none absolute -right-6 -top-8 text-[88px] opacity-15">⚑</div>
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-laiton">★ {t('map.heroKicker')}</p>
+            <h2 className="mt-1 font-display text-xl font-extrabold tracking-tight text-pierre">
+              {pickText(hero.game.title, locale)}
+            </h2>
+            <div className="mt-2 flex items-center justify-between">
+              <div className="flex gap-1.5">
+                {(['bronze', 'silver', 'gold'] as const).map((tr) => (
+                  <span key={tr} className={`h-2.5 w-2.5 rounded-full border ${
                     (tiersWon[hero.slug] ?? []).includes(tr)
                       ? 'border-laiton bg-laiton shadow-[0_0_6px_rgba(242,194,0,0.7)]'
-                      : 'border-pierre-faint/50 bg-transparent'
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="animate-glow rounded-lg bg-laiton px-3.5 py-1.5 font-display text-xs font-extrabold text-encre">
-              ⚔ {t('map.heroCta')}
-            </span>
-          </div>
-        </Link>
-      )}
-
-      <p className="mt-5 font-mono text-[10px] uppercase tracking-widest text-pierre-faint">
-        {t('map.board')}
-      </p>
-
-      {/* la ligne : rail vertical + stations */}
-      <ol className="relative ml-[21px] mt-3 border-l-[3px]" style={{ borderColor: LINE.color }}>
-        {LINE.stations.map((station) => {
-          const won = (tiersWon[station.slug] ?? []).length > 0;
-          const playable = isPlayable(station.slug);
-          const bullet = (
-            <span
-              className={`absolute -left-[12px] top-1/2 h-[18px] w-[18px] -translate-y-1/2 rounded-full border-[3px] transition-all ${
-                won
-                  ? 'border-transparent shadow-[0_0_12px_rgba(242,194,0,0.6)]'
-                  : playable
-                    ? 'border-ambre bg-encre shadow-[0_0_10px_rgba(224,150,74,0.45)]'
-                    : 'border-pierre-faint bg-encre'
-              }`}
-              style={won ? { background: LINE.color } : undefined}
-            />
-          );
-          const row = (
-            <div className="relative flex items-center gap-3 py-[9px] pl-6">
-              {bullet}
-              <span
-                className={`flex-1 text-[15px] ${
-                  playable ? 'font-semibold text-pierre' : 'text-pierre-faint'
-                }`}
-              >
-                {station.name}
+                      : 'border-pierre-faint/50'
+                  }`} />
+                ))}
+              </div>
+              <span className="animate-glow rounded-lg bg-laiton px-3.5 py-1.5 font-display text-xs font-extrabold text-encre">
+                ⚔ {t('map.heroCta')}
               </span>
-              {playable && !won && (
-                <span className="animate-glow rounded-md bg-laiton/15 px-2 py-0.5 font-mono text-[10px] font-bold text-laiton">
-                  {t('map.challengeAvailable')}
-                </span>
-              )}
-              {won && <span className="text-sm text-laiton">★</span>}
-              {!playable && (
-                <span className="font-mono text-[10px] text-pierre-faint/60">{t('common.soon')}</span>
-              )}
             </div>
-          );
-          return (
-            <li key={station.slug}>
-              {playable ? (
-                <Link
-                  to={`/station/${station.slug}`}
-                  className="block rounded-lg transition-colors active:bg-plomb-hi"
-                >
-                  {row}
-                </Link>
-              ) : (
-                row
-              )}
-            </li>
-          );
-        })}
-      </ol>
+          </button>
+          {!user && (
+            <p className="mt-2 text-center font-mono text-[11px] text-pierre-faint">{t('map.playWithoutAccount')}</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
