@@ -81,6 +81,10 @@ export const fr = {
     quit: 'Quitter la partie ?', quitConfirm: 'Quitter', quitStay: 'Continuer',
     submitting: 'Calcul du score serveur…',
   },
+  orient: {
+    title: 'Tournez votre téléphone',
+    body: 'La Prise de la Bastille se joue en paysage.',
+  },
   result: {
     victory: 'La Bastille est tombée !', defeat: 'La forteresse tient bon…',
     victoryGeneric: 'Victoire !',

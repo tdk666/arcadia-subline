@@ -83,6 +83,10 @@ export const en: Dict = {
     quit: 'Quit this run?', quitConfirm: 'Quit', quitStay: 'Keep playing',
     submitting: 'Computing server score…',
   },
+  orient: {
+    title: 'Rotate your phone',
+    body: 'Storming the Bastille is played in landscape.',
+  },
   result: {
     victory: 'The Bastille has fallen!', defeat: 'The fortress holds…',
     victoryGeneric: 'Victory!',

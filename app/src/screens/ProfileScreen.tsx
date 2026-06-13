@@ -39,42 +39,42 @@ export function ProfileScreen() {
       <h1 className="font-display text-2xl font-extrabold tracking-tight">{t('profile.title')}</h1>
 
       {/* carte d'identité du conquérant */}
-      <div className="relative mt-4 overflow-hidden rounded-2xl border border-rail bg-gradient-to-br from-[#1b1530] via-quai to-quai p-5">
+      <div className="relative mt-4 overflow-hidden rounded-2xl border border-rail bg-gradient-to-br from-[#1b1530] via-plomb to-plomb p-5">
         <div className="pointer-events-none absolute -right-4 -top-6 text-[80px] opacity-10">◈</div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-magenta-metro">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-vermillon">
           {t('profile.rank')} — {rankLabel(t, stats?.xpTotal ?? 0)}
         </p>
         <p className="mt-1 font-display text-xl font-extrabold">
           {user ? user.displayName : t('profile.guest')}
         </p>
-        <p className="mt-0.5 text-xs text-neon-faint">
+        <p className="mt-0.5 text-xs text-pierre-faint">
           {user?.email ? t('profile.connected', { email: user.email }) : t('profile.localProgress')}
         </p>
         {pending.length > 0 && user && (
-          <p className="mt-1 font-mono text-[11px] text-cyan-metro">{t('auth.pendingSync')}</p>
+          <p className="mt-1 font-mono text-[11px] text-ambre">{t('auth.pendingSync')}</p>
         )}
 
         <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-          <div className="rounded-xl bg-tunnel-2 py-3">
+          <div className="rounded-xl bg-encre-2 py-3">
             <p className="font-display text-xl font-extrabold text-[#b6bd00]">{stats?.xpTotal ?? 0}</p>
-            <p className="font-mono text-[9px] uppercase text-neon-faint">{t('profile.xp')}</p>
+            <p className="font-mono text-[9px] uppercase text-pierre-faint">{t('profile.xp')}</p>
           </div>
-          <div className="rounded-xl bg-tunnel-2 py-3">
-            <p className="font-display text-xl font-extrabold text-gold-metro">
+          <div className="rounded-xl bg-encre-2 py-3">
+            <p className="font-display text-xl font-extrabold text-laiton">
               {stats?.streak ?? 0}<span className="text-xs">{t('profile.streakUnit')}</span>
             </p>
-            <p className="font-mono text-[9px] uppercase text-neon-faint">{t('profile.streak')}</p>
+            <p className="font-mono text-[9px] uppercase text-pierre-faint">{t('profile.streak')}</p>
           </div>
-          <div className="rounded-xl bg-tunnel-2 py-3">
-            <p className="font-display text-xl font-extrabold text-magenta-metro">{conquered}</p>
-            <p className="font-mono text-[9px] uppercase text-neon-faint">{t('profile.stations')}</p>
+          <div className="rounded-xl bg-encre-2 py-3">
+            <p className="font-display text-xl font-extrabold text-vermillon">{conquered}</p>
+            <p className="font-mono text-[9px] uppercase text-pierre-faint">{t('profile.stations')}</p>
           </div>
         </div>
 
         <button
           type="button"
           className={`mt-4 w-full rounded-xl py-2.5 font-display text-sm font-bold transition active:scale-[0.98] ${
-            user ? 'border border-rail text-neon-dim' : 'bg-gold-metro text-tunnel'
+            user ? 'border border-rail text-pierre-dim' : 'bg-laiton text-encre'
           }`}
           onClick={() => (user ? void backend.signOut() : setAuthOpen(true))}
         >
@@ -83,15 +83,15 @@ export function ProfileScreen() {
       </div>
 
       {/* langue */}
-      <div className="mt-4 flex items-center justify-between rounded-2xl border border-rail bg-quai px-5 py-4">
+      <div className="mt-4 flex items-center justify-between rounded-2xl border border-rail bg-plomb px-5 py-4">
         <span className="text-sm font-semibold">{t('profile.language')}</span>
-        <div className="flex gap-1 rounded-lg bg-tunnel-2 p-1">
+        <div className="flex gap-1 rounded-lg bg-encre-2 p-1">
           {(['fr', 'en'] as Locale[]).map((l) => (
             <button
               key={l}
               type="button"
               className={`rounded-md px-3 py-1 font-mono text-xs font-bold uppercase transition ${
-                locale === l ? 'bg-cyan-metro text-tunnel' : 'text-neon-faint'
+                locale === l ? 'bg-ambre text-encre' : 'text-pierre-faint'
               }`}
               onClick={() => setLocale(l)}
             >
@@ -104,20 +104,20 @@ export function ProfileScreen() {
       {/* revoir l'intro */}
       <button
         type="button"
-        className="mt-4 w-full rounded-2xl border border-rail bg-quai px-5 py-4 text-left text-sm font-semibold active:bg-quai-hi"
+        className="mt-4 w-full rounded-2xl border border-rail bg-plomb px-5 py-4 text-left text-sm font-semibold active:bg-plomb-hi"
         onClick={() => window.dispatchEvent(new Event('arcadia:replay-intro'))}
       >
         ▶ {t('profile.replayIntro')}
       </button>
 
       {/* installation PWA */}
-      <div className="mt-4 rounded-2xl border border-rail bg-quai px-5 py-4">
+      <div className="mt-4 rounded-2xl border border-rail bg-plomb px-5 py-4">
         <p className="text-sm font-semibold">{t('profile.install')}</p>
-        <p className="mt-0.5 text-xs text-neon-faint">{t('profile.installHint')}</p>
+        <p className="mt-0.5 text-xs text-pierre-faint">{t('profile.installHint')}</p>
         {installEvt && (
           <button
             type="button"
-            className="mt-3 w-full rounded-xl border border-cyan-metro/50 bg-cyan-metro/10 py-2.5 font-mono text-sm font-bold text-cyan-metro active:scale-[0.98]"
+            className="mt-3 w-full rounded-xl border border-ambre/50 bg-ambre/10 py-2.5 font-mono text-sm font-bold text-ambre active:scale-[0.98]"
             onClick={() => (installEvt as Event & { prompt?: () => void }).prompt?.()}
           >
             ⬇ {t('profile.install')}
@@ -126,7 +126,7 @@ export function ProfileScreen() {
       </div>
 
       {backend.mode === 'demo' && (
-        <p className="mt-4 text-center font-mono text-[11px] text-magenta-metro">
+        <p className="mt-4 text-center font-mono text-[11px] text-vermillon">
           {t('demo.banner')} — {t('demo.detail')}
         </p>
       )}

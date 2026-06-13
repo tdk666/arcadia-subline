@@ -31,18 +31,18 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60" onClick={onClose}>
       <div
-        className="animate-slide-up w-full max-w-md rounded-t-2xl border-t border-rail bg-quai p-5 pb-8 safe-bottom"
+        className="animate-slide-up w-full max-w-md rounded-t-2xl border-t border-rail bg-plomb p-5 pb-8 safe-bottom"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="font-display text-xl font-extrabold tracking-tight">
           {mode === 'signup' ? t('auth.signupTitle') : t('auth.loginTitle')}
         </h2>
-        {intro && <p className="mt-1 text-sm text-neon-dim">{intro}</p>}
+        {intro && <p className="mt-1 text-sm text-pierre-dim">{intro}</p>}
 
         <form onSubmit={submit} className="mt-4 flex flex-col gap-3">
           {mode === 'signup' && (
             <input
-              className="rounded-xl border border-rail bg-tunnel-2 px-4 py-3 text-sm outline-none focus:border-cyan-metro"
+              className="rounded-xl border border-rail bg-encre-2 px-4 py-3 text-sm outline-none focus:border-ambre"
               placeholder={t('auth.displayName')}
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
@@ -50,7 +50,7 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
             />
           )}
           <input
-            className="rounded-xl border border-rail bg-tunnel-2 px-4 py-3 text-sm outline-none focus:border-cyan-metro"
+            className="rounded-xl border border-rail bg-encre-2 px-4 py-3 text-sm outline-none focus:border-ambre"
             type="email"
             required
             autoComplete="email"
@@ -59,7 +59,7 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
             onChange={(e) => setEmail(e.target.value)}
           />
           <input
-            className="rounded-xl border border-rail bg-tunnel-2 px-4 py-3 text-sm outline-none focus:border-cyan-metro"
+            className="rounded-xl border border-rail bg-encre-2 px-4 py-3 text-sm outline-none focus:border-ambre"
             type="password"
             required
             minLength={8}
@@ -72,7 +72,7 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
           <button
             type="submit"
             disabled={busy}
-            className="rounded-xl bg-gold-metro py-3 font-display font-bold text-tunnel transition active:scale-[0.98] disabled:opacity-50"
+            className="rounded-xl bg-laiton py-3 font-display font-bold text-encre transition active:scale-[0.98] disabled:opacity-50"
           >
             {busy ? t('common.loading') : mode === 'signup' ? t('auth.signup') : t('auth.login')}
           </button>
@@ -80,7 +80,7 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
 
         <button
           type="button"
-          className="mt-3 w-full text-center text-xs text-neon-dim underline-offset-2 active:underline"
+          className="mt-3 w-full text-center text-xs text-pierre-dim underline-offset-2 active:underline"
           onClick={() => setMode(mode === 'signup' ? 'login' : 'signup')}
         >
           {mode === 'signup' ? t('auth.toLogin') : t('auth.toSignup')}

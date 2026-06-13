@@ -27,11 +27,20 @@ export type DifficultyTier = 'bronze' | 'silver' | 'gold';
 
 export const TIER_ORDER: DifficultyTier[] = ['bronze', 'silver', 'gold'];
 
+/**
+ * Orientation d'écran attendue par un archétype.
+ * 'landscape' : le terrain est large (ex. démolition 960×600) ; le host
+ * verrouille/incite au paysage pour que la visée soit jouable. Défaut 'portrait'.
+ */
+export type GameOrientation = 'portrait' | 'landscape';
+
 export interface GameContext {
   /** Quête serveur visée par cette partie (1 quête = 1 station × 1 palier). */
   questId: string;
   stationId: string;
   stationSlug: string;
+  /** Nom d'affichage de la station (plaque émaillée du HUD). */
+  stationName: string;
   difficulty: DifficultyTier;
   /**
    * Paramètres de jeu côté client (copie de quest_steps.payload).
@@ -66,6 +75,8 @@ export interface MiniGameModule {
 
 export interface MiniGameDefinition {
   archetype: GameArchetype;
+  /** Orientation requise par le terrain. Défaut 'portrait' si absent. */
+  orientation?: GameOrientation;
   /** Import dynamique → chaque archétype est code-splitté hors du bundle initial. */
   load: () => Promise<MiniGameModule>;
 }

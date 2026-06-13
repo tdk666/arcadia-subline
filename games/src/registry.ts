@@ -26,5 +26,6 @@ export function hasGame(archetype: GameArchetype): boolean {
 
 registerGame({
   archetype: 'demolition',
+  orientation: 'landscape', // terrain 960×600 — paysage = visée jouable
   load: () => import('./demolition/DemolitionGame'),
 });

@@ -33,7 +33,7 @@ function ArchiveCard({ station, onClose }: { station: StationContent; onClose: (
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 px-5" onClick={onClose}>
       <div
-        className="animate-stamp relative max-h-[82vh] w-full max-w-sm overflow-y-auto rounded-2xl border-2 border-guimard/70 bg-[#11181380] bg-quai p-6"
+        className="animate-stamp relative max-h-[82vh] w-full max-w-sm overflow-y-auto rounded-2xl border-2 border-guimard/70 bg-[#11181380] bg-plomb p-6"
         style={{ background: 'linear-gradient(165deg, #14211a 0%, #161c25 45%)' }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -44,25 +44,25 @@ function ArchiveCard({ station, onClose }: { station: StationContent; onClose: (
 
         <div className="flex items-start justify-between">
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#4dd08a]">
+            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#6cae86]">
               {pickText(station.archive.collection, locale)}
             </p>
-            <p className="mt-0.5 font-mono text-[10px] text-neon-faint">
+            <p className="mt-0.5 font-mono text-[10px] text-pierre-faint">
               {t('archive.number', { n: station.archive.number })} · {pickText(station.archive.era, locale)}
             </p>
           </div>
           {/* sceau */}
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#4dd08a]/70 font-display text-xl text-[#4dd08a]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#6cae86]/70 font-display text-xl text-[#6cae86]">
             ⚜
           </div>
         </div>
 
-        <h2 className="mt-4 font-display text-2xl font-extrabold tracking-tight text-neon">
+        <h2 className="mt-4 font-display text-2xl font-extrabold tracking-tight text-pierre">
           {station.name}
         </h2>
-        <p className="mt-1 text-sm italic text-[#4dd08a]">{pickText(station.story.teaser, locale)}</p>
+        <p className="mt-1 text-sm italic text-[#6cae86]">{pickText(station.story.teaser, locale)}</p>
 
-        <p className="mt-4 text-sm leading-relaxed text-neon-dim">
+        <p className="mt-4 text-sm leading-relaxed text-pierre-dim">
           {pickText(station.story.body, locale)}
         </p>
 
@@ -70,10 +70,10 @@ function ArchiveCard({ station, onClose }: { station: StationContent; onClose: (
           {(station.story.facts[locale] ?? station.story.facts.fr).map((f, i) => (
             <li
               key={f}
-              className="animate-slide-up flex items-center gap-2.5 rounded-lg border border-guimard/30 bg-guimard/10 px-3 py-2 text-xs text-neon"
+              className="animate-slide-up flex items-center gap-2.5 rounded-lg border border-guimard/30 bg-guimard/10 px-3 py-2 text-xs text-pierre"
               style={{ animationDelay: `${0.5 + i * 0.15}s` }}
             >
-              <span className="text-[#4dd08a]">◈</span>{f}
+              <span className="text-[#6cae86]">◈</span>{f}
             </li>
           ))}
         </ul>
@@ -119,14 +119,14 @@ export function ResultView({
   }
 
   return (
-    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 overflow-y-auto bg-tunnel/95 px-6 py-8 text-center">
+    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 overflow-y-auto bg-encre/95 px-6 py-8 text-center">
       <div className="animate-pop">
-        <p className="font-mono text-xs uppercase tracking-widest text-neon-faint">
+        <p className="font-mono text-xs uppercase tracking-widest text-pierre-faint">
           {station.name} · {t(`station.tiers.${result.tier}`)}
         </p>
         <h1
           className={`mt-1 font-display text-4xl font-extrabold tracking-tight ${
-            result.success ? 'animate-glow text-gold-metro' : 'text-neon-dim'
+            result.success ? 'animate-glow text-laiton' : 'text-pierre-dim'
           }`}
         >
           {result.success ? t('result.victory') : t('result.defeat')}
@@ -134,32 +134,32 @@ export function ResultView({
       </div>
 
       <div className="animate-slide-up flex w-full max-w-xs flex-col gap-2.5">
-        <div className="rounded-2xl border border-rail bg-quai px-5 py-4">
-          <p className="font-mono text-[10px] uppercase tracking-wider text-neon-faint">{t('result.score')}</p>
-          <p className="font-display text-5xl font-extrabold text-cyan-metro">
+        <div className="rounded-2xl border border-rail bg-plomb px-5 py-4">
+          <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.score')}</p>
+          <p className="font-display text-5xl font-extrabold text-ambre">
             <CountUp value={result.score} />
           </p>
         </div>
         <div className="flex gap-2.5">
-          <div className="flex-1 rounded-2xl border border-rail bg-quai px-4 py-3">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-neon-faint">{t('result.xp')}</p>
+          <div className="flex-1 rounded-2xl border border-rail bg-plomb px-4 py-3">
+            <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.xp')}</p>
             <p className="font-display text-2xl font-extrabold text-[#b6bd00]">
               +<CountUp value={result.xpGained} />
             </p>
           </div>
-          <div className="flex-1 rounded-2xl border border-rail bg-quai px-4 py-3">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-neon-faint">{t('result.mastery')}</p>
-            <p className="font-display text-2xl font-extrabold text-magenta-metro">
+          <div className="flex-1 rounded-2xl border border-rail bg-plomb px-4 py-3">
+            <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.mastery')}</p>
+            <p className="font-display text-2xl font-extrabold text-vermillon">
               <CountUp value={result.mastery} />
             </p>
           </div>
         </div>
         {result.success && result.xpGained === 0 && !result.flagged && (
-          <p className="text-xs text-neon-faint">{t('result.bestScore')}</p>
+          <p className="text-xs text-pierre-faint">{t('result.bestScore')}</p>
         )}
         {result.flagged && <p className="text-xs text-orange-300">⚠ {t('result.flagged')}</p>}
         {result.localOnly && (
-          <p className="font-mono text-[11px] text-magenta-metro">◦ {t('result.localOnly')}</p>
+          <p className="font-mono text-[11px] text-vermillon">◦ {t('result.localOnly')}</p>
         )}
       </div>
 
@@ -171,28 +171,28 @@ export function ResultView({
           className="animate-slide-up flex w-full max-w-xs items-center gap-3 rounded-2xl border-2 border-guimard/60 bg-guimard/10 px-4 py-3 text-left transition active:scale-[0.98]"
           style={{ animationDelay: '0.2s' }}
         >
-          <span className={`flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#4dd08a] text-xl ${archiveIsNew ? 'animate-glow' : ''}`}>
+          <span className={`flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#6cae86] text-xl ${archiveIsNew ? 'animate-glow' : ''}`}>
             ⚜
           </span>
           <span className="flex-1">
-            <span className="block font-display text-sm font-bold text-[#4dd08a]">
+            <span className="block font-display text-sm font-bold text-[#6cae86]">
               {archiveIsNew ? `★ ${t('archive.unlocked')}` : t('station.story.title')}
             </span>
-            <span className="block font-mono text-[10px] text-neon-faint">
+            <span className="block font-mono text-[10px] text-pierre-faint">
               {t('archive.number', { n: station.archive.number })} — {t('archive.open')}
             </span>
           </span>
-          <span className="text-neon-faint">›</span>
+          <span className="text-pierre-faint">›</span>
         </button>
       )}
 
       {showGuestSave && (
-        <div className="animate-slide-up w-full max-w-xs rounded-2xl border border-gold-metro/50 bg-gold-metro/10 p-4" style={{ animationDelay: '0.3s' }}>
-          <p className="font-display font-bold text-gold-metro">★ {t('result.guestSave.title')}</p>
-          <p className="mt-1 text-xs text-neon-dim">{t('result.guestSave.body')}</p>
+        <div className="animate-slide-up w-full max-w-xs rounded-2xl border border-laiton/50 bg-laiton/10 p-4" style={{ animationDelay: '0.3s' }}>
+          <p className="font-display font-bold text-laiton">★ {t('result.guestSave.title')}</p>
+          <p className="mt-1 text-xs text-pierre-dim">{t('result.guestSave.body')}</p>
           <button
             type="button"
-            className="mt-3 w-full rounded-xl bg-gold-metro py-2.5 font-display text-sm font-bold text-tunnel active:scale-[0.98]"
+            className="mt-3 w-full rounded-xl bg-laiton py-2.5 font-display text-sm font-bold text-encre active:scale-[0.98]"
             onClick={() => setAuthOpen(true)}
           >
             {t('result.guestSave.cta')}
@@ -204,7 +204,7 @@ export function ResultView({
         {result.success && nextTier ? (
           <button
             type="button"
-            className="rounded-xl bg-cyan-metro py-3 font-display font-bold text-tunnel active:scale-[0.98]"
+            className="rounded-xl bg-ambre py-3 font-display font-bold text-encre active:scale-[0.98]"
             onClick={() => onNextTier(nextTier)}
           >
             ⬆ {t('result.nextTier')} · {t(`station.tiers.${nextTier}`)}
@@ -212,7 +212,7 @@ export function ResultView({
         ) : (
           <button
             type="button"
-            className="rounded-xl bg-cyan-metro py-3 font-display font-bold text-tunnel active:scale-[0.98]"
+            className="rounded-xl bg-ambre py-3 font-display font-bold text-encre active:scale-[0.98]"
             onClick={onReplay}
           >
             ↻ {t('result.replay')}
@@ -221,13 +221,13 @@ export function ResultView({
         <div className="flex gap-2">
           <Link
             to={`/station/${result.slug}`}
-            className="flex-1 rounded-xl border border-rail py-2.5 text-sm text-neon-dim active:bg-quai-hi"
+            className="flex-1 rounded-xl border border-rail py-2.5 text-sm text-pierre-dim active:bg-plomb-hi"
           >
             {t('result.toStation')}
           </Link>
           <Link
             to="/leaderboard"
-            className="flex-1 rounded-xl border border-rail py-2.5 text-sm text-neon-dim active:bg-quai-hi"
+            className="flex-1 rounded-xl border border-rail py-2.5 text-sm text-pierre-dim active:bg-plomb-hi"
           >
             ♛ {t('result.toLeaderboard')}
           </Link>

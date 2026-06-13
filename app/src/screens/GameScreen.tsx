@@ -10,9 +10,10 @@ import { getStationContent, type StationContent } from '../lib/content';
 import { previewDemolitionScore } from '../lib/scoring';
 import { useArcadia, type LastResult } from '../store';
 import { ResultView } from '../components/ResultView';
+import { OrientationGate } from '../components/OrientationGate';
 
 const TIER_COLOR: Record<DifficultyTier, string> = {
-  bronze: '#e0945a', silver: '#c9d2dc', gold: '#f2c200',
+  bronze: '#c08a55', silver: '#b9c0c4', gold: '#e3c463',
 };
 
 export function GameScreen() {
@@ -47,6 +48,9 @@ export function GameScreen() {
     const def = getGame(content.game.archetype);
     return lazy(def.load) as React.ComponentType<GameProps>;
   }, [content]);
+
+  // orientation requise par l'archétype (démolition = paysage)
+  const orientation = content ? (getGame(content.game.archetype).orientation ?? 'portrait') : 'portrait';
 
   if (!allowed || !content || !Game) return null;
 
@@ -99,25 +103,25 @@ export function GameScreen() {
   }
 
   return (
-    <div className="fixed inset-0 mx-auto max-w-md bg-tunnel">
-      {/* ── BRIEFING : le cadre narratif pose l'enjeu avant l'assaut ── */}
+    <div className="fixed inset-0 bg-encre">
+      {/* ── BRIEFING : le cadre narratif pose l'enjeu avant l'assaut (portrait) ── */}
       {phase === 'brief' && (
-        <div className="flex h-full flex-col items-center justify-center gap-6 px-7 text-center">
+        <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center gap-6 px-7 text-center">
           <div className="animate-slide-up w-full">
             <p className="font-mono text-[11px] uppercase tracking-[0.25em]" style={{ color: TIER_COLOR[difficulty] }}>
               {pickText(brief.date, locale)}
             </p>
-            <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-neon">
+            <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-pierre">
               {pickText(brief.title, locale)}
             </h1>
-            <p className="mt-4 text-[15px] leading-relaxed text-neon-dim">
+            <p className="mt-4 text-[15px] leading-relaxed text-pierre-dim">
               {pickText(brief.body, locale)}
             </p>
           </div>
 
-          <div className="animate-slide-up w-full rounded-2xl border border-rail bg-quai/80 px-5 py-4 text-left" style={{ animationDelay: '0.12s' }}>
-            <p className="font-mono text-[10px] uppercase tracking-widest text-neon-faint">{t('brief.objective')}</p>
-            <p className="mt-1.5 text-sm font-semibold text-neon">
+          <div className="animate-slide-up w-full rounded-2xl border border-rail bg-plomb/80 px-5 py-4 text-left" style={{ animationDelay: '0.12s' }}>
+            <p className="font-mono text-[10px] uppercase tracking-widest text-pierre-faint">{t('brief.objective')}</p>
+            <p className="mt-1.5 text-sm font-semibold text-pierre">
               ⚜ {t('brief.objectiveText', { targets: 3 })}
               {params.targetPct > 0 && <><br />💥 {t('brief.objectiveExtra', { pct: params.targetPct })}</>}
               {params.timeLimitS > 0 && <><br />⏱ {t('brief.objectiveTime', { time: params.timeLimitS })}</>}
@@ -127,7 +131,7 @@ export function GameScreen() {
           <button
             type="button"
             onClick={() => setPhase('play')}
-            className="animate-pop w-full max-w-xs rounded-2xl py-4 font-display text-lg font-extrabold text-tunnel shadow-[0_0_30px_rgba(242,194,0,0.35)] transition active:scale-[0.97]"
+            className="animate-pop w-full max-w-xs rounded-2xl py-4 font-display text-lg font-extrabold text-encre shadow-[0_0_30px_rgba(242,194,0,0.35)] transition active:scale-[0.97]"
             style={{ background: TIER_COLOR[difficulty], animationDelay: '0.25s' }}
           >
             ⚔ {t('brief.cta')}
@@ -135,41 +139,44 @@ export function GameScreen() {
           <button
             type="button"
             onClick={() => navigate(`/station/${slug}`)}
-            className="font-mono text-xs text-neon-faint active:text-neon-dim"
+            className="font-mono text-xs text-pierre-faint active:text-pierre-dim"
           >
             ← {t('common.back')}
           </button>
         </div>
       )}
 
-      {/* ── JEU ── */}
+      {/* ── JEU (plein cadre paysage) ── */}
       {(phase === 'play' || phase === 'submitting') && (
-        <Suspense
-          fallback={
-            <div className="flex h-full items-center justify-center font-mono text-sm text-neon-faint">
-              {t('common.loading')}
-            </div>
-          }
-        >
-          <Game
-            key={runId}
-            ctx={{
-              questId: quest.questId,
-              stationId: content.stationId,
-              stationSlug: content.slug,
-              difficulty,
-              params: quest.params,
-              locale,
-              reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-            }}
-            onFinish={onFinish}
-            onQuit={() => setQuitAsk(true)}
-          />
-        </Suspense>
+        <OrientationGate active={orientation === 'landscape'}>
+          <Suspense
+            fallback={
+              <div className="flex h-full items-center justify-center text-sm text-pierre-faint">
+                {t('common.loading')}
+              </div>
+            }
+          >
+            <Game
+              key={runId}
+              ctx={{
+                questId: quest.questId,
+                stationId: content.stationId,
+                stationSlug: content.slug,
+                stationName: content.name,
+                difficulty,
+                params: quest.params,
+                locale,
+                reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+              }}
+              onFinish={onFinish}
+              onQuit={() => setQuitAsk(true)}
+            />
+          </Suspense>
+        </OrientationGate>
       )}
 
       {phase === 'submitting' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/50 font-mono text-sm text-cyan-metro">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/50 font-mono text-sm text-ambre">
           {t('game.submitting')}
         </div>
       )}
@@ -185,19 +192,19 @@ export function GameScreen() {
 
       {quitAsk && (
         <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/70 px-8">
-          <div className="animate-pop w-full max-w-xs rounded-2xl border border-rail bg-quai p-5 text-center">
+          <div className="animate-pop w-full max-w-xs rounded-2xl border border-rail bg-plomb p-5 text-center">
             <p className="font-display font-bold">{t('game.quit')}</p>
             <div className="mt-4 flex gap-3">
               <button
                 type="button"
-                className="flex-1 rounded-xl border border-rail py-2.5 text-sm text-neon-dim active:bg-quai-hi"
+                className="flex-1 rounded-xl border border-rail py-2.5 text-sm text-pierre-dim active:bg-plomb-hi"
                 onClick={() => navigate(`/station/${slug}`)}
               >
                 {t('game.quitConfirm')}
               </button>
               <button
                 type="button"
-                className="flex-1 rounded-xl bg-gold-metro py-2.5 font-bold text-sm text-tunnel active:scale-[0.98]"
+                className="flex-1 rounded-xl bg-laiton py-2.5 font-bold text-sm text-encre active:scale-[0.98]"
                 onClick={() => setQuitAsk(false)}
               >
                 {t('game.quitStay')}

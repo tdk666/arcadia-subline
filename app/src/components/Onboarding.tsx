@@ -16,9 +16,9 @@ function SceneEiffel() {
     <svg viewBox="0 0 320 240" className="h-full w-full" aria-hidden>
       <defs>
         <linearGradient id="ob-sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#0d1014" />
-          <stop offset="0.7" stopColor="#1a2230" />
-          <stop offset="1" stopColor="#3a2a3f" />
+          <stop offset="0" stopColor="#15110c" />
+          <stop offset="0.7" stopColor="#2a1d10" />
+          <stop offset="1" stopColor="#3a2618" />
         </linearGradient>
       </defs>
       <rect width="320" height="240" fill="url(#ob-sky)" />
@@ -34,13 +34,13 @@ function SceneEiffel() {
       {/* viaduc + rame ligne 6 */}
       <line x1="0" y1="208" x2="320" y2="208" stroke="#2a3340" strokeWidth="5" />
       <g className="ob-train">
-        <rect x="-150" y="186" width="120" height="20" rx="6" fill="#161c25" stroke="#6ec4e8" strokeWidth="1.6" />
+        <rect x="-150" y="186" width="120" height="20" rx="6" fill="#161c25" stroke="#e0964a" strokeWidth="1.6" />
         {[0, 1, 2, 3].map((i) => (
-          <rect key={i} x={-140 + i * 28} y="191" width="18" height="10" rx="2" fill="#0d1014" stroke="#6ec4e8" strokeWidth="1" />
+          <rect key={i} x={-140 + i * 28} y="191" width="18" height="10" rx="2" fill="#15110c" stroke="#e0964a" strokeWidth="1" />
         ))}
       </g>
       {/* reflets de Seine */}
-      <g stroke="#6ec4e8" strokeWidth="1.4" opacity="0.35">
+      <g stroke="#e0964a" strokeWidth="1.4" opacity="0.35">
         <line x1="40" y1="226" x2="84" y2="226" />
         <line x1="150" y1="232" x2="210" y2="232" />
         <line x1="250" y1="224" x2="286" y2="224" />
@@ -52,21 +52,21 @@ function SceneEiffel() {
 function SceneNetwork() {
   const lines = [
     { d: 'M20 60 H300', c: '#f2c200' },
-    { d: 'M20 120 H300', c: '#0064b0' },
-    { d: 'M20 180 H300', c: '#cf009e' },
+    { d: 'M20 120 H300', c: '#0a5a9e' },
+    { d: 'M20 180 H300', c: '#bb2e2a' },
     { d: 'M70 20 V220', c: '#1f8a52' },
     { d: 'M160 20 V220', c: '#ff7e2e' },
-    { d: 'M250 20 V220', c: '#6ec4e8' },
+    { d: 'M250 20 V220', c: '#e0964a' },
   ];
   return (
     <svg viewBox="0 0 320 240" className="h-full w-full" aria-hidden>
-      <rect width="320" height="240" fill="#0d1014" />
+      <rect width="320" height="240" fill="#15110c" />
       {lines.map((l, i) => (
         <path key={i} d={l.d} stroke={l.c} strokeWidth="3" fill="none" strokeLinecap="round"
           className="ob-line" style={{ animationDelay: `${i * 0.18}s` }} />
       ))}
       {[[70, 60], [160, 120], [250, 180], [70, 180], [250, 60], [160, 60]].map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r="6" fill="#0d1014" stroke="#f2f4f8" strokeWidth="2.5"
+        <circle key={i} cx={x} cy={y} r="6" fill="#15110c" stroke="#e7dcc4" strokeWidth="2.5"
           className="ob-station" style={{ animationDelay: `${0.9 + i * 0.12}s` }} />
       ))}
     </svg>
@@ -76,9 +76,9 @@ function SceneNetwork() {
 function SceneBastille() {
   return (
     <svg viewBox="0 0 320 240" className="h-full w-full" aria-hidden>
-      <rect width="320" height="240" fill="#0d1014" />
+      <rect width="320" height="240" fill="#15110c" />
       {/* plaque émaillée */}
-      <rect x="60" y="58" width="200" height="56" rx="8" fill="#0064b0" stroke="#f2f4f8" strokeWidth="3" />
+      <rect x="60" y="58" width="200" height="56" rx="8" fill="#0a5a9e" stroke="#e7dcc4" strokeWidth="3" />
       <text x="160" y="94" textAnchor="middle" fill="#fff" fontSize="26" fontWeight="800"
         fontFamily="system-ui" letterSpacing="3">BASTILLE</text>
       {/* trois médailles de palier */}
@@ -110,11 +110,11 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-[60] mx-auto flex max-w-md flex-col bg-tunnel">
+    <div className="fixed inset-0 z-[60] mx-auto flex max-w-md flex-col bg-encre">
       <button
         type="button"
         onClick={finish}
-        className="absolute right-4 top-[max(env(safe-area-inset-top),1rem)] z-10 rounded-full bg-black/40 px-3.5 py-1.5 font-mono text-xs text-neon-faint backdrop-blur active:text-neon"
+        className="absolute right-4 top-[max(env(safe-area-inset-top),1rem)] z-10 rounded-full bg-black/40 px-3.5 py-1.5 font-mono text-xs text-pierre-faint backdrop-blur active:text-pierre"
       >
         {t('common.skip')} ›
       </button>
@@ -124,13 +124,13 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
       </div>
 
       <div key={`txt-${step}`} className="animate-slide-up flex flex-[2] flex-col px-7 pt-2">
-        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-magenta-metro">
+        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-vermillon">
           {t(`onboarding.${key}.kicker`)}
         </p>
-        <h1 className="mt-2 font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-neon">
+        <h1 className="mt-2 font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-pierre">
           {t(`onboarding.${key}.title`)}
         </h1>
-        <p className="mt-3 text-[15px] leading-relaxed text-neon-dim">
+        <p className="mt-3 text-[15px] leading-relaxed text-pierre-dim">
           {t(`onboarding.${key}.body`)}
         </p>
       </div>
@@ -141,7 +141,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
             <span
               key={i}
               className={`h-1.5 rounded-full transition-all duration-300 ${
-                i === step ? 'w-6 bg-gold-metro' : 'w-1.5 bg-rail'
+                i === step ? 'w-6 bg-laiton' : 'w-1.5 bg-rail'
               }`}
             />
           ))}
@@ -150,7 +150,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
           <button
             type="button"
             onClick={() => setStep(step + 1)}
-            className="rounded-xl bg-quai-hi px-6 py-3 font-display font-bold text-neon active:scale-[0.97]"
+            className="rounded-xl bg-plomb-hi px-6 py-3 font-display font-bold text-pierre active:scale-[0.97]"
           >
             {t('common.continue')} →
           </button>
@@ -158,7 +158,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
           <button
             type="button"
             onClick={finish}
-            className="animate-glow rounded-xl bg-gold-metro px-6 py-3 font-display font-bold text-tunnel active:scale-[0.97]"
+            className="animate-glow rounded-xl bg-laiton px-6 py-3 font-display font-bold text-encre active:scale-[0.97]"
           >
             ⚜ {t('onboarding.cta')}
           </button>

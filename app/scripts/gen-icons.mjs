@@ -1,5 +1,6 @@
 // Génère les icônes PWA sans aucune dépendance (encodeur PNG minimal + zlib).
-// DA : fond tunnel, anneau néon (le réseau), "A" doré (Arcadia).
+// DA « Paris Souterrain » : « L'Arche » — voûte de tunnel en laiton, globe
+// d'édicule ambre en clef, sur encre chaude. Néon banni.
 // Usage : node app/scripts/gen-icons.mjs
 import { deflateSync } from 'node:zlib';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -33,13 +34,12 @@ function chunk(type, data) {
   return Buffer.concat([len, body, crc]);
 }
 
-function encodePng(size, pixels /* RGBA Uint8Array */) {
+function encodePng(size, pixels) {
   const ihdr = Buffer.alloc(13);
   ihdr.writeUInt32BE(size, 0);
   ihdr.writeUInt32BE(size, 4);
   ihdr[8] = 8;  // bit depth
   ihdr[9] = 6;  // RGBA
-  // filtre 0 par scanline
   const raw = Buffer.alloc(size * (size * 4 + 1));
   for (let y = 0; y < size; y++) {
     raw[y * (size * 4 + 1)] = 0;
@@ -54,68 +54,64 @@ function encodePng(size, pixels /* RGBA Uint8Array */) {
   ]);
 }
 
-const TUNNEL = [0x0d, 0x10, 0x14];
-const CYAN = [0x6e, 0xc4, 0xe8];
-const GOLD = [0xf2, 0xc2, 0x00];
-const MAGENTA = [0xcf, 0x00, 0x9e];
+const ENCRE = [0x15, 0x11, 0x0c];
+const ENCRE_HI = [0x2a, 0x1d, 0x10]; // halo ambre sombre
+const LAITON = [0xc9, 0xa2, 0x27];
+const AMBRE = [0xe0, 0x96, 0x4a];
+
+function mix(a, b, k) { return a.map((v, i) => Math.round(v + (b[i] - v) * k)); }
 
 function drawIcon(size, { maskable = false } = {}) {
   const px = new Uint8Array(size * size * 4);
   const cx = size / 2, cy = size / 2;
-  const R = size * (maskable ? 0.5 : 0.46);          // disque de fond
-  const ringR = size * (maskable ? 0.36 : 0.40);     // anneau néon
-  const ringW = size * 0.035;
+  const R = size * (maskable ? 0.5 : 0.46);
 
-  // Le "A" : deux jambes + barre, en coordonnées normalisées
-  const aTop = { x: 0.5, y: 0.27 };
-  const aL = { x: 0.345, y: 0.71 };
-  const aR = { x: 0.655, y: 0.71 };
-  const strokeW = size * 0.052;
-
-  const distSeg = (p, a, b) => {
-    const vx = b.x - a.x, vy = b.y - a.y;
-    const wx = p.x - a.x, wy = p.y - a.y;
-    const t = Math.max(0, Math.min(1, (wx * vx + wy * vy) / (vx * vx + vy * vy)));
-    return Math.hypot(p.x - (a.x + t * vx), p.y - (a.y + t * vy));
-  };
+  // géométrie de l'arche (voûte de tunnel) en coordonnées normalisées
+  const archCx = 0.5, archTop = 0.30, archBottom = 0.72;
+  const archOuter = 0.21, archInner = 0.115;   // rayons de la voûte
+  const legW = (archOuter - archInner);
+  const baseY = 0.66;                            // barre du « A »
+  const globe = { x: 0.5, y: 0.235, r: 0.05 };   // globe d'édicule en clef
 
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const i = (y * size + x) * 4;
       const d = Math.hypot(x - cx, y - cy);
-      let rgb = null;
-      let alpha = 0;
+      let rgb = null, alpha = 0;
 
       if (maskable || d <= R) {
-        // fond avec léger dégradé radial
+        // fond encre + halo ambre chaud en haut
         const k = Math.min(1, d / R);
-        rgb = TUNNEL.map((v, j) => Math.round(v + [13, 18, 28][j] * (1 - k)));
+        rgb = mix(ENCRE_HI, ENCRE, k);
         alpha = 255;
       }
 
       if (rgb) {
-        // anneau néon cyan (avec halo)
-        const dr = Math.abs(d - ringR);
-        if (dr < ringW) rgb = CYAN;
-        else if (dr < ringW * 2.2) {
-          const g = 1 - (dr - ringW) / (ringW * 1.2);
-          rgb = rgb.map((v, j) => Math.round(v + (CYAN[j] - v) * g * 0.35));
+        const nx = x / size, ny = y / size;
+        // anneau laiton (le roundel)
+        const dr = Math.abs(d - R * 0.9);
+        if (!maskable && dr < size * 0.012) rgb = LAITON;
+
+        // arche : couronne (demi-cercle) + deux jambes
+        const adx = nx - archCx, ady = ny - (archTop + 0.0);
+        const arcR = Math.hypot(adx, ady);
+        const inCrown = ady <= 0.02 && arcR > archInner && arcR < archOuter;
+        const inLegs =
+          ny > archTop && ny < archBottom &&
+          ((Math.abs(nx - (archCx - (archInner + archOuter) / 2)) < legW / 2) ||
+           (Math.abs(nx - (archCx + (archInner + archOuter) / 2)) < legW / 2));
+        const inBar = Math.abs(ny - baseY) < legW / 2 &&
+          nx > archCx - archInner && nx < archCx + archInner;
+        if (inCrown || inLegs || inBar) {
+          // dégradé laiton → laiton clair selon la hauteur (relief)
+          rgb = mix(LAITON, [0xe3, 0xc4, 0x63], 1 - ny);
         }
-        // tick magenta en bas de l'anneau (la "station" sur le réseau)
-        const ang = Math.atan2(y - cy, x - cx);
-        if (Math.abs(d - ringR) < ringW * 1.6 && Math.abs(ang - Math.PI / 2) < 0.10) rgb = MAGENTA;
 
-        // lettre A dorée
-        const p = { x: x / size, y: y / size };
-        const w = strokeW / size;
-        const onA =
-          distSeg(p, aTop, aL) < w ||
-          distSeg(p, aTop, aR) < w ||
-          distSeg(p, { x: 0.415, y: 0.555 }, { x: 0.585, y: 0.555 }) < w * 0.85;
-        if (onA && d < ringR - ringW * 1.4) rgb = GOLD;
-      }
+        // globe d'édicule ambre en clef de voûte (lueur)
+        const gd = Math.hypot(nx - globe.x, ny - globe.y);
+        if (gd < globe.r) rgb = mix(AMBRE, [0xff, 0xe7, 0xb0], 1 - gd / globe.r);
+        else if (gd < globe.r * 1.8) rgb = mix(rgb, AMBRE, (1 - gd / (globe.r * 1.8)) * 0.4);
 
-      if (rgb) {
         px[i] = rgb[0]; px[i + 1] = rgb[1]; px[i + 2] = rgb[2]; px[i + 3] = alpha;
       }
     }
@@ -128,12 +124,13 @@ writeFileSync(join(outDir, 'icon-512.png'), drawIcon(512));
 writeFileSync(join(outDir, 'icon-512-maskable.png'), drawIcon(512, { maskable: true }));
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="46" fill="#0d1014"/>
-  <circle cx="50" cy="50" r="40" fill="none" stroke="#6ec4e8" stroke-width="3.5"/>
-  <circle cx="50" cy="90" r="4" fill="#cf009e"/>
-  <path d="M50 27 L34.5 71 M50 27 L65.5 71 M41.5 55.5 L58.5 55.5"
-        stroke="#f2c200" stroke-width="5.2" stroke-linecap="round" fill="none"/>
+  <circle cx="50" cy="50" r="46" fill="#15110c"/>
+  <circle cx="50" cy="50" r="41" fill="none" stroke="#c9a227" stroke-width="2"/>
+  <path d="M34 70 V44 a16 16 0 0 1 32 0 V70" fill="none" stroke="#c9a227" stroke-width="9" stroke-linecap="butt"/>
+  <line x1="40" y1="62" x2="60" y2="62" stroke="#c9a227" stroke-width="8"/>
+  <circle cx="50" cy="26" r="5.5" fill="#e0964a"/>
+  <circle cx="50" cy="26" r="9" fill="#e0964a" opacity="0.28"/>
 </svg>`;
 writeFileSync(join(outDir, 'icon.svg'), svg);
 
-console.log('Icônes générées dans', outDir);
+console.log("Icônes « L'Arche » générées dans", outDir);

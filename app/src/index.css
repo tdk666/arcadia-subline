@@ -1,23 +1,35 @@
 @import 'tailwindcss';
 
-/* ── Design tokens — DA "Cyberpunk Parisien Souterrain" ─────────────── */
+/* ════════════════════════════════════════════════════════════════════
+   DESIGN TOKENS — « Paris Souterrain » (Belle Époque électrifiée)
+   Néon banni. Chaleur dominante : pierre, or/laiton, ambre de réverbère.
+   ════════════════════════════════════════════════════════════════════ */
 @theme {
-  --color-tunnel: #0d1014;
-  --color-tunnel-2: #10141a;
-  --color-quai: #161c25;
-  --color-quai-hi: #1d2530;
-  --color-rail: #2a3340;
-  --color-neon: #f2f4f8;
-  --color-neon-dim: #9aa6b4;
-  --color-neon-faint: #5d6975;
-  --color-cyan-metro: #6ec4e8;
-  --color-magenta-metro: #cf009e;
-  --color-gold-metro: #f2c200;
-  --color-guimard: #1f8a52;
-  --color-m1: #f2c200;
+  /* surfaces — du plus sombre au plus clair */
+  --color-encre: #15110c;     /* fond nuit chaude */
+  --color-encre-2: #1b150d;   /* fond secondaire */
+  --color-plomb: #241f18;     /* surface (cartes, plaques) */
+  --color-plomb-hi: #2f2819;  /* surface au survol/appui */
+  --color-rail: #3a2f1e;      /* hairlines, bordures chaudes */
 
-  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
-  --font-mono: 'Space Mono', ui-monospace, monospace;
+  /* encres */
+  --color-pierre: #e7dcc4;       /* pierre de taille — texte primaire */
+  --color-pierre-dim: #b9ad92;   /* texte secondaire */
+  --color-pierre-faint: #8a7c63; /* texte tertiaire / mono labels */
+
+  /* accents */
+  --color-laiton: #c9a227;       /* or / laiton — accent principal, CTA */
+  --color-laiton-clair: #e3c463; /* laiton clair — highlights */
+  --color-ambre: #e0964a;        /* ambre de réverbère — accent chaud secondaire */
+  --color-guimard: #3f6b4d;      /* vert Art Nouveau — culture / succès */
+  --color-email: #0a5a9e;        /* bleu émaillé — plaques de station */
+  --color-vermillon: #bb2e2a;    /* vermillon — cibles, danger, rivalité */
+  --color-zinc: #8a96a0;         /* zinc des toits — argent froid mesuré */
+
+  --font-display: 'Marcellus', ui-serif, Georgia, serif;
+  --font-ui: 'Work Sans', system-ui, sans-serif;
+  /* « mono » repensé : Work Sans en capitales espacées, pas de Space Mono */
+  --font-mono: 'Work Sans', system-ui, sans-serif;
 }
 
 html, body, #root {
@@ -26,20 +38,31 @@ html, body, #root {
 
 body {
   margin: 0;
+  /* encre chaude + halo ambre discret en haut (réverbère qui veille) */
   background:
-    radial-gradient(1200px 600px at 50% -10%, #1a2230 0%, transparent 60%),
-    var(--color-tunnel);
-  color: var(--color-neon);
-  font-family: 'Inter', system-ui, sans-serif;
+    radial-gradient(120% 70% at 50% -12%, #2a1d10 0%, #15110c 52%, #100b07 100%);
+  color: var(--color-pierre);
+  font-family: 'Work Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
 }
+
+::selection { background: var(--color-laiton); color: var(--color-encre); }
 
 /* zone sûre iOS (encoche / barre home) */
 .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
 .safe-top { padding-top: env(safe-area-inset-top); }
 
-/* micro-interactions "juicy" */
+/* libellé technique « plaque » : capitales espacées, Work Sans */
+.label-plate {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* ── micro-interactions « juicy » ─────────────────────────────────── */
 @keyframes pop-in {
   0% { transform: scale(0.6); opacity: 0; }
   70% { transform: scale(1.08); }
@@ -53,9 +76,10 @@ body {
 }
 .animate-slide-up { animation: slide-up 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
+/* halo de laiton qui respire (remplace l'ancien glow néon) */
 @keyframes count-glow {
-  0%, 100% { text-shadow: 0 0 12px rgba(242, 194, 0, 0.35); }
-  50% { text-shadow: 0 0 26px rgba(242, 194, 0, 0.8); }
+  0%, 100% { text-shadow: 0 0 12px rgba(201, 162, 39, 0.35); }
+  50% { text-shadow: 0 0 26px rgba(227, 196, 99, 0.7); }
 }
 .animate-glow { animation: count-glow 1.6s ease-in-out infinite; }
 
@@ -99,7 +123,16 @@ body {
 }
 .animate-shine { animation: shine-sweep 1.6s ease-in-out 0.4s both; }
 
+/* invite à pivoter le téléphone (mini-jeu paysage) */
+@keyframes rotate-hint {
+  0%, 18% { transform: rotate(0deg); }
+  40%, 60% { transform: rotate(90deg); }
+  82%, 100% { transform: rotate(90deg); }
+}
+.animate-rotate-hint { animation: rotate-hint 2.6s ease-in-out infinite; transform-origin: center; }
+
 @media (prefers-reduced-motion: reduce) {
   .animate-pop, .animate-slide-up, .animate-glow, .animate-ob-scene,
-  .ob-line, .ob-station, .ob-train, .animate-stamp, .animate-shine { animation: none; }
+  .ob-line, .ob-station, .ob-train, .animate-stamp, .animate-shine,
+  .animate-rotate-hint { animation: none; }
 }

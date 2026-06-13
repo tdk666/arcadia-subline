@@ -5,11 +5,16 @@ import type { DemolitionSfx } from './audio';
 
 const { Engine, Bodies, Body, Composite, Events, Sleeping } = Matter;
 
-/* ── Réglages matière ─────────────────────────────────────────────── */
+/* ── Réglages matière — « Paris Souterrain » : pierre de taille, bois, zinc ──
+   Chaque matière porte son volume : base + face éclairée + occlusion + rim
+   ambre (lumière chaude des torches/réverbères qui lèche les arêtes). */
 const MATERIAL = {
-  stone: { hp: 26, density: 0.0024, color: '#3b4a5e', edge: '#6ec4e8' },
-  wood: { hp: 14, density: 0.0012, color: '#6b4a26', edge: '#d9a45a' },
-  iron: { hp: Infinity, density: 0.005, color: '#444c58', edge: '#cf009e' },
+  // pierre de taille chaude (les murs de la Bastille)
+  stone: { hp: 26, density: 0.0024, base: '#5a4a34', light: '#8a7350', dark: '#2c2318', rim: '#e0964a' },
+  // bois — brun chaud (linteaux, charpentes)
+  wood: { hp: 14, density: 0.0012, base: '#6b4a26', light: '#9a6e36', dark: '#36240f', rim: '#e0b070' },
+  // fer / zinc — gris froid mesuré, reflet laiton (renforts)
+  iron: { hp: Infinity, density: 0.005, base: '#4a525a', light: '#8a96a0', dark: '#262c33', rim: '#c9a227' },
 } as const satisfies Record<BlockMaterial, unknown>;
 
 const BALL_R = 15;
@@ -20,11 +25,15 @@ const SETTLE_MS = 900;
 const SHOT_TIMEOUT_MS = 6500;
 const END_GRACE_MS = 1600;
 
-/** Ambiances par palier : le siège se durcit, le ciel aussi. */
-const TIER_SKY: Record<DifficultyTier, { top: string; mid: string; horizon: string; moon: string }> = {
-  bronze: { top: '#10141c', mid: '#1c2030', horizon: '#5a3a2a', moon: '#f2c200' },   // crépuscule
-  silver: { top: '#0a0d14', mid: '#131a28', horizon: '#23304a', moon: '#c9d2dc' },   // nuit profonde
-  gold:   { top: '#0d0a10', mid: '#1a1422', horizon: '#6e1f1f', moon: '#ff7e2e' },   // assaut final
+/** Ambiances par palier : nuit qui vire à l'ambre, le siège se durcit.
+ *  Cible visuelle : haut nuit → horizon ambre incandescent → sol brun chaud. */
+const TIER_SKY: Record<DifficultyTier, { top: string; mid: string; horizon: string; glow: string; ground: string; moon: string }> = {
+  // crépuscule de révolte : la nuit tombe sur le faubourg
+  bronze: { top: '#0a0912', mid: '#241a30', horizon: '#a85c2c', glow: '#e0964a', ground: '#241910', moon: '#e9d39c' },
+  // nuit profonde, braises à l'horizon
+  silver: { top: '#080711', mid: '#1c1830', horizon: '#9c4f28', glow: '#d9803c', ground: '#201610', moon: '#e9d39c' },
+  // l'assaut final : l'incendie embrase le ciel
+  gold:   { top: '#0a0710', mid: '#2a1626', horizon: '#c25a26', glow: '#ff8a3c', ground: '#2a1710', moon: '#f0c98a' },
 };
 
 export interface HudState {
@@ -233,7 +242,7 @@ export class DemolitionEngine {
         this.zoomPulse = Math.min(this.zoomPulse + 0.025, 0.06);
         const x = (bodyA.position.x + bodyB.position.x) / 2;
         const y = (bodyA.position.y + bodyB.position.y) / 2;
-        this.rings.push({ x, y, r: 6, maxR: 46 + speed * 2, life: 280, maxLife: 280, color: '#f2f4f8' });
+        this.rings.push({ x, y, r: 6, maxR: 46 + speed * 2, life: 280, maxLife: 280, color: '#f0d6a0' });
       }
     }
   }
@@ -248,13 +257,13 @@ export class DemolitionEngine {
       Composite.remove(this.engine.world, body);
       this.destroyed++;
       this.debris(body, meta.material);
-      this.burst(body.position.x, body.position.y, MATERIAL[meta.material].edge, 10);
+      this.burst(body.position.x, body.position.y, MATERIAL[meta.material].rim, 10);
       this.addShake(7);
       this.sfx?.blockDestroyed();
       this.haptic(30);
       this.pushHud();
     } else {
-      this.burst(body.position.x, body.position.y, '#9aa6b4', 4);
+      this.burst(body.position.x, body.position.y, '#b9ad92', 4); // poussière de pierre chaude
     }
   }
 
@@ -517,7 +526,7 @@ export class DemolitionEngine {
         y: body.position.y + (Math.random() - 0.5) * 20,
         vx: Math.cos(a) * s, vy: Math.sin(a) * s - 2.5,
         life: 700 + Math.random() * 600, maxLife: 1300,
-        size: 0, color: mat.color, kind: 'chunk',
+        size: 0, color: mat.base, kind: 'chunk',
         rot: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.012,
         w: 6 + Math.random() * 10, h: 4 + Math.random() * 7,
       });
@@ -529,7 +538,7 @@ export class DemolitionEngine {
         y: body.position.y + (Math.random() - 0.5) * 16,
         vx: (Math.random() - 0.5) * 1.2, vy: -0.4 - Math.random() * 0.8,
         life: 900 + Math.random() * 700, maxLife: 1600,
-        size: 8 + Math.random() * 14, color: 'rgba(154,166,180,0.35)', kind: 'dust',
+        size: 8 + Math.random() * 14, color: 'rgba(201,178,140,0.32)', kind: 'dust',
         rot: 0, vr: 0, w: 0, h: 0,
       });
     }
@@ -537,7 +546,7 @@ export class DemolitionEngine {
 
   /** Une vague de feux d'artifice tricolores au-dessus des ruines. */
   private fireworkWave() {
-    const cols = ['#0064b0', '#f2f4f8', '#e1000f', '#f2c200'];
+    const cols = ['#0a5a9e', '#f2f4f8', '#e1000f', '#e3c463']; // tricolore + or
     const cx = this.level.worldW * (0.45 + Math.random() * 0.4);
     const cy = 90 + Math.random() * 140;
     this.rings.push({ x: cx, y: cy, r: 4, maxR: 70, life: 360, maxLife: 360, color: cols[Math.floor(Math.random() * 4)] });
@@ -617,12 +626,15 @@ export class DemolitionEngine {
     this.offX = (cw - level.worldW * this.scale) / 2;
     this.offY = (ch - level.worldH * this.scale) / 2;
 
-    // ciel du palier
+    // ciel du palier : nuit → ambre incandescent → sol brun chaud
     const sky = TIER_SKY[this.tier];
     const bg = ctx.createLinearGradient(0, 0, 0, ch);
     bg.addColorStop(0, sky.top);
-    bg.addColorStop(0.62, sky.mid);
-    bg.addColorStop(1, sky.horizon);
+    bg.addColorStop(0.42, sky.mid);
+    bg.addColorStop(0.70, sky.horizon);
+    bg.addColorStop(0.80, sky.glow);
+    bg.addColorStop(0.90, '#6e3a1e');
+    bg.addColorStop(1, sky.ground);
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, cw, ch);
 
@@ -666,39 +678,100 @@ export class DemolitionEngine {
 
   private drawBackdrop(ctx: CanvasRenderingContext2D, t: number) {
     const { level } = this;
-    // silhouette de Paris 1789, néon discret
-    ctx.strokeStyle = 'rgba(110,196,232,0.10)';
-    ctx.lineWidth = 2;
+    const sky = TIER_SKY[this.tier];
+    const horizonY = level.groundY - 8;
+
+    // halo ambre incandescent à l'horizon (l'incendie de la ville)
+    const glow = ctx.createRadialGradient(
+      level.worldW * 0.52, horizonY, 20,
+      level.worldW * 0.52, horizonY, level.worldW * 0.55,
+    );
+    glow.addColorStop(0, this.hexA(sky.glow, 0.5));
+    glow.addColorStop(0.5, this.hexA(sky.glow, 0.16));
+    glow.addColorStop(1, this.hexA(sky.glow, 0));
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, level.groundY - 240, level.worldW, 240);
+
+    // lune chaude, basse et pleine
+    const moonX = level.worldW * 0.74, moonY = 92;
+    const mg = ctx.createRadialGradient(moonX - 6, moonY - 6, 4, moonX, moonY, 30);
+    mg.addColorStop(0, '#fbf0d2');
+    mg.addColorStop(0.6, sky.moon);
+    mg.addColorStop(1, this.hexA(sky.moon, 0.65));
+    ctx.fillStyle = mg;
     ctx.beginPath();
-    let x = 0;
-    let seed = 7;
-    ctx.moveTo(0, level.groundY - 110);
-    while (x < level.worldW) {
+    ctx.arc(moonX, moonY, 28, 0, Math.PI * 2);
+    ctx.fill();
+    // halo lunaire
+    ctx.fillStyle = this.hexA(sky.moon, 0.12);
+    ctx.beginPath();
+    ctx.arc(moonX, moonY, 50, 0, Math.PI * 2);
+    ctx.fill();
+
+    // étoiles discrètes (scintillement déterministe)
+    let seed = 991;
+    ctx.fillStyle = '#f3ead0';
+    for (let i = 0; i < 26; i++) {
       seed = (seed * 16807) % 2147483647;
-      const w = 50 + (seed % 70);
-      const h = 70 + (seed % 90);
-      ctx.lineTo(x, level.groundY - h);
-      ctx.lineTo(x + w, level.groundY - h);
-      x += w;
+      const sxp = (seed % 1000) / 1000 * level.worldW;
+      seed = (seed * 16807) % 2147483647;
+      const syp = (seed % 1000) / 1000 * (level.groundY - 220);
+      const tw = 0.25 + 0.55 * Math.abs(Math.sin(t * 0.001 + i));
+      ctx.globalAlpha = tw * 0.6;
+      ctx.fillRect(sxp, syp, 1.6, 1.6);
     }
-    ctx.lineTo(level.worldW, level.groundY);
-    ctx.stroke();
-    // lune (couleur du palier)
-    const moon = TIER_SKY[this.tier].moon;
-    ctx.beginPath();
-    ctx.arc(level.worldW * 0.5, 90, 34, 0, Math.PI * 2);
-    ctx.strokeStyle = moon;
-    ctx.globalAlpha = 0.25 + 0.08 * Math.sin(t * 0.001);
-    ctx.lineWidth = 3;
-    ctx.stroke();
     ctx.globalAlpha = 1;
-    // fumées du faubourg Saint-Antoine
-    ctx.fillStyle = 'rgba(154,166,180,0.05)';
-    for (let i = 0; i < 3; i++) {
-      const fx = level.worldW * (0.1 + i * 0.12) + Math.sin(t * 0.0004 + i) * 8;
-      ctx.beginPath();
-      ctx.ellipse(fx, level.groundY - 130 - i * 14, 26, 10, 0, 0, Math.PI * 2);
-      ctx.fill();
+
+    // ── silhouette de Paris : Notre-Dame + toits de zinc, fenêtres ambre ──
+    this.drawSkyline(ctx, t);
+  }
+
+  /** Silhouette chaude et réelle : tours jumelles de Notre-Dame + faubourg. */
+  private drawSkyline(ctx: CanvasRenderingContext2D, t: number) {
+    const { level } = this;
+    const baseY = level.groundY - 4;
+    ctx.fillStyle = '#0c0a09';
+
+    // Notre-Dame (deux tours + nef), à gauche
+    const nd = level.worldW * 0.12;
+    ctx.fillRect(nd, baseY - 92, 20, 92);
+    ctx.fillRect(nd + 30, baseY - 92, 20, 92);
+    ctx.fillRect(nd + 12, baseY - 62, 26, 62);   // nef entre les tours
+    ctx.fillRect(nd + 22, baseY - 116, 6, 26);    // flèche
+
+    // toits de zinc du faubourg (gauche et droite), profils irréguliers
+    let seed = 17;
+    const roof = (x0: number, x1: number) => {
+      let x = x0;
+      while (x < x1) {
+        seed = (seed * 16807) % 2147483647;
+        const w = 26 + (seed % 40);
+        const h = 30 + (seed % 56);
+        ctx.fillRect(x, baseY - h, w, h);
+        // toit mansardé incliné
+        ctx.beginPath();
+        ctx.moveTo(x, baseY - h);
+        ctx.lineTo(x + w * 0.5, baseY - h - 10 - (seed % 8));
+        ctx.lineTo(x + w, baseY - h);
+        ctx.closePath();
+        ctx.fill();
+        x += w + 2;
+      }
+    };
+    roof(level.worldW * 0.2, level.worldW * 0.34);
+    roof(level.worldW * 0.78, level.worldW * 0.99);
+
+    // fenêtres allumées (ambre ponctuel qui vacille)
+    let s2 = 53;
+    for (let i = 0; i < 14; i++) {
+      s2 = (s2 * 16807) % 2147483647;
+      const wx = level.worldW * (0.21 + (s2 % 100) / 100 * 0.13);
+      s2 = (s2 * 16807) % 2147483647;
+      const side = i % 3 === 0 ? level.worldW * (0.79 + (s2 % 100) / 100 * 0.18) : wx;
+      const wy = baseY - 16 - (s2 % 40);
+      const flick = 0.5 + 0.5 * Math.abs(Math.sin(t * 0.003 + i * 2));
+      ctx.fillStyle = this.hexA('#e0964a', 0.7 * flick);
+      ctx.fillRect(side, wy, 2, 3.5);
     }
   }
 
@@ -733,40 +806,63 @@ export class DemolitionEngine {
 
   private drawGround(ctx: CanvasRenderingContext2D) {
     const { level } = this;
-    ctx.fillStyle = '#10141a';
+    // esplanade sombre chaude (pavés du faubourg), dégradé vers le bas
+    const g = ctx.createLinearGradient(0, level.groundY, 0, level.worldH);
+    g.addColorStop(0, '#1b140d');
+    g.addColorStop(1, '#0b0705');
+    ctx.fillStyle = g;
     ctx.fillRect(-100, level.groundY, level.worldW + 200, level.worldH - level.groundY + 100);
-    ctx.strokeStyle = '#6ec4e8';
-    ctx.lineWidth = 2.5;
-    ctx.shadowColor = '#6ec4e8';
-    ctx.shadowBlur = 10;
-    ctx.beginPath();
-    ctx.moveTo(-100, level.groundY);
-    ctx.lineTo(level.worldW + 100, level.groundY);
-    ctx.stroke();
-    ctx.shadowBlur = 0;
+    // liseré ambre fin (pas de néon, pas de blur froid)
+    const liser = ctx.createLinearGradient(0, 0, level.worldW, 0);
+    liser.addColorStop(0, 'rgba(224,150,74,0)');
+    liser.addColorStop(0.5, 'rgba(224,150,74,0.4)');
+    liser.addColorStop(1, 'rgba(224,150,74,0)');
+    ctx.fillStyle = liser;
+    ctx.fillRect(0, level.groundY - 1, level.worldW, 2);
+    // joints de pavés suggérés
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+    ctx.lineWidth = 1;
+    for (let x = 20; x < level.worldW; x += 46) {
+      ctx.beginPath();
+      ctx.moveTo(x, level.groundY + 6);
+      ctx.lineTo(x - 14, level.worldH);
+      ctx.stroke();
+    }
   }
 
   private drawSling(ctx: CanvasRenderingContext2D) {
     const { slingX, slingY, groundY } = this.level;
-    ctx.strokeStyle = '#8d5e2a';
-    ctx.lineWidth = 7;
+    // fourches en bois chaud, volume par dégradé
+    const wood = ctx.createLinearGradient(slingX - 16, 0, slingX + 16, 0);
+    wood.addColorStop(0, '#4a3318');
+    wood.addColorStop(0.5, '#8a6230');
+    wood.addColorStop(1, '#5a3f22');
+    ctx.strokeStyle = wood;
+    ctx.lineWidth = 8;
     ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.moveTo(slingX - 14, groundY);
-    ctx.lineTo(slingX - 6, slingY + 6);
-    ctx.moveTo(slingX + 14, groundY);
-    ctx.lineTo(slingX + 6, slingY + 6);
+    ctx.moveTo(slingX - 15, groundY);
+    ctx.lineTo(slingX - 7, slingY + 6);
+    ctx.moveTo(slingX + 15, groundY);
+    ctx.lineTo(slingX + 7, slingY + 6);
     ctx.stroke();
-    // élastique vers le boulet en attente
+    // élastique cuir/corde vers le pavé en attente
     if (this.ball && !this.ballInFlight) {
-      ctx.strokeStyle = '#cf009e';
-      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#3a2814';
+      ctx.lineWidth = 3.5;
+      ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.moveTo(slingX - 8, slingY + 2);
+      ctx.moveTo(slingX - 9, slingY + 2);
       ctx.lineTo(this.ball.position.x, this.ball.position.y);
-      ctx.lineTo(slingX + 8, slingY + 2);
+      ctx.lineTo(slingX + 9, slingY + 2);
       ctx.stroke();
     }
+  }
+
+  /** hex (#rrggbb) → rgba(...) avec alpha — pour les halos/dégradés chauds. */
+  private hexA(hex: string, a: number): string {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
   }
 
   private drawAim(ctx: CanvasRenderingContext2D) {
@@ -812,79 +908,159 @@ export class DemolitionEngine {
       if (body.label === 'block') {
         const meta = this.blocks.get(body.id);
         if (!meta) continue;
-        const mat = MATERIAL[meta.material];
-        this.drawRect(ctx, body, mat.color, mat.edge);
-        // fissures selon les dégâts
-        if (meta.maxHp !== Infinity && meta.hp < meta.maxHp * 0.66) {
-          ctx.save();
-          ctx.translate(body.position.x, body.position.y);
-          ctx.rotate(body.angle);
-          ctx.strokeStyle = 'rgba(13,16,20,0.8)';
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          ctx.moveTo(-6, -8); ctx.lineTo(2, 0); ctx.lineTo(-3, 9);
-          if (meta.hp < meta.maxHp * 0.33) { ctx.moveTo(8, -9); ctx.lineTo(4, 2); }
-          ctx.stroke();
-          ctx.restore();
-        }
+        this.drawStone(ctx, body, MATERIAL[meta.material], meta);
       } else if (body.label === 'target') {
-        ctx.save();
-        ctx.translate(body.position.x, body.position.y);
-        ctx.rotate(body.angle);
-        const pulse = 1 + 0.12 * Math.sin(t * 0.004);
-        ctx.shadowColor = '#f2c200';
-        ctx.shadowBlur = 14 * pulse;
-        ctx.fillStyle = '#f2c200';
-        ctx.beginPath();
-        ctx.arc(0, 0, body.circleRadius ?? 14, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = '#0d1014';
-        ctx.font = 'bold 15px serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('⚜', 0, 1);
-        ctx.restore();
+        this.drawStandard(ctx, body, t);
       } else if (body.label === 'ball') {
-        // traînée
-        this.trail.push({ x: body.position.x, y: body.position.y });
-        if (this.trail.length > 14) this.trail.shift();
-        if (this.ballInFlight) {
-          for (let i = 0; i < this.trail.length; i++) {
-            const p = this.trail[i];
-            ctx.fillStyle = `rgba(110,196,232,${(i / this.trail.length) * 0.35})`;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, BALL_R * (i / this.trail.length) * 0.8, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        }
-        ctx.save();
-        ctx.translate(body.position.x, body.position.y);
-        ctx.fillStyle = '#1d2530';
-        ctx.strokeStyle = '#6ec4e8';
-        ctx.lineWidth = 2.5;
-        ctx.shadowColor = '#6ec4e8';
-        ctx.shadowBlur = 12;
-        ctx.beginPath();
-        ctx.arc(0, 0, BALL_R, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.restore();
+        this.drawPave(ctx, body);
       }
     }
   }
 
-  private drawRect(ctx: CanvasRenderingContext2D, body: Matter.Body, fill: string, edge: string) {
+  /** Bloc de pierre de taille : volume (faces éclairée/occlusion) + rim ambre. */
+  private drawStone(ctx: CanvasRenderingContext2D, body: Matter.Body, mat: typeof MATERIAL[BlockMaterial], meta: BlockMeta) {
     const v = body.vertices;
+    const w = Math.hypot(v[1].x - v[0].x, v[1].y - v[0].y);
+    const h = Math.hypot(v[2].x - v[1].x, v[2].y - v[1].y);
+    ctx.save();
+    ctx.translate(body.position.x, body.position.y);
+    ctx.rotate(body.angle);
+    // base : dégradé diagonal (lumière en haut-gauche)
+    const g = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+    g.addColorStop(0, mat.light);
+    g.addColorStop(0.5, mat.base);
+    g.addColorStop(1, mat.dark);
+    ctx.fillStyle = g;
+    ctx.fillRect(-w / 2, -h / 2, w, h);
+    // occlusion ambiante en bas/droite (le bloc a du poids)
+    ctx.fillStyle = 'rgba(0,0,0,0.32)';
+    ctx.fillRect(-w / 2, h / 2 - 3.5, w, 3.5);
+    ctx.fillRect(w / 2 - 3.5, -h / 2, 3.5, h);
+    // rim-light ambre en haut/gauche (torches qui lèchent l'arête)
+    ctx.fillStyle = this.hexA(mat.rim, 0.55);
+    ctx.fillRect(-w / 2, -h / 2, w, 1.6);
+    ctx.fillRect(-w / 2, -h / 2, 1.6, h);
+    // joint de pierre central (appareil)
+    ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(v[0].x, v[0].y);
-    for (let i = 1; i < v.length; i++) ctx.lineTo(v[i].x, v[i].y);
-    ctx.closePath();
-    ctx.fillStyle = fill;
-    ctx.fill();
-    ctx.strokeStyle = edge;
-    ctx.lineWidth = 1.8;
+    ctx.moveTo(-w / 2, 0); ctx.lineTo(w / 2, 0);
     ctx.stroke();
+    // contour
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(-w / 2, -h / 2, w, h);
+    // fissures selon les dégâts
+    if (meta.maxHp !== Infinity && meta.hp < meta.maxHp * 0.66) {
+      ctx.strokeStyle = 'rgba(12,8,5,0.85)';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(-6, -8); ctx.lineTo(2, 0); ctx.lineTo(-3, 9);
+      if (meta.hp < meta.maxHp * 0.33) { ctx.moveTo(8, -9); ctx.lineTo(4, 2); }
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  /** Cible = étendard royal vermillon (drapeau à queue d'aronde sur hampe). */
+  private drawStandard(ctx: CanvasRenderingContext2D, body: Matter.Body, t: number) {
+    ctx.save();
+    ctx.translate(body.position.x, body.position.y);
+    ctx.rotate(body.angle);
+    const wave = Math.sin(t * 0.005 + body.position.x) * 1.6;
+    // hampe
+    ctx.fillStyle = '#2b2114';
+    ctx.fillRect(-1.5, -20, 3, 40);
+    // pointe de hampe dorée
+    ctx.fillStyle = '#c9a227';
+    ctx.beginPath();
+    ctx.arc(0, -22, 3, 0, Math.PI * 2);
+    ctx.fill();
+    // drapeau vermillon à queue d'aronde
+    const fg = ctx.createLinearGradient(0, -18, 0, -4);
+    fg.addColorStop(0, '#cf3a33');
+    fg.addColorStop(1, '#9c211d');
+    ctx.fillStyle = fg;
+    ctx.beginPath();
+    ctx.moveTo(2, -18);
+    ctx.lineTo(24 + wave, -18);
+    ctx.lineTo(18 + wave, -11);
+    ctx.lineTo(24 + wave, -4);
+    ctx.lineTo(2, -4);
+    ctx.closePath();
+    ctx.fill();
+    // liseré or + fleur de lys
+    ctx.strokeStyle = this.hexA('#e3c463', 0.7);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = '#e3c463';
+    ctx.font = 'bold 11px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('⚜', 11 + wave * 0.5, -11);
+    ctx.restore();
+  }
+
+  /** Projectile = LE PAVÉ parisien : pierre de taille biseautée, rim ambre. */
+  private drawPave(ctx: CanvasRenderingContext2D, body: Matter.Body) {
+    // traînée de poussière chaude (pas de trail néon)
+    this.trail.push({ x: body.position.x, y: body.position.y });
+    if (this.trail.length > 12) this.trail.shift();
+    if (this.ballInFlight) {
+      for (let i = 0; i < this.trail.length; i++) {
+        const p = this.trail[i];
+        const k = i / this.trail.length;
+        ctx.fillStyle = `rgba(201,178,140,${k * 0.28})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, BALL_R * k * 0.9, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    const s = BALL_R * 1.9;
+    const r = 4;
+    ctx.save();
+    ctx.translate(body.position.x, body.position.y);
+    ctx.rotate(body.angle); // micro-rotation en vol
+    // ombre portée
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    this.roundRect(ctx, -s / 2 + 2, -s / 2 + 3, s, s, r);
+    ctx.fill();
+    // corps pierre de taille
+    const g = ctx.createLinearGradient(-s / 2, -s / 2, s / 2, s / 2);
+    g.addColorStop(0, '#efe6cd');
+    g.addColorStop(0.58, '#cdbf9b');
+    g.addColorStop(1, '#9d916f');
+    ctx.fillStyle = g;
+    this.roundRect(ctx, -s / 2, -s / 2, s, s, r);
+    ctx.fill();
+    // occlusion bas-droite (biseau)
+    ctx.fillStyle = 'rgba(21,17,12,0.28)';
+    ctx.fillRect(-s / 2, s / 2 - 3, s, 3);
+    ctx.fillRect(s / 2 - 3, -s / 2, 3, s);
+    // rim-light ambre haut-gauche
+    ctx.fillStyle = this.hexA('#e0964a', 0.6);
+    ctx.fillRect(-s / 2 + 1, -s / 2 + 1, s - 2, 1.4);
+    // rainures de joint (croix de taille)
+    ctx.strokeStyle = 'rgba(21,17,12,0.25)';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(-s / 2 + 3, 0.5); ctx.lineTo(s / 2 - 3, 0.5);
+    ctx.moveTo(0.5, -s / 2 + 3); ctx.lineTo(0.5, s / 2 - 3);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  private roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x, y, w, h, r);
+    else {
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
   }
 
   private drawRings(ctx: CanvasRenderingContext2D) {
