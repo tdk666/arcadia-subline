@@ -100,6 +100,7 @@ export class DemolitionEngine {
   private interacted = false;
   private dragging = false;
   private dragPos: { x: number; y: number } | null = null;
+  private dragStart: { x: number; y: number } | null = null; // origine du geste (visée relative)
   private dragFrac = 0;            // tension de la fronde (0→1), pilote le feel de charge
   private chargedHaptic = false;   // un seul buzz quand la charge atteint le max
   private settleSince = 0;
@@ -328,6 +329,7 @@ export class DemolitionEngine {
     this.shotsUsed++;
     this.dragging = false;
     this.dragPos = null;
+    this.dragStart = null;
     this.dragFrac = 0;
     this.chargedHaptic = false;
     this.sfx?.launch();
@@ -342,6 +344,8 @@ export class DemolitionEngine {
     }
     this.dragging = false;
     this.dragPos = null;
+    this.dragStart = null;
+    this.dragFrac = 0;
   }
 
   /* ── Boucle ─────────────────────────────────────────────────────── */
@@ -608,29 +612,30 @@ export class DemolitionEngine {
   }
 
   private bindInput() {
+    // VISÉE RELATIVE : on touche n'importe où puis on tire dans le sens du recul.
+    // Le point de départ du geste n'a pas d'importance → jouable même au bord,
+    // sans devoir attraper un pavé minuscule (correctif du « tir impossible »).
     const down = (e: PointerEvent) => {
       if (this.ended || this.ballInFlight || !this.ball) return;
-      const p = this.toWorld(e);
-      const d = Math.hypot(p.x - this.ball.position.x, p.y - this.ball.position.y);
-      if (d < 120) {
-        this.dragging = true;
-        this.chargedHaptic = false;
-        if (!this.interacted) { this.interacted = true; this.pushHud(); }
-        this.canvas.setPointerCapture(e.pointerId);
-        move(e);
-      }
+      this.dragging = true;
+      this.chargedHaptic = false;
+      this.dragStart = this.toWorld(e);
+      if (!this.interacted) { this.interacted = true; this.pushHud(); }
+      try { this.canvas.setPointerCapture(e.pointerId); } catch { /* noop */ }
+      move(e);
     };
     const move = (e: PointerEvent) => {
-      if (!this.dragging || !this.ball) return;
+      if (!this.dragging || !this.ball || !this.dragStart) return;
       const p = this.toWorld(e);
-      let dx = p.x - this.level.slingX;
-      let dy = p.y - this.level.slingY;
+      // recul = déplacement du doigt depuis le début du geste (relatif)
+      let dx = p.x - this.dragStart.x;
+      let dy = p.y - this.dragStart.y;
       const d = Math.hypot(dx, dy);
       if (d > MAX_DRAG) { dx = (dx / d) * MAX_DRAG; dy = (dy / d) * MAX_DRAG; }
       this.dragFrac = Math.min(1, d / MAX_DRAG);
-      // un seul buzz quand l'élastique est tendu à fond (limite de portée)
       if (this.dragFrac > 0.96 && !this.chargedHaptic) { this.chargedHaptic = true; this.haptic(8); }
       else if (this.dragFrac < 0.9) this.chargedHaptic = false;
+      // le pavé recule depuis l'ancre de la fronde ; le tir partira à l'opposé
       this.dragPos = { x: this.level.slingX + dx, y: this.level.slingY + dy };
       Body.setPosition(this.ball, this.dragPos);
     };
@@ -691,12 +696,13 @@ export class DemolitionEngine {
     }
 
     this.drawBackdrop(ctx, t);
-    this.drawCrowd(ctx, t);
+    this.drawBastille(ctx, t);     // forteresse iconique en arrière-plan (silhouette)
     this.drawGround(ctx);
     this.drawSling(ctx);
     this.drawNextPave(ctx);
     this.drawBodies(ctx, t);
     this.drawTorches(ctx, t);
+    this.drawCrowd(ctx, t);        // la foule révolutionnaire au premier plan (tricolore)
     if (this.dragging && this.dragPos) this.drawAim(ctx);
     this.drawRings(ctx);
     this.drawParticles(ctx);
@@ -814,31 +820,117 @@ export class DemolitionEngine {
     }
   }
 
-  /** La foule en marche : piques et bonnets en ombre chinoise, côté canon. */
+  /** La forteresse de la Bastille — silhouette iconique en arrière-plan :
+   *  grosses tours rondes crénelées, courtines, pont-levis. Pierre chaude
+   *  sourde (lointain) pour que les blocs destructibles ressortent devant. */
+  private drawBastille(ctx: CanvasRenderingContext2D, t: number) {
+    const { level } = this;
+    const gY = level.groundY;
+    const x0 = level.worldW * 0.5;        // l'ensemble occupe la moitié droite
+    const x1 = level.worldW * 0.99;
+    const wallTop = gY - 150;
+    const towerTop = gY - 210;
+
+    // pierre lointaine, plus sombre que les blocs de premier plan
+    const stone = ctx.createLinearGradient(0, towerTop, 0, gY);
+    stone.addColorStop(0, '#3a2e20');
+    stone.addColorStop(1, '#1d160e');
+
+    const merlons = (mx0: number, mx1: number, top: number) => {
+      ctx.fillStyle = '#241b12';
+      for (let x = mx0; x < mx1 - 6; x += 16) ctx.fillRect(x, top - 10, 9, 10);
+    };
+
+    // courtine (mur de liaison)
+    ctx.fillStyle = stone;
+    ctx.fillRect(x0, wallTop, x1 - x0, gY - wallTop);
+    merlons(x0, x1, wallTop);
+
+    // quatre tours rondes crénelées
+    const towers = [x0 + 18, level.worldW * 0.66, level.worldW * 0.82, x1 - 56];
+    for (const tx of towers) {
+      const tw = 56;
+      ctx.fillStyle = stone;
+      ctx.fillRect(tx, towerTop, tw, gY - towerTop);
+      // arrondi sommital (ombrage latéral pour le volume cylindrique)
+      const cyl = ctx.createLinearGradient(tx, 0, tx + tw, 0);
+      cyl.addColorStop(0, 'rgba(0,0,0,0.45)');
+      cyl.addColorStop(0.4, 'rgba(224,150,74,0.10)'); // rim ambre
+      cyl.addColorStop(1, 'rgba(0,0,0,0.5)');
+      ctx.fillStyle = cyl;
+      ctx.fillRect(tx, towerTop, tw, gY - towerTop);
+      merlons(tx - 2, tx + tw + 2, towerTop);
+      // meurtrières éclairées (ambre, vacillantes)
+      for (let k = 0; k < 3; k++) {
+        const wy = towerTop + 30 + k * 42;
+        const fl = 0.55 + 0.45 * Math.abs(Math.sin(t * 0.003 + tx + k));
+        ctx.fillStyle = this.hexA('#e0964a', 0.7 * fl);
+        ctx.fillRect(tx + tw / 2 - 2, wy, 4, 9);
+      }
+    }
+
+    // pont-levis / porte centrale (arche sombre, embrasée par les torches)
+    const gx = level.worldW * 0.73;
+    const gate = ctx.createRadialGradient(gx, gY, 6, gx, gY, 60);
+    gate.addColorStop(0, '#e0964a');
+    gate.addColorStop(0.5, '#7a3a18');
+    gate.addColorStop(1, '#160d07');
+    ctx.fillStyle = gate;
+    ctx.beginPath();
+    ctx.moveTo(gx - 26, gY);
+    ctx.lineTo(gx - 26, gY - 42);
+    ctx.arc(gx, gY - 42, 26, Math.PI, 0);
+    ctx.lineTo(gx + 26, gY);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  /** La foule révolutionnaire au premier plan : piques, bonnets phrygiens et
+   *  DRAPEAUX TRICOLORES (bleu-blanc-rouge) brandis — l'âme de juillet 1789. */
   private drawCrowd(ctx: CanvasRenderingContext2D, t: number) {
     const { level } = this;
     const baseY = level.groundY;
-    ctx.fillStyle = 'rgba(8,10,14,0.85)';
     let seed = 13;
-    for (let i = 0; i < 9; i++) {
+    const n = 16;
+    for (let i = 0; i < n; i++) {
       seed = (seed * 16807) % 2147483647;
-      const px = 14 + i * 11 + (seed % 6);
+      const px = 10 + i * 13 + (seed % 5);
+      if (px > level.slingX - 18 && px < level.slingX + 26) continue; // on dégage la fronde
       const sway = Math.sin(t * 0.002 + i * 1.7) * 1.2;
-      const h = 26 + (seed % 12);
-      // corps + tête
+      const h = 24 + (seed % 14);
+      // corps + tête en ombre chinoise
+      ctx.fillStyle = 'rgba(8,7,5,0.9)';
       ctx.fillRect(px - 3, baseY - h, 6, h);
       ctx.beginPath();
       ctx.arc(px + sway * 0.4, baseY - h - 4, 4, 0, Math.PI * 2);
       ctx.fill();
-      // pique levée (une sur deux)
-      if (i % 2 === 0) {
-        ctx.strokeStyle = 'rgba(8,10,14,0.85)';
+
+      const kind = i % 4;
+      if (kind === 0) {
+        // pique levée
+        ctx.strokeStyle = 'rgba(8,7,5,0.9)';
         ctx.lineWidth = 1.6;
         ctx.beginPath();
         ctx.moveTo(px + 4, baseY - h + 6);
         ctx.lineTo(px + 8 + sway, baseY - h - 26);
         ctx.stroke();
+        ctx.fillStyle = '#241b12';
         ctx.fillRect(px + 6 + sway, baseY - h - 32, 4, 7);
+      } else if (kind === 2) {
+        // DRAPEAU TRICOLORE brandi
+        const hampeX = px + 5;
+        const top = baseY - h - 34;
+        ctx.strokeStyle = '#2b2114';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(hampeX, baseY - h + 4);
+        ctx.lineTo(hampeX + sway, top);
+        ctx.stroke();
+        const fw = 22, fh = 13, fx = hampeX + sway, fy = top;
+        const wv = Math.sin(t * 0.006 + i) * 1.5;
+        ctx.fillStyle = '#0a3d91'; ctx.fillRect(fx, fy + wv * 0.2, fw / 3, fh);          // bleu
+        ctx.fillStyle = '#f4f1e8'; ctx.fillRect(fx + fw / 3, fy + wv * 0.1, fw / 3, fh); // blanc
+        ctx.fillStyle = '#c1121f'; ctx.fillRect(fx + (2 * fw) / 3, fy, fw / 3, fh);      // rouge
       }
     }
   }
