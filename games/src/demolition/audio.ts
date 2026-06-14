@@ -244,6 +244,33 @@ export class DemolitionSfx {
     if (I > 0.8 && (step === 14 || step === 15)) {
       this.tom(at, 220 - (step - 14) * 40, 0.4);
     }
+
+    // FIFRE révolutionnaire (idiome contredanse « Ça ira ») : entre quand l'assaut
+    // chauffe, se densifie et monte avec l'intensité. Motif sautillant en sol majeur.
+    if (I > 0.34) {
+      const onBeat = step % 4 === 0;     // noires : G5 B5 D6 B5
+      const offBeat = step % 4 === 2;    // croches : A5 C6 B5 A5 (ajoutées à haute intensité)
+      const G5 = 783.99, A5 = 880.0, B5 = 987.77, C6 = 1046.5, D6 = 1174.66;
+      const beatMotif = [G5, B5, D6, B5];
+      const offMotif = [A5, C6, B5, A5];
+      if (onBeat) this.fife(at, beatMotif[(step / 4) % 4], 0.16 + I * 0.14);
+      if (offBeat && I > 0.62) this.fife(at, offMotif[((step - 2) / 4) % 4], 0.12 + I * 0.1);
+    }
+  }
+
+  /** Fifre : note brève et claire (square + octave triangle) sur le bus musique. */
+  private fife(at: number, freq: number, gain: number) {
+    if (!this.ctx || !this.musicBus) return;
+    const o = this.ctx.createOscillator();
+    const o2 = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = 'square'; o.frequency.setValueAtTime(freq, at);
+    o2.type = 'triangle'; o2.frequency.setValueAtTime(freq / 2, at);
+    g.gain.setValueAtTime(0, at);
+    g.gain.linearRampToValueAtTime(gain, at + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, at + 0.16);
+    o.connect(g); o2.connect(g); g.connect(this.musicBus);
+    o.start(at); o2.start(at); o.stop(at + 0.18); o2.stop(at + 0.18);
   }
 
   private kick(at: number, gain: number) {
