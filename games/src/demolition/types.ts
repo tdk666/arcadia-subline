@@ -14,6 +14,11 @@ export interface DemolitionParams {
 
 export type BlockMaterial = 'stone' | 'wood' | 'iron';
 
+/** Rôle d'un bloc dans la forteresse → pilote le rendu (tour ronde, courtine,
+ *  créneau, pont-levis, linteau). Les créneaux comptent comme décor : ils se
+ *  brisent (juteux) mais n'entrent PAS dans le % de destruction structurelle. */
+export type BlockPart = 'tower' | 'curtain' | 'merlon' | 'bridge' | 'lintel';
+
 export interface BlockSpec {
   x: number;
   y: number;
@@ -22,6 +27,8 @@ export interface BlockSpec {
   material: BlockMaterial;
   /** Posé uniquement quand params.reinforced est vrai. */
   reinforcement?: boolean;
+  /** Indice de rendu (défaut : pierre générique). */
+  part?: BlockPart;
 }
 
 export interface TargetSpec {

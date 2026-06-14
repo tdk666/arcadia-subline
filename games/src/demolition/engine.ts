@@ -1,6 +1,6 @@
 import Matter from 'matter-js';
 import type { DifficultyTier } from '../contract';
-import type { BlockMaterial, DemolitionLevel, DemolitionParams } from './types';
+import type { BlockMaterial, BlockPart, DemolitionLevel, DemolitionParams } from './types';
 import type { DemolitionSfx } from './audio';
 
 const { Engine, Bodies, Body, Composite, Events, Sleeping } = Matter;
@@ -77,7 +77,7 @@ interface Particle {
 
 interface Ring { x: number; y: number; r: number; maxR: number; life: number; maxLife: number; color: string }
 
-interface BlockMeta { hp: number; maxHp: number; material: BlockMaterial }
+interface BlockMeta { hp: number; maxHp: number; material: BlockMaterial; part?: BlockPart }
 
 export class DemolitionEngine {
   private engine = Engine.create({ enableSleeping: false });
@@ -210,8 +210,9 @@ export class DemolitionEngine {
       });
       Sleeping.set(body, true); // la forteresse dort jusqu'au premier impact réel
       const maxHp = spec.material === 'iron' ? Infinity : mat.hp * params.hpMultiplier;
-      this.blocks.set(body.id, { hp: maxHp, maxHp, material: spec.material });
-      if (spec.material !== 'iron') this.destructible++;
+      this.blocks.set(body.id, { hp: maxHp, maxHp, material: spec.material, part: spec.part });
+      // les créneaux se brisent (juteux) mais ne comptent PAS dans le % structurel
+      if (spec.material !== 'iron' && spec.part !== 'merlon') this.destructible++;
       Composite.add(world, body);
       const col = Math.round(spec.x / 20) * 20;
       const top = spec.y - spec.h / 2;
@@ -1183,7 +1184,8 @@ export class DemolitionEngine {
     }
   }
 
-  /** Bloc de pierre de taille : volume (faces éclairée/occlusion) + rim ambre. */
+  /** Élément de forteresse : tour ronde (ombrage cylindrique), courtine, créneau
+   *  ou pont-levis de bois. Volume + appareil de pierre + rim ambre + fissures. */
   private drawStone(ctx: CanvasRenderingContext2D, body: Matter.Body, mat: typeof MATERIAL[BlockMaterial], meta: BlockMeta) {
     const v = body.vertices;
     const w = Math.hypot(v[1].x - v[0].x, v[1].y - v[0].y);
@@ -1191,26 +1193,51 @@ export class DemolitionEngine {
     ctx.save();
     ctx.translate(body.position.x, body.position.y);
     ctx.rotate(body.angle);
-    // base : dégradé diagonal (lumière en haut-gauche)
-    const g = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
-    g.addColorStop(0, mat.light);
-    g.addColorStop(0.5, mat.base);
-    g.addColorStop(1, mat.dark);
-    ctx.fillStyle = g;
-    ctx.fillRect(-w / 2, -h / 2, w, h);
+
+    if (meta.part === 'bridge') { this.drawDrawbridge(ctx, w, h, meta); ctx.restore(); return; }
+
+    if (meta.part === 'tower') {
+      // OMBRAGE CYLINDRIQUE : la lumière court verticalement, les bords s'assombrissent
+      // → la pile d'assises lit comme une tour RONDE, pas un mur plat.
+      const cyl = ctx.createLinearGradient(-w / 2, 0, w / 2, 0);
+      cyl.addColorStop(0, mat.dark);
+      cyl.addColorStop(0.34, mat.light);
+      cyl.addColorStop(0.52, mat.base);
+      cyl.addColorStop(0.78, mat.dark);
+      cyl.addColorStop(1, '#1a140d');
+      ctx.fillStyle = cyl;
+      ctx.fillRect(-w / 2, -h / 2, w, h);
+      // reflet vertical chaud sur la génératrice éclairée
+      ctx.fillStyle = this.hexA(mat.rim, 0.28);
+      ctx.fillRect(-w / 2 + w * 0.3, -h / 2, 2, h);
+    } else {
+      // courtine / créneau / pierre générique : dégradé diagonal (lumière haut-gauche)
+      const g = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+      g.addColorStop(0, mat.light);
+      g.addColorStop(0.5, mat.base);
+      g.addColorStop(1, mat.dark);
+      ctx.fillStyle = g;
+      ctx.fillRect(-w / 2, -h / 2, w, h);
+    }
+
     // occlusion ambiante en bas/droite (le bloc a du poids)
     ctx.fillStyle = 'rgba(0,0,0,0.32)';
     ctx.fillRect(-w / 2, h / 2 - 3.5, w, 3.5);
     ctx.fillRect(w / 2 - 3.5, -h / 2, 3.5, h);
     // rim-light ambre en haut/gauche (torches qui lèchent l'arête)
-    ctx.fillStyle = this.hexA(mat.rim, 0.55);
+    ctx.fillStyle = this.hexA(mat.rim, 0.5);
     ctx.fillRect(-w / 2, -h / 2, w, 1.6);
-    ctx.fillRect(-w / 2, -h / 2, 1.6, h);
-    // joint de pierre central (appareil)
-    ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+    if (meta.part !== 'tower') ctx.fillRect(-w / 2, -h / 2, 1.6, h);
+
+    // appareil de pierre : joint d'assise + refends verticaux décalés (vrai mur)
+    ctx.strokeStyle = 'rgba(0,0,0,0.24)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(-w / 2, 0); ctx.lineTo(w / 2, 0);
+    if (w > 40) {  // refends : pierres de taille dans l'assise
+      ctx.moveTo(-w / 6, -h / 2); ctx.lineTo(-w / 6, 0);
+      ctx.moveTo(w / 6, 0); ctx.lineTo(w / 6, h / 2);
+    }
     ctx.stroke();
     // contour
     ctx.strokeStyle = 'rgba(0,0,0,0.5)';
@@ -1226,6 +1253,35 @@ export class DemolitionEngine {
       ctx.stroke();
     }
     ctx.restore();
+  }
+
+  /** Pont-levis : planches de chêne cerclées de fer (le premier obstacle). */
+  private drawDrawbridge(ctx: CanvasRenderingContext2D, w: number, h: number, meta: BlockMeta) {
+    const g = ctx.createLinearGradient(-w / 2, 0, w / 2, 0);
+    g.addColorStop(0, '#3a2814');
+    g.addColorStop(0.5, '#6b4a26');
+    g.addColorStop(1, '#2f2010');
+    ctx.fillStyle = g;
+    ctx.fillRect(-w / 2, -h / 2, w, h);
+    // planches verticales
+    ctx.strokeStyle = 'rgba(20,12,6,0.55)';
+    ctx.lineWidth = 1;
+    for (let x = -w / 2 + 6; x < w / 2; x += 9) {
+      ctx.beginPath(); ctx.moveTo(x, -h / 2); ctx.lineTo(x, h / 2); ctx.stroke();
+    }
+    // ferrures horizontales + clous
+    ctx.fillStyle = '#2a2c30';
+    for (const yy of [-h / 2 + h * 0.22, h / 2 - h * 0.22]) {
+      ctx.fillRect(-w / 2, yy - 2.5, w, 5);
+      ctx.fillStyle = '#6a7078';
+      for (let x = -w / 2 + 5; x < w / 2; x += 10) ctx.fillRect(x, yy - 1.5, 2, 3);
+      ctx.fillStyle = '#2a2c30';
+    }
+    // fissures de dégât
+    if (meta.maxHp !== Infinity && meta.hp < meta.maxHp * 0.6) {
+      ctx.strokeStyle = 'rgba(10,6,3,0.8)'; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(-3, -h / 2 + 6); ctx.lineTo(3, 0); ctx.lineTo(-2, h / 2 - 6); ctx.stroke();
+    }
   }
 
   /** Cible = étendard royal vermillon (drapeau à queue d'aronde sur hampe). */
