@@ -110,7 +110,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-[60] mx-auto flex max-w-md flex-col bg-encre">
+    <div className="fixed inset-0 z-[60] mx-auto flex max-w-md flex-col bg-craie">
       <button
         type="button"
         onClick={finish}

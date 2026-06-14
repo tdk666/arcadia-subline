@@ -39,7 +39,7 @@ export function ProfileScreen() {
       <h1 className="font-display text-2xl font-extrabold tracking-tight">{t('profile.title')}</h1>
 
       {/* carte d'identité du conquérant */}
-      <div className="relative mt-4 overflow-hidden rounded-2xl border border-rail bg-gradient-to-br from-[#241a1e] via-plomb to-plomb p-5">
+      <div className="relative mt-4 overflow-hidden rounded-2xl border border-rail bg-gradient-to-br from-[#eef4fa] via-plomb to-[#f4ecdb] p-5 shadow-[0_6px_18px_rgba(0,0,0,0.06)]">
         <div className="pointer-events-none absolute -right-4 -top-6 text-[80px] opacity-10">◈</div>
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-vermillon">
           {t('profile.rank')} — {rankLabel(t, stats?.xpTotal ?? 0)}
@@ -55,17 +55,17 @@ export function ProfileScreen() {
         )}
 
         <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-          <div className="rounded-xl bg-encre-2 py-3">
-            <p className="font-display text-xl font-extrabold text-[#b6bd00]">{stats?.xpTotal ?? 0}</p>
+          <div className="rounded-xl bg-craie-2 py-3">
+            <p className="font-display text-xl font-extrabold text-[#6b7a1a]">{stats?.xpTotal ?? 0}</p>
             <p className="font-mono text-[9px] uppercase text-pierre-faint">{t('profile.xp')}</p>
           </div>
-          <div className="rounded-xl bg-encre-2 py-3">
+          <div className="rounded-xl bg-craie-2 py-3">
             <p className="font-display text-xl font-extrabold text-laiton">
               {stats?.streak ?? 0}<span className="text-xs">{t('profile.streakUnit')}</span>
             </p>
             <p className="font-mono text-[9px] uppercase text-pierre-faint">{t('profile.streak')}</p>
           </div>
-          <div className="rounded-xl bg-encre-2 py-3">
+          <div className="rounded-xl bg-craie-2 py-3">
             <p className="font-display text-xl font-extrabold text-vermillon">{conquered}</p>
             <p className="font-mono text-[9px] uppercase text-pierre-faint">{t('profile.stations')}</p>
           </div>
@@ -85,7 +85,7 @@ export function ProfileScreen() {
       {/* langue */}
       <div className="mt-4 flex items-center justify-between rounded-2xl border border-rail bg-plomb px-5 py-4">
         <span className="text-sm font-semibold">{t('profile.language')}</span>
-        <div className="flex gap-1 rounded-lg bg-encre-2 p-1">
+        <div className="flex gap-1 rounded-lg bg-craie-2 p-1">
           {(['fr', 'en'] as Locale[]).map((l) => (
             <button
               key={l}

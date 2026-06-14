@@ -82,16 +82,16 @@ export function LineMapScreen() {
         <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="block h-full">
           <defs>
             <linearGradient id="board-bg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#1a140d" />
-              <stop offset="1" stopColor="#120d08" />
+              <stop offset="0" stopColor="#fbf7ec" />
+              <stop offset="1" stopColor="#efe6d2" />
             </linearGradient>
             <linearGradient id="line-grad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stopColor="#9c7d18" />
-              <stop offset="1" stopColor="#3a2f1e" />
+              <stop offset="0" stopColor="#cdbf9c" />
+              <stop offset="1" stopColor="#d8cdb4" />
             </linearGradient>
             <radialGradient id="lamp-pool">
-              <stop offset="0" stopColor="#e0964a" stopOpacity="0.18" />
-              <stop offset="1" stopColor="#e0964a" stopOpacity="0" />
+              <stop offset="0" stopColor="#0a5a9e" stopOpacity="0.07" />
+              <stop offset="1" stopColor="#0a5a9e" stopOpacity="0" />
             </radialGradient>
             <radialGradient id="avatar-medal">
               <stop offset="0" stopColor="#fbe9a6" />
@@ -119,9 +119,9 @@ export function LineMapScreen() {
           {LANDMARKS.map((lm) => {
             const p = nodePos(lm.i);
             return (
-              <g key={lm.label} opacity="0.5">
-                <text x={p.x} y={p.y - 64} textAnchor="middle" fontSize="26" fill="#c9a227">{lm.glyph}</text>
-                <text x={p.x} y={p.y - 48} textAnchor="middle" fontSize="9" fill="#8a7c63"
+              <g key={lm.label} opacity="0.82">
+                <text x={p.x} y={p.y - 64} textAnchor="middle" fontSize="26" fill="#9c7d18">{lm.glyph}</text>
+                <text x={p.x} y={p.y - 48} textAnchor="middle" fontSize="9" fill="#6b5f48"
                   fontFamily="'Work Sans',sans-serif">{lm.label}</text>
               </g>
             );
@@ -137,10 +137,10 @@ export function LineMapScreen() {
           {/* RAME qui glisse sur toute la ligne (le réseau est vivant) */}
           <g>
             <g>
-              <rect x="-13" y="-5" width="26" height="10" rx="4" fill="#241f18" stroke="#e0964a" strokeWidth="1.4" />
-              <rect x="-9" y="-2.5" width="6" height="5" rx="1" fill="#e3c463" opacity="0.9" />
-              <rect x="3" y="-2.5" width="6" height="5" rx="1" fill="#e3c463" opacity="0.9" />
-              <circle cx="13" cy="0" r="2.4" fill="#fff6d0" opacity="0.9" />
+              <rect x="-13" y="-5" width="26" height="10" rx="4" fill="#0a5a9e" stroke="#073f6e" strokeWidth="1.4" />
+              <rect x="-9" y="-2.5" width="6" height="5" rx="1" fill="#fbf7ec" opacity="0.95" />
+              <rect x="3" y="-2.5" width="6" height="5" rx="1" fill="#fbf7ec" opacity="0.95" />
+              <circle cx="13" cy="0" r="2.4" fill="#e3c463" />
               <animateMotion dur="20s" repeatCount="indefinite" rotate="auto">
                 <mpath href="#lineTrace" />
               </animateMotion>
@@ -170,19 +170,19 @@ export function LineMapScreen() {
                 {won && <circle cx={p.x} cy={p.y} r="24" fill={LINE.color} className="animate-map-pulse" />}
                 <circle
                   cx={p.x} cy={p.y} r="12"
-                  fill={won ? LINE.color : playable ? '#241f18' : '#1b150d'}
-                  stroke={won ? '#fff6d0' : playable ? '#e0964a' : '#5d5240'}
+                  fill={won ? LINE.color : playable ? '#fffdf7' : '#e4dcc8'}
+                  stroke={won ? '#1f1812' : playable ? '#0a5a9e' : '#bcae90'}
                   strokeWidth={playable ? 3 : 2}
-                  style={won ? { filter: 'drop-shadow(0 0 8px rgba(242,194,0,0.7))' } : undefined}
+                  style={won ? { filter: 'drop-shadow(0 0 7px rgba(242,194,0,0.55))' } : undefined}
                 />
                 {fullyWon && <text x={p.x} y={p.y + 4} textAnchor="middle" fontSize="13" fill="#15110c">★</text>}
-                {!won && playable && <circle cx={p.x} cy={p.y} r="3.5" fill="#e0964a" />}
+                {!won && playable && <circle cx={p.x} cy={p.y} r="3.5" fill="#0a5a9e" />}
 
                 {/* étiquette */}
                 <text
                   x={p.x} y={labelBelow ? p.y + 30 : p.y - 22}
                   textAnchor="middle" fontSize="11"
-                  fill={playable ? '#e7dcc4' : '#8a7c63'}
+                  fill={playable ? '#2a2118' : '#9c8f76'}
                   fontFamily="'Work Sans',sans-serif"
                   fontWeight={playable ? 600 : 400}
                 >
@@ -190,7 +190,7 @@ export function LineMapScreen() {
                 </text>
                 {playable && !won && (
                   <text x={p.x} y={labelBelow ? p.y + 43 : p.y - 35} textAnchor="middle" fontSize="8"
-                    fill="#c9a227" fontFamily="'Work Sans',sans-serif" letterSpacing="1">
+                    fill="#0a5a9e" fontFamily="'Work Sans',sans-serif" letterSpacing="1">
                     {t('map.challengeAvailable').toUpperCase()}
                   </text>
                 )}
@@ -208,7 +208,7 @@ export function LineMapScreen() {
               >
                 {/* aura au sol qui pulse */}
                 <circle cx={p.x} cy={p.y} r="30" fill="#e0964a" className="animate-map-pulse" />
-                <circle cx={p.x} cy={p.y} r="19" fill="none" stroke="#e3c463" strokeWidth="2.5" className="animate-glow" />
+                <circle cx={p.x} cy={p.y} r="19" fill="none" stroke="#0a5a9e" strokeWidth="2.5" className="animate-glow" />
                 {/* médaillon flottant de l'explorateur (bobbing) */}
                 <g className="animate-map-bob">
                   <ellipse cx={p.x} cy={p.y - 8} rx="9" ry="3" fill="#000" opacity="0.3" />
@@ -233,11 +233,11 @@ export function LineMapScreen() {
           <button
             type="button"
             onClick={() => navigate(`/station/${hero.slug}`)}
-            className="relative block w-full overflow-hidden rounded-2xl border border-laiton/40 bg-gradient-to-br from-[#23170f] via-plomb to-plomb p-4 text-left transition active:scale-[0.99]"
+            className="relative block w-full overflow-hidden rounded-2xl bg-email p-4 text-left text-white shadow-[0_8px_22px_rgba(10,90,158,0.3)] ring-2 ring-white/80 ring-inset transition active:scale-[0.99]"
           >
-            <div className="pointer-events-none absolute -right-6 -top-8 text-[88px] opacity-15">⚑</div>
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-laiton">★ {t('map.heroKicker')}</p>
-            <h2 className="mt-1 font-display text-xl font-extrabold tracking-tight text-pierre">
+            <div className="pointer-events-none absolute -right-6 -top-8 text-[88px] text-white opacity-15">⚑</div>
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-laiton-clair">★ {t('map.heroKicker')}</p>
+            <h2 className="mt-1 font-display text-xl font-extrabold tracking-tight text-white">
               {pickText(hero.game.title, locale)}
             </h2>
             <div className="mt-2 flex items-center justify-between">
@@ -246,11 +246,11 @@ export function LineMapScreen() {
                   <span key={tr} className={`h-2.5 w-2.5 rounded-full border ${
                     (tiersWon[hero.slug] ?? []).includes(tr)
                       ? 'border-laiton bg-laiton shadow-[0_0_6px_rgba(242,194,0,0.7)]'
-                      : 'border-pierre-faint/50'
+                      : 'border-white/45'
                   }`} />
                 ))}
               </div>
-              <span className="animate-glow rounded-lg bg-laiton px-3.5 py-1.5 font-display text-xs font-extrabold text-encre">
+              <span className="rounded-lg bg-laiton px-3.5 py-1.5 font-display text-xs font-extrabold text-encre">
                 ⚔ {t('map.heroCta')}
               </span>
             </div>

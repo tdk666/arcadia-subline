@@ -37,7 +37,7 @@ export function OrientationGate({ active, children }: { active: boolean; childre
     <>
       {children}
       {active && portrait && (
-        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-encre/95 px-10 text-center">
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-craie/95 px-10 text-center">
           {/* halo ambre de réverbère */}
           <div
             className="pointer-events-none absolute inset-x-0 top-0 h-1/2"

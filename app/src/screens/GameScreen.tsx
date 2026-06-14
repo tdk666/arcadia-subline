@@ -103,7 +103,7 @@ export function GameScreen() {
   }
 
   return (
-    <div className="fixed inset-0 bg-encre">
+    <div className="fixed inset-0 bg-craie">
       {/* UNE seule rotation pour brief + assaut (même axe paysage, plus de
           bascule au milieu). Le résultat/archive se lit dans n'importe quel sens. */}
       <OrientationGate active={orientation === 'landscape' && phase !== 'result'}>

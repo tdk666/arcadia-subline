@@ -33,8 +33,8 @@ function ArchiveCard({ station, onClose }: { station: StationContent; onClose: (
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 px-5" onClick={onClose}>
       <div
-        className="animate-stamp relative max-h-[82vh] w-full max-w-sm overflow-y-auto rounded-2xl border-2 border-guimard/70 bg-[#11181380] bg-plomb p-6"
-        style={{ background: 'linear-gradient(165deg, #14211a 0%, #1e2a20 45%)' }}
+        className="animate-stamp relative max-h-[82vh] w-full max-w-sm overflow-y-auto rounded-2xl border-2 border-guimard/60 bg-plomb p-6 shadow-[0_16px_44px_rgba(0,0,0,0.35)]"
+        style={{ background: 'linear-gradient(165deg, #fbf6ea 0%, #f1ead6 55%)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* balayage lumineux de révélation */}
@@ -44,7 +44,7 @@ function ArchiveCard({ station, onClose }: { station: StationContent; onClose: (
 
         <div className="flex items-start justify-between">
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#6cae86]">
+            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#3f6b4d]">
               {pickText(station.archive.collection, locale)}
             </p>
             <p className="mt-0.5 font-mono text-[10px] text-pierre-faint">
@@ -52,7 +52,7 @@ function ArchiveCard({ station, onClose }: { station: StationContent; onClose: (
             </p>
           </div>
           {/* sceau */}
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#6cae86]/70 font-display text-xl text-[#6cae86]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#3f6b4d]/70 font-display text-xl text-[#3f6b4d]">
             ⚜
           </div>
         </div>
@@ -60,7 +60,7 @@ function ArchiveCard({ station, onClose }: { station: StationContent; onClose: (
         <h2 className="mt-4 font-display text-2xl font-extrabold tracking-tight text-pierre">
           {station.name}
         </h2>
-        <p className="mt-1 text-sm italic text-[#6cae86]">{pickText(station.story.teaser, locale)}</p>
+        <p className="mt-1 text-sm italic text-[#3f6b4d]">{pickText(station.story.teaser, locale)}</p>
 
         <p className="mt-4 text-sm leading-relaxed text-pierre-dim">
           {pickText(station.story.body, locale)}
@@ -73,7 +73,7 @@ function ArchiveCard({ station, onClose }: { station: StationContent; onClose: (
               className="animate-slide-up flex items-center gap-2.5 rounded-lg border border-guimard/30 bg-guimard/10 px-3 py-2 text-xs text-pierre"
               style={{ animationDelay: `${0.5 + i * 0.15}s` }}
             >
-              <span className="text-[#6cae86]">◈</span>{f}
+              <span className="text-[#3f6b4d]">◈</span>{f}
             </li>
           ))}
         </ul>
@@ -119,7 +119,7 @@ export function ResultView({
   }
 
   return (
-    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 overflow-y-auto bg-encre/95 px-6 py-8 text-center">
+    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 overflow-y-auto bg-craie/95 px-6 py-8 text-center">
       <div className="animate-pop">
         <p className="font-mono text-xs uppercase tracking-widest text-pierre-faint">
           {station.name} · {t(`station.tiers.${result.tier}`)}
@@ -143,7 +143,7 @@ export function ResultView({
         <div className="flex gap-2.5">
           <div className="flex-1 rounded-2xl border border-rail bg-plomb px-4 py-3">
             <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.xp')}</p>
-            <p className="font-display text-2xl font-extrabold text-[#b6bd00]">
+            <p className="font-display text-2xl font-extrabold text-[#6b7a1a]">
               +<CountUp value={result.xpGained} />
             </p>
           </div>
@@ -157,7 +157,7 @@ export function ResultView({
         {result.success && result.xpGained === 0 && !result.flagged && (
           <p className="text-xs text-pierre-faint">{t('result.bestScore')}</p>
         )}
-        {result.flagged && <p className="text-xs text-orange-300">⚠ {t('result.flagged')}</p>}
+        {result.flagged && <p className="text-xs text-vermillon">⚠ {t('result.flagged')}</p>}
         {result.localOnly && (
           <p className="font-mono text-[11px] text-vermillon">◦ {t('result.localOnly')}</p>
         )}
@@ -171,11 +171,11 @@ export function ResultView({
           className="animate-slide-up flex w-full max-w-xs items-center gap-3 rounded-2xl border-2 border-guimard/60 bg-guimard/10 px-4 py-3 text-left transition active:scale-[0.98]"
           style={{ animationDelay: '0.2s' }}
         >
-          <span className={`flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#6cae86] text-xl ${archiveIsNew ? 'animate-glow' : ''}`}>
+          <span className={`flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#3f6b4d] text-xl ${archiveIsNew ? 'animate-glow' : ''}`}>
             ⚜
           </span>
           <span className="flex-1">
-            <span className="block font-display text-sm font-bold text-[#6cae86]">
+            <span className="block font-display text-sm font-bold text-[#3f6b4d]">
               {archiveIsNew ? `★ ${t('archive.unlocked')}` : t('station.story.title')}
             </span>
             <span className="block font-mono text-[10px] text-pierre-faint">

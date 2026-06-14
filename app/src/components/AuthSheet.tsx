@@ -42,7 +42,7 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
         <form onSubmit={submit} className="mt-4 flex flex-col gap-3">
           {mode === 'signup' && (
             <input
-              className="rounded-xl border border-rail bg-encre-2 px-4 py-3 text-sm outline-none focus:border-ambre"
+              className="rounded-xl border border-rail bg-craie-2 px-4 py-3 text-sm outline-none focus:border-ambre"
               placeholder={t('auth.displayName')}
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
@@ -50,7 +50,7 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
             />
           )}
           <input
-            className="rounded-xl border border-rail bg-encre-2 px-4 py-3 text-sm outline-none focus:border-ambre"
+            className="rounded-xl border border-rail bg-craie-2 px-4 py-3 text-sm outline-none focus:border-ambre"
             type="email"
             required
             autoComplete="email"
@@ -59,7 +59,7 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
             onChange={(e) => setEmail(e.target.value)}
           />
           <input
-            className="rounded-xl border border-rail bg-encre-2 px-4 py-3 text-sm outline-none focus:border-ambre"
+            className="rounded-xl border border-rail bg-craie-2 px-4 py-3 text-sm outline-none focus:border-ambre"
             type="password"
             required
             minLength={8}

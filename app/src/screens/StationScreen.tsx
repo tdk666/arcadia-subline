@@ -115,7 +115,7 @@ export function StationScreen() {
         <span
           className={`rounded-full px-3 py-1 font-mono text-[11px] font-bold ${
             isMastered
-              ? 'bg-guimard/20 text-[#6cae86]'
+              ? 'bg-guimard/20 text-[#3f6b4d]'
               : serverState === 'visited' || checkInUntil
                 ? 'bg-ambre/15 text-ambre'
                 : tiersWon.length
@@ -133,7 +133,7 @@ export function StationScreen() {
         </span>
       </div>
       {isMastered && (
-        <p className="animate-pop mt-2 text-center font-mono text-xs text-[#6cae86]">
+        <p className="animate-pop mt-2 text-center font-mono text-xs text-[#3f6b4d]">
           ★ {t('station.master.earned')}
         </p>
       )}
@@ -212,7 +212,7 @@ export function StationScreen() {
       </section>
 
       {/* check-in — SUR-COUCHE optionnelle, jamais bloquante */}
-      <section className="mt-5 rounded-xl border border-dashed border-rail bg-encre-2 p-4">
+      <section className="mt-5 rounded-xl border border-dashed border-rail bg-craie-2 p-4">
         <div className="flex items-start justify-between gap-2">
           <div>
             <h3 className="font-display text-sm font-bold">{t('checkin.title')}</h3>
@@ -223,7 +223,7 @@ export function StationScreen() {
           </span>
         </div>
         {checkInUntil ? (
-          <p className="animate-pop mt-3 font-mono text-sm text-[#6cae86]">
+          <p className="animate-pop mt-3 font-mono text-sm text-[#3f6b4d]">
             ✓ {t('checkin.done')} · {t('checkin.activeUntil')}{' '}
             {new Date(checkInUntil).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
           </p>
@@ -237,14 +237,14 @@ export function StationScreen() {
             {checkInBusy ? t('common.loading') : t('checkin.cta', { station: content.name })}
           </button>
         )}
-        {cooldownMsg && <p className="mt-2 text-xs text-orange-300">{cooldownMsg}</p>}
+        {cooldownMsg && <p className="mt-2 text-xs text-vermillon">{cooldownMsg}</p>}
         {!user && <p className="mt-2 text-xs text-pierre-faint">{t('checkin.needAccount')}</p>}
         <p className="mt-2 font-mono text-[10px] text-pierre-faint/70">{t('checkin.future')}</p>
       </section>
 
       {/* fiche savoir — l'âme culturelle, jamais imposée */}
       <section className="mt-5 rounded-xl border border-guimard/40 bg-guimard/5 p-4">
-        <h3 className="font-display text-sm font-bold text-[#6cae86]">{t('station.story.title')}</h3>
+        <h3 className="font-display text-sm font-bold text-[#3f6b4d]">{t('station.story.title')}</h3>
         <p className="mt-1.5 text-sm italic text-pierre-dim">{pickText(content.story.teaser, locale)}</p>
         {storyUnlocked ? (
           <>
@@ -254,7 +254,7 @@ export function StationScreen() {
                 <ul className="mt-3 flex flex-col gap-1.5">
                   {(content.story.facts[locale] ?? content.story.facts.fr).map((f) => (
                     <li key={f} className="flex gap-2 text-xs text-pierre-dim">
-                      <span className="text-[#6cae86]">⚜</span>{f}
+                      <span className="text-[#3f6b4d]">⚜</span>{f}
                     </li>
                   ))}
                 </ul>
@@ -262,7 +262,7 @@ export function StationScreen() {
             )}
             <button
               type="button"
-              className="mt-2 font-mono text-xs text-[#6cae86] underline-offset-2 active:underline"
+              className="mt-2 font-mono text-xs text-[#3f6b4d] underline-offset-2 active:underline"
               onClick={() => setStoryOpen(!storyOpen)}
             >
               {storyOpen ? '▴' : '▾'} {t('station.story.title')}

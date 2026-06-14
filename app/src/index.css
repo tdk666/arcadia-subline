@@ -1,30 +1,35 @@
 @import 'tailwindcss';
 
 /* ════════════════════════════════════════════════════════════════════
-   DESIGN TOKENS — « Paris Souterrain » (Belle Époque électrifiée)
-   Néon banni. Chaleur dominante : pierre, or/laiton, ambre de réverbère.
+   DESIGN TOKENS — « Métro Clair » (plan de métro parisien, lumineux)
+   Fond papier clair, plaque émaillée bleue en héros, or/ambre + touches
+   tricolores. Lisible, accueillant, pensé pour 60 s sur un quai.
    ════════════════════════════════════════════════════════════════════ */
 @theme {
-  /* surfaces — du plus sombre au plus clair */
-  --color-encre: #15110c;     /* fond nuit chaude */
-  --color-encre-2: #1b150d;   /* fond secondaire */
-  --color-plomb: #241f18;     /* surface (cartes, plaques) */
-  --color-plomb-hi: #2f2819;  /* surface au survol/appui */
-  --color-rail: #3a2f1e;      /* hairlines, bordures chaudes */
+  /* fonds CLAIRS (papier / carrelage de métro) */
+  --color-craie: #f6f1e6;     /* fond appli, papier chaud */
+  --color-craie-2: #ece4d2;   /* fond secondaire / champ */
 
-  /* encres */
-  --color-pierre: #e7dcc4;       /* pierre de taille — texte primaire */
-  --color-pierre-dim: #b9ad92;   /* texte secondaire */
-  --color-pierre-faint: #8a7c63; /* texte tertiaire / mono labels */
+  /* surfaces (cartes) — désormais claires */
+  --color-plomb: #fffdf7;     /* carte, quasi-blanc chaud */
+  --color-plomb-hi: #f1ead8;  /* carte au survol/appui */
+  --color-rail: #ddd2ba;      /* hairlines, bordures douces */
 
-  /* accents */
-  --color-laiton: #c9a227;       /* or / laiton — accent principal, CTA */
+  /* encres (texte sombre sur fond clair) — encre reste FONCÉE (texte sur accent) */
+  --color-encre: #15110c;     /* encre profonde — texte sur boutons or/bleu */
+  --color-encre-2: #221b12;   /* encre secondaire */
+  --color-pierre: #2a2118;       /* texte primaire (encre chaude) */
+  --color-pierre-dim: #5d5446;   /* texte secondaire */
+  --color-pierre-faint: #8a7c63; /* texte tertiaire / labels */
+
+  /* accents (inchangés — la couleur de marque) */
+  --color-laiton: #c9a227;       /* or / laiton — accent, médailles */
   --color-laiton-clair: #e3c463; /* laiton clair — highlights */
-  --color-ambre: #e0964a;        /* ambre de réverbère — accent chaud secondaire */
+  --color-ambre: #e0964a;        /* ambre de réverbère */
   --color-guimard: #3f6b4d;      /* vert Art Nouveau — culture / succès */
-  --color-email: #0a5a9e;        /* bleu émaillé — plaques de station */
+  --color-email: #0a5a9e;        /* bleu émaillé — HÉROS (plaques de station) */
   --color-vermillon: #bb2e2a;    /* vermillon — cibles, danger, rivalité */
-  --color-zinc: #8a96a0;         /* zinc des toits — argent froid mesuré */
+  --color-zinc: #8a96a0;         /* zinc des toits */
 
   --font-display: 'Marcellus', ui-serif, Georgia, serif;
   --font-ui: 'Work Sans', system-ui, sans-serif;
@@ -38,9 +43,9 @@ html, body, #root {
 
 body {
   margin: 0;
-  /* encre chaude + halo ambre discret en haut (réverbère qui veille) */
+  /* papier clair lumineux + halo bleu émaillé discret en haut (plaque métro) */
   background:
-    radial-gradient(120% 70% at 50% -12%, #2a1d10 0%, #15110c 52%, #100b07 100%);
+    radial-gradient(125% 75% at 50% -12%, #ffffff 0%, #f6f1e6 52%, #ece2cd 100%);
   color: var(--color-pierre);
   font-family: 'Work Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -48,7 +53,7 @@ body {
   overscroll-behavior: none;
 }
 
-::selection { background: var(--color-laiton); color: var(--color-encre); }
+::selection { background: var(--color-email); color: #fff; }
 
 /* zone sûre iOS (encoche / barre home) */
 .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }

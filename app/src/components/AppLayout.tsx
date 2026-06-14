@@ -8,7 +8,7 @@ function Tab({ to, label, icon }: { to: string; label: string; icon: string }) {
       to={to}
       className={({ isActive }) =>
         `flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] font-medium transition-colors ${
-          isActive ? 'text-laiton' : 'text-pierre-faint active:text-pierre-dim'
+          isActive ? 'text-email' : 'text-pierre-faint active:text-pierre-dim'
         }`
       }
     >
@@ -33,7 +33,7 @@ export function AppLayout() {
       <main className="min-h-0 flex-1 overflow-y-auto">
         <Outlet />
       </main>
-      <nav className="safe-bottom flex border-t border-rail bg-encre-2">
+      <nav className="safe-bottom flex border-t border-rail bg-craie-2">
         <Tab to="/" label={t('nav.map')} icon="◉" />
         <Tab to="/leaderboard" label={t('nav.leaderboard')} icon="♛" />
         <Tab to="/profile" label={t('nav.profile')} icon="◈" />
