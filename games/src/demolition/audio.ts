@@ -245,16 +245,18 @@ export class DemolitionSfx {
       this.tom(at, 220 - (step - 14) * 40, 0.4);
     }
 
-    // FIFRE révolutionnaire (idiome contredanse « Ça ira ») : entre quand l'assaut
-    // chauffe, se densifie et monte avec l'intensité. Motif sautillant en sol majeur.
-    if (I > 0.34) {
-      const onBeat = step % 4 === 0;     // noires : G5 B5 D6 B5
-      const offBeat = step % 4 === 2;    // croches : A5 C6 B5 A5 (ajoutées à haute intensité)
-      const G5 = 783.99, A5 = 880.0, B5 = 987.77, C6 = 1046.5, D6 = 1174.66;
-      const beatMotif = [G5, B5, D6, B5];
-      const offMotif = [A5, C6, B5, A5];
-      if (onBeat) this.fife(at, beatMotif[(step / 4) % 4], 0.16 + I * 0.14);
-      if (offBeat && I > 0.62) this.fife(at, offMotif[((step - 2) / 4) % 4], 0.12 + I * 0.1);
+    // FIFRE « ÇA IRA » : le hook descendant « ça i-ra » est présent DÈS LE DÉBUT
+    // (pas seulement quand ça casse) — c'est lui qui pose l'atmosphère révolutionnaire.
+    // Deux « ça ira » par mesure, puis une réponse montante quand l'assaut s'emballe.
+    const G5 = 783.99, A5 = 880.0, B5 = 987.77, D5 = 587.33, D6 = 1174.66;
+    const caIra = [B5, A5, G5];               // « ça — i — ra » (descend vers la tonique)
+    const vol = 0.2 + I * 0.14;
+    if (step <= 2) this.fife(at, caIra[step], vol);
+    else if (step >= 6 && step <= 8) this.fife(at, caIra[step - 6], vol);
+    // « les a-ris-to-crates… » : réponse montante en fin de mesure, dès que ça chauffe
+    else if (I > 0.4) {
+      const up: Record<number, number> = { 11: D5, 13: G5, 15: D6 };
+      if (up[step]) this.fife(at, up[step], 0.14 + I * 0.12);
     }
   }
 

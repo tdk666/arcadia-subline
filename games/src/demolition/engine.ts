@@ -276,7 +276,9 @@ export class DemolitionEngine {
     if (meta.hp <= 0) {
       this.blocks.delete(body.id);
       Composite.remove(this.engine.world, body);
-      this.destroyed++;
+      // les créneaux comptent comme décor : exclus du % structurel — sinon
+      // destroyed dépasse destructible → pct > 100 → tentative À TORT signalée.
+      if (meta.part !== 'merlon') this.destroyed++;
       this.debris(body, meta.material);
       this.burst(body.position.x, body.position.y, MATERIAL[meta.material].rim, 10);
       this.addShake(7);
@@ -503,7 +505,8 @@ export class DemolitionEngine {
   }
 
   private destructionPct(): number {
-    return this.destructible === 0 ? 0 : Math.round((this.destroyed / this.destructible) * 100);
+    // borné à 100 : filet de sécurité anti faux-positif de scoring
+    return this.destructible === 0 ? 0 : Math.min(100, Math.round((this.destroyed / this.destructible) * 100));
   }
 
   private finish(t: number) {

@@ -15,7 +15,7 @@
   "quests": {
     "bronze": {
       "questId": "44444444-4444-4444-8444-444444444401",
-      "params": { "maxShots": 5, "hpMultiplier": 1, "targetPct": 0, "timeLimitS": 0, "reinforced": false }
+      "params": { "maxShots": 6, "hpMultiplier": 1, "targetPct": 0, "timeLimitS": 0, "reinforced": false }
     },
     "silver": {
       "questId": "44444444-4444-4444-8444-444444444402",
