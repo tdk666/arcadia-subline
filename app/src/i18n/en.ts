@@ -2,7 +2,7 @@ import type { Dict } from './fr';
 
 export const en: Dict = {
   app: { name: 'Arcadia SubLine', tagline: 'Conquer your line' },
-  nav: { map: 'Map', leaderboard: 'Ranking', profile: 'Profile' },
+  nav: { map: 'Map', collection: 'Collection', leaderboard: 'Ranking', profile: 'Profile' },
   common: {
     back: 'Back', cancel: 'Cancel', loading: 'Loading…', retry: 'Retry',
     soon: 'Soon', error: 'Something went wrong', offline: 'Offline',
@@ -107,6 +107,15 @@ export const en: Dict = {
     sealed: 'Sealed by History',
     number: 'Memory no.{n}',
     keep: 'Add to my collection',
+  },
+  collection: {
+    title: 'Collection',
+    subtitle: 'The memories of Paris you have conquered',
+    unit: 'memories',
+    sealed: 'Sealed',
+    comingSoon: 'Soon',
+    reveal: 'Conquer to reveal',
+    locked: 'Coming to the line',
   },
   auth: {
     signupTitle: 'Create an account', loginTitle: 'Sign in',

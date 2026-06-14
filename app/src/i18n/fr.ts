@@ -1,6 +1,6 @@
 export const fr = {
   app: { name: 'Arcadia SubLine', tagline: 'Conquiers ta ligne' },
-  nav: { map: 'Carte', leaderboard: 'Classement', profile: 'Profil' },
+  nav: { map: 'Carte', collection: 'Collection', leaderboard: 'Classement', profile: 'Profil' },
   common: {
     back: 'Retour', cancel: 'Annuler', loading: 'Chargement…', retry: 'Réessayer',
     soon: 'Bientôt', error: 'Une erreur est survenue', offline: 'Hors connexion',
@@ -105,6 +105,15 @@ export const fr = {
     sealed: 'Scellé par l’Histoire',
     number: 'Mémoire n°{n}',
     keep: 'Ajouter à ma collection',
+  },
+  collection: {
+    title: 'Collection',
+    subtitle: 'Les mémoires de Paris que tu as conquises',
+    unit: 'mémoires',
+    sealed: 'Scellé',
+    comingSoon: 'Bientôt',
+    reveal: 'Conquiers pour révéler',
+    locked: 'À venir sur la ligne',
   },
   auth: {
     signupTitle: 'Créer un compte', loginTitle: 'Se connecter',

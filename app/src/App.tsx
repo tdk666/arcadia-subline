@@ -10,6 +10,7 @@ import { StationScreen } from './screens/StationScreen';
 import { GameScreen } from './screens/GameScreen';
 import { LeaderboardScreen } from './screens/LeaderboardScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
+import { CollectionScreen } from './screens/CollectionScreen';
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,7 @@ const router = createBrowserRouter([
     children: [
       { path: '/', element: <LineMapScreen /> },
       { path: '/station/:slug', element: <StationScreen /> },
+      { path: '/collection', element: <CollectionScreen /> },
       { path: '/leaderboard', element: <LeaderboardScreen /> },
       { path: '/profile', element: <ProfileScreen /> },
     ],
