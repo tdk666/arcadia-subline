@@ -19,7 +19,7 @@
     },
     "silver": {
       "questId": "44444444-4444-4444-8444-444444444402",
-      "params": { "maxShots": 4, "hpMultiplier": 1.45, "targetPct": 35, "timeLimitS": 0, "reinforced": false }
+      "params": { "maxShots": 4, "hpMultiplier": 1.35, "targetPct": 30, "timeLimitS": 0, "reinforced": false }
     },
     "gold": {
       "questId": "44444444-4444-4444-8444-444444444403",

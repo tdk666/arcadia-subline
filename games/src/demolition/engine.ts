@@ -20,7 +20,7 @@ const MATERIAL = {
 const BALL_R = 15;
 const MAX_DRAG = 95;
 const PULL_DEADZONE = 26;   // recul minimum (world u ≈ 18 px) pour qu'un geste compte comme un tir
-const LAUNCH_POWER = 0.20;
+const LAUNCH_POWER = 0.235;   // portée renforcée : on atteint la tour la plus lointaine au même recul
 // Physique Matter ramenée à la frame → le VISEUR = la réalité, au pixel près :
 //   gravité  = gravity.y(1) · gravity.scale(0.001) · (1000/60)²  ≈ 0.278 px/frame²
 //   air drag = 1 − frictionAir(0.01)                              = 0.99
