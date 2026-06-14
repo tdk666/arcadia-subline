@@ -55,8 +55,17 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hud, setHud] = useState<HudState | null>(null);
   const [muted, setMuted] = useState(false);
+  // ouverture cinématique : « 14 juillet 1789 » s'imprime, la foule gronde, les
+  // torches montent — avant que la main rende le contrôle (sautée en reduced-motion).
+  const [intro, setIntro] = useState(!ctx.reducedMotion);
   const startRef = useRef(0);
   const sfx = useMemo(() => new DemolitionSfx(), []);
+
+  useEffect(() => {
+    if (!intro) return;
+    const id = setTimeout(() => setIntro(false), 2500);
+    return () => clearTimeout(id);
+  }, [intro]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -113,6 +122,34 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
       onPointerDown={unlockAudio}
     >
       <canvas ref={canvasRef} className="h-full w-full touch-none" style={{ touchAction: 'none' }} />
+
+      {/* ── OUVERTURE CINÉMATIQUE (bloque le tir le temps de poser l'enjeu) ── */}
+      {intro && (
+        <button
+          type="button"
+          onClick={() => setIntro(false)}
+          className="animate-intro-cine absolute inset-0 z-40 flex flex-col items-center justify-center overflow-hidden"
+          aria-label={ctx.locale.startsWith('en') ? 'Skip intro' : "Passer l'intro"}
+        >
+          {/* voile sombre + lueur d'incendie qui monte du faubourg */}
+          <span className="absolute inset-0" style={{ background: 'radial-gradient(120% 90% at 50% 120%, rgba(224,150,74,0.42) 0%, rgba(21,17,12,0.72) 46%, rgba(10,8,5,0.92) 100%)' }} />
+          <span className="relative px-8 text-center">
+            <span className="block font-mono text-[11px] uppercase tracking-[0.4em]" style={{ color: '#e0964a' }}>
+              {ctx.locale.startsWith('en') ? 'The people march on' : 'Le peuple marche sur'}
+            </span>
+            <span className="animate-stamp mt-2 block font-display text-[clamp(2rem,9vw,4rem)] font-extrabold leading-none tracking-tight text-pierre"
+              style={{ textShadow: '0 2px 24px rgba(224,150,74,0.5)' }}>
+              14 JUILLET 1789
+            </span>
+            <span className="animate-slide-up mt-3 block font-display text-xl font-bold tracking-[0.3em] uppercase" style={{ color: '#e3c463', animationDelay: '0.3s' }}>
+              {ctx.stationName}
+            </span>
+          </span>
+          <span className="absolute bottom-5 font-mono text-[10px] uppercase tracking-[0.25em] text-pierre-faint">
+            {ctx.locale.startsWith('en') ? 'tap to begin' : 'touche pour commencer'}
+          </span>
+        </button>
+      )}
 
       {/* overlay debug (?debug=1) — diagnostic input à distance */}
       {debug && hud && (

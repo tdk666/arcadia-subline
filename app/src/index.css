@@ -134,6 +134,15 @@ body {
 }
 .animate-coach-pull { animation: coach-pull 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
 
+/* ouverture cinématique du mini-jeu : fondu d'entrée → maintien → fondu de sortie */
+@keyframes intro-cine {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  82% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.animate-intro-cine { animation: intro-cine 2.5s ease-in-out both; }
+
 /* invite à pivoter le téléphone (mini-jeu paysage) */
 @keyframes rotate-hint {
   0%, 18% { transform: rotate(0deg); }
