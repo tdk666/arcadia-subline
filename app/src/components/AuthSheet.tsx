@@ -68,7 +68,8 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {error && <p className="text-xs text-red-400">{t('auth.errors.generic')} ({error})</p>}
+          {/* message générique only : on n'expose pas le code d'erreur brut à l'utilisateur */}
+          {error && <p className="text-xs text-vermillon" title={error}>{t('auth.errors.generic')}</p>}
           <button
             type="submit"
             disabled={busy}

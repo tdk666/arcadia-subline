@@ -9,7 +9,7 @@ import { useI18n } from '../i18n';
 
 export const ONBOARDING_KEY = 'arcadia.onboarded.v1';
 
-/* ── Tableaux SVG (zéro asset, DA néon) ─────────────────────────────── */
+/* ── Tableaux SVG (zéro asset, DA « Paris Souterrain ») ─────────────── */
 
 function SceneEiffel() {
   return (
@@ -22,7 +22,7 @@ function SceneEiffel() {
         </linearGradient>
       </defs>
       <rect width="320" height="240" fill="url(#ob-sky)" />
-      {/* tour Eiffel en traits néon */}
+      {/* tour Eiffel en traits de laiton (or chaud — pas de néon) */}
       <g stroke="#f2c200" strokeWidth="2" fill="none" opacity="0.9">
         <path d="M160 30 L138 150 M160 30 L182 150" />
         <path d="M146 95 Q160 102 174 95" />
@@ -80,9 +80,9 @@ function SceneBastille() {
       {/* plaque émaillée */}
       <rect x="60" y="58" width="200" height="56" rx="8" fill="#0a5a9e" stroke="#e7dcc4" strokeWidth="3" />
       <text x="160" y="94" textAnchor="middle" fill="#fff" fontSize="26" fontWeight="800"
-        fontFamily="system-ui" letterSpacing="3">BASTILLE</text>
+        fontFamily="'Work Sans', system-ui, sans-serif" letterSpacing="3">BASTILLE</text>
       {/* trois médailles de palier */}
-      {[{ x: 110, c: '#e0945a' }, { x: 160, c: '#c9d2dc' }, { x: 210, c: '#f2c200' }].map((m, i) => (
+      {[{ x: 110, c: '#e0964a' }, { x: 160, c: '#c9d2dc' }, { x: 210, c: '#f2c200' }].map((m, i) => (
         <g key={i} className="ob-station" style={{ animationDelay: `${0.5 + i * 0.25}s` }}>
           <circle cx={m.x} cy="160" r="20" fill="#241f18" stroke={m.c} strokeWidth="3" />
           <text x={m.x} y="167" textAnchor="middle" fill={m.c} fontSize="18">★</text>
