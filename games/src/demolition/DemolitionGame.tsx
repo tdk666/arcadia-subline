@@ -112,7 +112,7 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
       style={{ fontFamily: "'Work Sans', system-ui, sans-serif" }}
       onPointerDown={unlockAudio}
     >
-      <canvas ref={canvasRef} className="h-full w-full" />
+      <canvas ref={canvasRef} className="h-full w-full touch-none" style={{ touchAction: 'none' }} />
 
       {/* overlay debug (?debug=1) — diagnostic input à distance */}
       {debug && hud && (

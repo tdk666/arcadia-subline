@@ -687,11 +687,18 @@ export class DemolitionEngine {
     window.addEventListener('pointermove', move, { passive: false });
     window.addEventListener('pointerup', up);
     window.addEventListener('pointercancel', up);
+    // FILET ANTI-SCROLL : empêche le navigateur de voler le geste à un doigt
+    // (sinon pointercancel → pavé bloqué). Indispensable sur Android Chrome.
+    const swallow = (e: TouchEvent) => { e.preventDefault(); };
+    this.canvas.addEventListener('touchstart', swallow, { passive: false });
+    this.canvas.addEventListener('touchmove', swallow, { passive: false });
     this.cleanupInput = () => {
       this.canvas.removeEventListener('pointerdown', down);
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', up);
       window.removeEventListener('pointercancel', up);
+      this.canvas.removeEventListener('touchstart', swallow);
+      this.canvas.removeEventListener('touchmove', swallow);
     };
   }
 
