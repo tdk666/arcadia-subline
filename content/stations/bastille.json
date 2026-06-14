@@ -23,7 +23,7 @@
     },
     "gold": {
       "questId": "44444444-4444-4444-8444-444444444403",
-      "params": { "maxShots": 3, "hpMultiplier": 1.8, "targetPct": 50, "timeLimitS": 75, "reinforced": true }
+      "params": { "maxShots": 4, "hpMultiplier": 1.6, "targetPct": 40, "timeLimitS": 80, "reinforced": true }
     }
   },
   "briefs": {
@@ -47,8 +47,8 @@
       "date": { "fr": "14 juillet 1789 — l'assaut final", "en": "July 14th, 1789 — the final assault" },
       "title": { "fr": "Avant la nuit", "en": "Before nightfall" },
       "body": {
-        "fr": "Plaques de fer sur les courtines, trois boulets, et le jour qui tombe. Ce soir, Paris dansera sur les ruines — à toi d'écrire la première page de l'Histoire.",
-        "en": "Iron plates on the walls, three cannonballs, and the light is fading. Tonight Paris will dance on the ruins — yours is the first page of History."
+        "fr": "Plaques de fer sur les courtines, quatre boulets comptés, et le jour qui tombe. Ce soir, Paris dansera sur les ruines — à toi d'écrire la première page de l'Histoire.",
+        "en": "Iron plates on the walls, four cannonballs counted, and the light is fading. Tonight Paris will dance on the ruins — yours is the first page of History."
       }
     }
   },

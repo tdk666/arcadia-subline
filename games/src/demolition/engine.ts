@@ -535,7 +535,7 @@ export class DemolitionEngine {
         totalBlocks: this.destructible,
         blocksDestroyed: this.destroyed,
       });
-    }, this.won ? 2100 : 1000);
+    }, this.won ? 3400 : 1000); // la victoire laisse respirer La Marseillaise + le drapeau planté
   }
 
   private pushHud() {
