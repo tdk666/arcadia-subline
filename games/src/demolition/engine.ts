@@ -20,7 +20,13 @@ const MATERIAL = {
 const BALL_R = 15;
 const MAX_DRAG = 95;
 const PULL_DEADZONE = 26;   // recul minimum (world u ≈ 18 px) pour qu'un geste compte comme un tir
-const LAUNCH_POWER = 0.205;
+const LAUNCH_POWER = 0.20;
+// Physique Matter ramenée à la frame → le VISEUR = la réalité, au pixel près :
+//   gravité  = gravity.y(1) · gravity.scale(0.001) · (1000/60)²  ≈ 0.278 px/frame²
+//   air drag = 1 − frictionAir(0.01)                              = 0.99
+const GRAV_PER_FRAME = 0.278;
+const AIR_DRAG = 0.99;
+const AIM_ZOOM = 0.85;      // dézoom pendant la visée : de l'air autour du doigt (façon Angry Birds)
 const SETTLE_SPEED = 0.18;
 const SETTLE_MS = 900;
 const SHOT_TIMEOUT_MS = 6500;
@@ -117,6 +123,8 @@ export class DemolitionEngine {
   private rings: Ring[] = [];
   private shake = 0;
   private zoomPulse = 0;
+  private aimZoom = 1;             // dézoom courant pendant la visée
+  private aimZoomTarget = 1;       // cible du dézoom (1 = normal, AIM_ZOOM = visée)
   private hitstop = 0;             // gel d'image (ms) sur impact lourd — « ça cogne »
   private timescale = 1;
   private timescaleTarget = 1;
@@ -306,9 +314,15 @@ export class DemolitionEngine {
 
   private spawnBall() {
     const { slingX, slingY } = this.level;
+    // CRUCIAL : on crée le pavé DYNAMIQUE puis on le gèle via setStatic(true).
+    // Un corps né `isStatic:true` ne capture jamais son `_original` → setStatic(false)
+    // au tir ne lui rend PAS sa masse (inverseMass reste 0) → gravité = force/∞ = 0 :
+    // le pavé fuse alors en ligne droite et ne retombe jamais ("aimanté en haut").
+    // La transition dynamique→statique ci-dessous capture _original ; le tir le restaure.
     this.ball = Bodies.circle(slingX, slingY, BALL_R, {
-      label: 'ball', density: 0.006, friction: 0.4, restitution: 0.35, isStatic: true,
+      label: 'ball', density: 0.006, friction: 0.4, frictionAir: 0.01, restitution: 0.35,
     });
+    Body.setStatic(this.ball, true);
     this.ballInFlight = false;
     this.trail = [];
     Composite.add(this.engine.world, this.ball);
@@ -340,6 +354,7 @@ export class DemolitionEngine {
     this.dragFrac = 0;
     this.pullArmed = false;
     this.chargedHaptic = false;
+    this.aimZoomTarget = 1;          // la caméra revient au cadrage normal pour le vol
     this.sfx?.launch();
     this.haptic(15);
     this.addShake(4);
@@ -356,6 +371,7 @@ export class DemolitionEngine {
     this.dragStartScreen = null;
     this.dragFrac = 0;
     this.pullArmed = false;
+    this.aimZoomTarget = 1;
   }
 
   /* ── Boucle ─────────────────────────────────────────────────────── */
@@ -413,6 +429,8 @@ export class DemolitionEngine {
     });
     this.shake = Math.max(0, this.shake - dt * 0.02);
     this.zoomPulse = Math.max(0, this.zoomPulse - dt * 0.0002);
+    // dézoom de visée fluide (entrée/sortie)
+    this.aimZoom += (this.aimZoomTarget - this.aimZoom) * Math.min(1, dt * 0.012);
 
     // cibles tombées au sol = abattues (uniquement une fois le siège engagé)
     if (this.armed) {
@@ -451,7 +469,9 @@ export class DemolitionEngine {
       const out =
         this.ball.position.y > this.level.worldH + 80 ||
         this.ball.position.x < -80 ||
-        this.ball.position.x > this.level.worldW + 80;
+        this.ball.position.x > this.level.worldW + 80 ||
+        this.ball.position.y < -260;   // filet : un tir trop vertical se recycle vite
+
       if (speed < SETTLE_SPEED) {
         if (!this.settleSince) this.settleSince = t;
       } else this.settleSince = 0;
@@ -662,7 +682,7 @@ export class DemolitionEngine {
         this.dragFrac = 0;
         return;
       }
-      if (!this.pullArmed) { this.pullArmed = true; this.interacted = true; }
+      if (!this.pullArmed) { this.pullArmed = true; this.interacted = true; this.aimZoomTarget = AIM_ZOOM; }
       // 2) recul en coordonnées monde (même échelle que le rendu)
       const p = this.toWorld(e);
       let dx = p.x - this.dragStart.x;
@@ -713,7 +733,11 @@ export class DemolitionEngine {
       canvas.width = cw;
       canvas.height = ch;
     }
-    this.scale = Math.min(cw / level.worldW, ch / level.worldH);
+    // caméra UNIFIÉE : fit de base × dézoom de visée × punch-zoom d'impact.
+    // Tout est reflété dans this.scale/offX/offY → toWorld() reste exact quelle
+    // que soit la caméra (la visée ne dérive jamais du doigt, même en plein dézoom).
+    const baseScale = Math.min(cw / level.worldW, ch / level.worldH);
+    this.scale = baseScale * this.aimZoom * (1 + this.zoomPulse);
     this.offX = (cw - level.worldW * this.scale) / 2;
     this.offY = (ch - level.worldH * this.scale) / 2;
 
@@ -735,13 +759,8 @@ export class DemolitionEngine {
       sx = (Math.random() - 0.5) * this.shake * this.scale * 0.6;
       sy = (Math.random() - 0.5) * this.shake * this.scale * 0.6;
     }
-    // punch-zoom centré sur la forteresse
-    const zoom = 1 + this.zoomPulse;
     ctx.translate(this.offX + sx, this.offY + sy);
-    ctx.scale(this.scale * zoom, this.scale * zoom);
-    if (zoom !== 1) {
-      ctx.translate(-(zoom - 1) * level.worldW * 0.62, -(zoom - 1) * level.worldH * 0.6);
-    }
+    ctx.scale(this.scale, this.scale);
 
     this.drawBackdrop(ctx, t);
     this.drawBastille(ctx, t);     // forteresse iconique en arrière-plan (silhouette)
@@ -1109,22 +1128,28 @@ export class DemolitionEngine {
   private drawAim(ctx: CanvasRenderingContext2D) {
     if (!this.dragPos) return;
     const { slingX, slingY } = this.level;
-    const vx = (slingX - this.dragPos.x) * LAUNCH_POWER;
-    const vy = (slingY - this.dragPos.y) * LAUNCH_POWER;
-    ctx.fillStyle = 'rgba(242,244,248,0.7)';
-    // prévisualisation balistique (mêmes constantes que la physique)
-    let px = this.dragPos.x, py = this.dragPos.y, tvx = vx, tvy = vy;
-    for (let i = 0; i < 16; i++) {
-      for (let s = 0; s < 4; s++) {
-        px += tvx; py += tvy;
-        tvy += this.engine.gravity.y * 0.55;
-        tvx *= 0.999; tvy *= 0.999;
-      }
-      if (py > this.level.groundY) break;
+    // Vitesse initiale IDENTIQUE au tir, puis intégration frame-à-frame avec les
+    // VRAIES constantes Matter (GRAV_PER_FRAME, AIR_DRAG) → ce que tu vois est
+    // EXACTEMENT là où le pavé ira. Plus de viseur « trop faible ».
+    let vx = (slingX - this.dragPos.x) * LAUNCH_POWER;
+    let vy = (slingY - this.dragPos.y) * LAUNCH_POWER;
+    let px = this.dragPos.x, py = this.dragPos.y;
+    let dot = 0;
+    for (let frame = 0; frame < 240 && dot < 26; frame++) {
+      vx *= AIR_DRAG; vy = vy * AIR_DRAG + GRAV_PER_FRAME;
+      px += vx; py += vy;
+      if (py > this.level.groundY - BALL_R) break;
+      if (px > this.level.worldW + 40 || px < -40 || py < -120) break;
+      if (frame % 5 !== 0) continue;
+      const k = dot / 26;
+      ctx.globalAlpha = Math.max(0.18, 1 - k);
+      ctx.fillStyle = dot < 3 ? '#e3c463' : '#f4f1e8'; // les 1ers points en or (départ net)
       ctx.beginPath();
-      ctx.arc(px, py, 3.2 - i * 0.12, 0, Math.PI * 2);
+      ctx.arc(px, py, Math.max(1.5, 4.2 - dot * 0.12), 0, Math.PI * 2);
       ctx.fill();
+      dot++;
     }
+    ctx.globalAlpha = 1;
   }
 
   private drawTorches(ctx: CanvasRenderingContext2D, t: number) {
