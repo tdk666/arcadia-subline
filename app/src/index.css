@@ -143,6 +143,19 @@ body {
 }
 .animate-intro-cine { animation: intro-cine 2.5s ease-in-out both; }
 
+/* ── carte de conquête vivante (façon Pokémon GO) ─────────────────── */
+@keyframes map-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.animate-map-bob { animation: map-bob 2.4s ease-in-out infinite; }
+
+@keyframes map-pulse {
+  0%, 100% { opacity: 0.32; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.16); }
+}
+.animate-map-pulse { transform-box: fill-box; transform-origin: center; animation: map-pulse 2.8s ease-in-out infinite; }
+
+@keyframes seine-flow { to { stroke-dashoffset: -240; } }
+.animate-seine { stroke-dasharray: 9 13; animation: seine-flow 7s linear infinite; }
+
 /* invite à pivoter le téléphone (mini-jeu paysage) */
 @keyframes rotate-hint {
   0%, 18% { transform: rotate(0deg); }
@@ -154,5 +167,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .animate-pop, .animate-slide-up, .animate-glow, .animate-ob-scene,
   .ob-line, .ob-station, .ob-train, .animate-stamp, .animate-shine,
+  .animate-map-bob, .animate-map-pulse, .animate-seine,
   .animate-rotate-hint { animation: none; }
 }

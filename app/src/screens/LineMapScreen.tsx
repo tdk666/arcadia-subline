@@ -5,10 +5,11 @@ import { getStationContent, isPlayable, LINE } from '../lib/content';
 import { useArcadia } from '../store';
 
 /**
- * LE PLATEAU DE CONQUÊTE — la ligne 1 comme une carte vivante (pas une liste).
- * Tracé géographique stylisé d'ouest (La Défense) en est (Vincennes), la Seine
- * qui serpente, des repères parisiens, et chaque station en médaillon : conquise
- * = territoire illuminé, à conquérir = sceau d'ambre qui pulse. On swipe la ligne.
+ * LE PLATEAU DE CONQUÊTE — la ligne 1 comme une carte VIVANTE (façon Pokémon GO).
+ * Tracé géographique d'ouest en est, la Seine qui coule, des repères parisiens,
+ * une rame qui glisse sur la ligne, des halos de territoire qui respirent, et un
+ * PHARE d'explorateur posé sur ta prochaine conquête. Chaque station en médaillon :
+ * conquise = territoire illuminé, à conquérir = sceau d'ambre qui pulse.
  */
 
 const NODE_DX = 132;        // espacement horizontal entre stations
@@ -37,9 +38,10 @@ export function LineMapScreen() {
 
   const conquered = LINE.stations.filter((s) => (tiersWon[s.slug] ?? []).length > 0).length;
   const pct = Math.round((conquered / LINE.stations.length) * 100);
-  const hero = LINE.stations
-    .map((s) => getStationContent(s.slug))
-    .find((c) => c && (tiersWon[c.slug] ?? []).length < 3);
+  const heroIndex = LINE.stations.findIndex(
+    (s) => isPlayable(s.slug) && (tiersWon[s.slug] ?? []).length < 3,
+  );
+  const hero = heroIndex >= 0 ? getStationContent(LINE.stations[heroIndex].slug) : null;
 
   const W = PAD_X * 2 + (LINE.stations.length - 1) * NODE_DX;
   const H = 380;
@@ -51,6 +53,7 @@ export function LineMapScreen() {
   const wonPath = lastWon >= 0
     ? LINE.stations.slice(0, lastWon + 1).map((_, i) => { const p = nodePos(i); return `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`; }).join(' ')
     : '';
+  const seinePath = `M 0 ${H * 0.74} C ${W * 0.25} ${H * 0.6}, ${W * 0.45} ${H * 0.9}, ${W * 0.62} ${H * 0.72} S ${W * 0.9} ${H * 0.6}, ${W} ${H * 0.78}`;
 
   return (
     <div className="flex h-full flex-col">
@@ -86,18 +89,31 @@ export function LineMapScreen() {
               <stop offset="0" stopColor="#9c7d18" />
               <stop offset="1" stopColor="#3a2f1e" />
             </linearGradient>
+            <radialGradient id="lamp-pool">
+              <stop offset="0" stopColor="#e0964a" stopOpacity="0.18" />
+              <stop offset="1" stopColor="#e0964a" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="avatar-medal">
+              <stop offset="0" stopColor="#fbe9a6" />
+              <stop offset="0.55" stopColor="#e3c463" />
+              <stop offset="1" stopColor="#9c7d18" />
+            </radialGradient>
           </defs>
           <rect width={W} height={H} fill="url(#board-bg)" />
 
-          {/* la Seine : ruban translucide qui serpente près du centre */}
+          {/* flaques de lumière de réverbère (atmosphère du faubourg) */}
+          {LANDMARKS.map((lm) => {
+            const p = nodePos(lm.i);
+            return <circle key={`pool-${lm.i}`} cx={p.x} cy={p.y} r="120" fill="url(#lamp-pool)" />;
+          })}
+
+          {/* la Seine : ruban translucide + filet qui COULE (tirets animés) */}
           <path
-            d={`M 0 ${H * 0.74} C ${W * 0.25} ${H * 0.6}, ${W * 0.45} ${H * 0.9}, ${W * 0.62} ${H * 0.72} S ${W * 0.9} ${H * 0.6}, ${W} ${H * 0.78} L ${W} ${H} L 0 ${H} Z`}
+            d={`${seinePath} L ${W} ${H} L 0 ${H} Z`}
             fill="#0a5a9e" opacity="0.14"
           />
-          <path
-            d={`M 0 ${H * 0.74} C ${W * 0.25} ${H * 0.6}, ${W * 0.45} ${H * 0.9}, ${W * 0.62} ${H * 0.72} S ${W * 0.9} ${H * 0.6}, ${W} ${H * 0.78}`}
-            fill="none" stroke="#3f86c4" strokeWidth="1.5" opacity="0.3"
-          />
+          <path d={seinePath} fill="none" stroke="#3f86c4" strokeWidth="1.5" opacity="0.3" />
+          <path d={seinePath} fill="none" stroke="#7db4e0" strokeWidth="1.6" opacity="0.55" className="animate-seine" />
 
           {/* repères parisiens (glyphes ambre discrets au-dessus de leur station) */}
           {LANDMARKS.map((lm) => {
@@ -112,11 +128,24 @@ export function LineMapScreen() {
           })}
 
           {/* tracé de la ligne : gris chaud, puis portion conquise en or lumineux */}
-          <path d={linePath} fill="none" stroke="url(#line-grad)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+          <path id="lineTrace" d={linePath} fill="none" stroke="url(#line-grad)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
           {wonPath && (
             <path d={wonPath} fill="none" stroke={LINE.color} strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"
               style={{ filter: 'drop-shadow(0 0 6px rgba(242,194,0,0.6))' }} />
           )}
+
+          {/* RAME qui glisse sur toute la ligne (le réseau est vivant) */}
+          <g>
+            <g>
+              <rect x="-13" y="-5" width="26" height="10" rx="4" fill="#241f18" stroke="#e0964a" strokeWidth="1.4" />
+              <rect x="-9" y="-2.5" width="6" height="5" rx="1" fill="#e3c463" opacity="0.9" />
+              <rect x="3" y="-2.5" width="6" height="5" rx="1" fill="#e3c463" opacity="0.9" />
+              <circle cx="13" cy="0" r="2.4" fill="#fff6d0" opacity="0.9" />
+              <animateMotion dur="20s" repeatCount="indefinite" rotate="auto">
+                <mpath href="#lineTrace" />
+              </animateMotion>
+            </g>
+          </g>
 
           {/* terminus ouest/est */}
           {[0, LINE.stations.length - 1].map((i) => {
@@ -130,7 +159,6 @@ export function LineMapScreen() {
             const won = (tiersWon[station.slug] ?? []).length > 0;
             const fullyWon = (tiersWon[station.slug] ?? []).length >= 3;
             const playable = isPlayable(station.slug);
-            const isHero = hero?.slug === station.slug;
             const labelBelow = i % 2 === 0;
             return (
               <g
@@ -138,12 +166,8 @@ export function LineMapScreen() {
                 style={{ cursor: playable ? 'pointer' : 'default' }}
                 onClick={() => playable && navigate(`/station/${station.slug}`)}
               >
-                {/* halo territoire pour les conquises */}
-                {won && <circle cx={p.x} cy={p.y} r="22" fill={LINE.color} opacity="0.12" />}
-                {/* anneau pulse pour le défi en cours */}
-                {isHero && playable && (
-                  <circle cx={p.x} cy={p.y} r="18" fill="none" stroke="#e0964a" strokeWidth="2.5" className="animate-glow" />
-                )}
+                {/* halo de territoire conquis qui RESPIRE */}
+                {won && <circle cx={p.x} cy={p.y} r="24" fill={LINE.color} className="animate-map-pulse" />}
                 <circle
                   cx={p.x} cy={p.y} r="12"
                   fill={won ? LINE.color : playable ? '#241f18' : '#1b150d'}
@@ -173,6 +197,33 @@ export function LineMapScreen() {
               </g>
             );
           })}
+
+          {/* ── PHARE D'EXPLORATEUR : posé sur ta prochaine conquête (le « toi ») ── */}
+          {hero && heroIndex >= 0 && (() => {
+            const p = nodePos(heroIndex);
+            return (
+              <g
+                style={{ cursor: 'pointer' }}
+                onClick={() => navigate(`/station/${hero.slug}`)}
+              >
+                {/* aura au sol qui pulse */}
+                <circle cx={p.x} cy={p.y} r="30" fill="#e0964a" className="animate-map-pulse" />
+                <circle cx={p.x} cy={p.y} r="19" fill="none" stroke="#e3c463" strokeWidth="2.5" className="animate-glow" />
+                {/* médaillon flottant de l'explorateur (bobbing) */}
+                <g className="animate-map-bob">
+                  <ellipse cx={p.x} cy={p.y - 8} rx="9" ry="3" fill="#000" opacity="0.3" />
+                  <g transform={`translate(${p.x}, ${p.y - 40})`}>
+                    {/* pointe vers la station */}
+                    <path d="M -6 14 L 0 24 L 6 14 Z" fill="#9c7d18" />
+                    <circle r="15" fill="url(#avatar-medal)" stroke="#fff6d0" strokeWidth="2" />
+                    {/* silhouette du voyageur */}
+                    <circle cy="-3.5" r="4" fill="#15110c" />
+                    <path d="M -7 8 C -7 1 7 1 7 8 Z" fill="#15110c" />
+                  </g>
+                </g>
+              </g>
+            );
+          })()}
         </svg>
       </div>
 
