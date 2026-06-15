@@ -1,6 +1,9 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { getLineContent, LINE, NETWORK, type NetworkLine } from '../lib/content';
+import { GEO_STATIONS } from '../lib/geo';
+import { NetworkMap } from '../components/NetworkMap';
 import { tap } from '../lib/feedback';
 import { useArcadia } from '../store';
 
@@ -53,11 +56,20 @@ export function NetworkScreen() {
     { done: 0, total: 0 },
   );
   const heroLine = playableLines[0] ?? null;
+  const playableCodes = useMemo(
+    () => new Set(NETWORK.lines.filter((l) => l.status === 'playable').map((l) => l.code)),
+    [],
+  );
 
   function openLine(line: NetworkLine) {
     if (line.status !== 'playable') return;
     tap();
     navigate(`/line/${line.code}`);
+  }
+
+  function openLineByCode(code: string) {
+    const line = NETWORK.lines.find((l) => l.code === code);
+    if (line) openLine(line);
   }
 
   return (
@@ -79,24 +91,14 @@ export function NetworkScreen() {
         </div>
       </header>
 
-      {/* ── Bandeau schématique : faisceau de lignes colorées (décoratif) ── */}
-      <div className="mt-4 overflow-hidden rounded-2xl border border-rail bg-[#0d1726]">
-        <svg viewBox="0 0 360 120" className="block h-auto w-full" aria-hidden>
-          <rect width="360" height="120" fill="#0d1726" />
-          {NETWORK.lines.slice(0, 8).map((l, i) => {
-            const y = 18 + i * 12;
-            return (
-              <path
-                key={l.code}
-                d={`M -10 ${y} C 110 ${y + 30}, 250 ${y - 30}, 370 ${y + 8}`}
-                fill="none" stroke={l.color} strokeWidth="3.5" strokeLinecap="round"
-                opacity={l.status === 'playable' ? 1 : 0.55}
-              />
-            );
-          })}
-          {/* nœud central (correspondance) */}
-          <circle cx="180" cy="60" r="9" fill="#fffdf7" stroke="#0a5a9e" strokeWidth="3" />
-        </svg>
+      {/* ── La carte : le réseau métro RÉEL (coordonnées + tracés IDFM) ── */}
+      <div className="mt-4 overflow-hidden rounded-2xl border border-rail bg-[#0d1726] shadow-[inset_0_2px_10px_rgba(0,0,0,0.4)]">
+        <div className="max-h-[58vh] overflow-y-auto overscroll-contain">
+          <NetworkMap playableCodes={playableCodes} onPickLine={openLineByCode} />
+        </div>
+        <p className="border-t border-rail/70 px-3 py-1.5 text-center font-mono text-[9px] uppercase tracking-widest text-pierre-faint/80">
+          {t('network.mapHint', { stations: GEO_STATIONS.length })}
+        </p>
       </div>
 
       {/* ── Reprends ta conquête : 1-tap vers la ligne jouable ── */}

@@ -147,10 +147,20 @@ Netlify et qu'un build tourne, le bandeau « mode démo » disparaît.
   point n°1) sur un runtime hors-Edge (le GTFS-horaires complet OOM en Edge 256 Mo).
 - **Noms de lignes** : M2–M14/M3B/M7B portent un libellé générique « Ligne N » ;
   M1 garde son nom terminus seedé. Enrichir avec les termini officiels si voulu.
-- Puis : upgrader `NetworkScreen` vers une **vraie carte géographique** (façon
-  Pokémon GO) à partir des coordonnées désormais disponibles.
 - **NE JAMAIS** transcrire des stations de mémoire (« n'invente rien ») —
   données réelles IDFM uniquement.
+
+### ✅ AUSSI FAIT : carte géographique (front)
+- **`NetworkScreen` affiche désormais le réseau RÉEL** : carte SVG projetée
+  (équirectangulaire + correction cos(lat)) depuis les vraies coordonnées, tracés
+  dans l'ordre officiel, correspondances en pastilles. Offline-first, zéro tuile
+  externe. La Ligne 1 est mise en avant et tactile (1-tap → conquête).
+- Données bundlées : **`content/network-geo.json`** (321 stations + 16 lignes,
+  export Supabase). Lib `app/src/lib/geo.ts` + composant `components/NetworkMap.tsx`.
+- `content/network.json` : couleurs alignées sur l'officiel IDFM.
+- Gate vert localement : `pnpm typecheck && pnpm test (12) && pnpm build`.
+- Suite possible : pan/zoom tactile, plan d'une ligne (`LineMapScreen`) nourri par
+  `network-geo.json` au lieu du tracé schématique M1 en dur.
 
 ---
 

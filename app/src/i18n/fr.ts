@@ -8,7 +8,8 @@ export const fr = {
     heroKicker: 'Ta ligne',
     resume: 'Reprendre', start: 'Commencer', enter: 'Entrer', soon: 'Bientôt',
     all: 'Tout le réseau',
-    footnote: 'Les stations et tracés réels sont peu à peu ajoutés depuis les données ouvertes Île-de-France Mobilités.',
+    mapHint: 'Réseau réel · {stations} stations · 16 lignes · données IDFM — touche la Ligne 1 pour jouer',
+    footnote: 'Stations, tracés et couleurs réels issus des données ouvertes Île-de-France Mobilités.',
   },
   common: {
     back: 'Retour', cancel: 'Annuler', loading: 'Chargement…', retry: 'Réessayer',

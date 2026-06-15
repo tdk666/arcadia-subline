@@ -10,7 +10,8 @@ export const en: Dict = {
     heroKicker: 'Your line',
     resume: 'Resume', start: 'Start', enter: 'Enter', soon: 'Soon',
     all: 'Whole network',
-    footnote: 'Real stations and routes are added gradually from Île-de-France Mobilités open data.',
+    mapHint: 'Real network · {stations} stations · 16 lines · IDFM data — tap Line 1 to play',
+    footnote: 'Real stations, routes and colors from Île-de-France Mobilités open data.',
   },
   common: {
     back: 'Back', cancel: 'Cancel', loading: 'Loading…', retry: 'Retry',
