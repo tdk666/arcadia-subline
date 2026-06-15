@@ -114,6 +114,7 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
 
   const urgent = hud?.timeLeftS != null && (hud.timeLeftS ?? 99) <= 10;
   const debug = typeof location !== 'undefined' && new URLSearchParams(location.search).has('debug');
+  const maxShots = Number((ctx.params as Record<string, number>).maxShots ?? 5);
 
   return (
     <div
@@ -137,7 +138,7 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
             <span className="block font-mono text-[11px] uppercase tracking-[0.4em]" style={{ color: '#e0964a' }}>
               {ctx.locale.startsWith('en') ? 'The people march on' : 'Le peuple marche sur'}
             </span>
-            <span className="animate-stamp mt-2 block font-display text-[clamp(2rem,9vw,4rem)] font-extrabold leading-none tracking-tight text-pierre"
+            <span className="animate-stamp mt-2 block font-display text-[clamp(2rem,9vw,4rem)] font-extrabold leading-none tracking-tight text-[#f4eeda]"
               style={{ textShadow: '0 2px 24px rgba(224,150,74,0.5)' }}>
               14 JUILLET 1789
             </span>
@@ -145,7 +146,7 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
               {ctx.stationName}
             </span>
           </span>
-          <span className="absolute bottom-5 font-mono text-[10px] uppercase tracking-[0.25em] text-pierre-faint">
+          <span className="absolute bottom-5 font-mono text-[10px] uppercase tracking-[0.25em] text-[#cdbfa0]">
             {ctx.locale.startsWith('en') ? 'tap to begin' : 'touche pour commencer'}
           </span>
         </button>
@@ -190,13 +191,16 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
         <>
           {/* ── Cluster d'indicateurs (droite) ── */}
           <div className="pointer-events-none absolute right-3 top-[max(env(safe-area-inset-top),0.6rem)] flex items-center gap-2">
-            {/* pavés restants */}
+            {/* pavés restants : rangée qui se vide (lecture instantanée façon Angry Birds) */}
             <div
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5"
+              className="flex items-center gap-1 rounded-lg px-2 py-1.5"
               style={{ background: 'rgba(15,11,7,0.74)', boxShadow: 'inset 0 0 0 1.5px #c9a227' }}
             >
-              <PaveIcon />
-              <span className="text-[17px] font-extrabold leading-none text-pierre">{Math.max(hud.shotsLeft, 0)}</span>
+              {Array.from({ length: maxShots }).map((_, i) => (
+                <span key={i} style={{ opacity: i < Math.max(hud.shotsLeft, 0) ? 1 : 0.22, transition: 'opacity 0.25s' }}>
+                  <PaveIcon size={15} />
+                </span>
+              ))}
             </div>
             {/* étendards */}
             <div
@@ -233,7 +237,7 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
                 style={{ width: `${hud.destructionPct}%`, background: 'linear-gradient(90deg,#e3c45a,#c9a227)' }}
               />
             </div>
-            <div className="mt-1 text-[8px] font-semibold uppercase tracking-[0.2em] text-pierre/85">
+            <div className="mt-1 text-[8px] font-semibold uppercase tracking-[0.2em] text-[#e7dcc4]/85">
               Destruction — {hud.destructionPct}%
             </div>
           </div>
@@ -263,7 +267,7 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
         <button
           type="button"
           onClick={onQuit}
-          className="rounded-lg px-3.5 py-2 text-xs font-semibold text-pierre-dim active:scale-95"
+          className="rounded-lg px-3.5 py-2 text-xs font-semibold text-[#cdbfa0] active:scale-95"
           style={{ background: 'rgba(15,11,7,0.74)', boxShadow: 'inset 0 0 0 1.5px #3a2f1e' }}
         >
           ✕
@@ -271,7 +275,7 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
         <button
           type="button"
           onClick={() => { const m = !muted; setMuted(m); sfx.setMuted(m); }}
-          className="rounded-lg px-3.5 py-2 text-xs font-semibold text-pierre-dim active:scale-95"
+          className="rounded-lg px-3.5 py-2 text-xs font-semibold text-[#cdbfa0] active:scale-95"
           style={{ background: 'rgba(15,11,7,0.74)', boxShadow: 'inset 0 0 0 1.5px #3a2f1e' }}
         >
           {muted ? '🔇' : '🔊'}

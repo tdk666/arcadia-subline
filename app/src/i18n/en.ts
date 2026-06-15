@@ -65,6 +65,8 @@ export const en: Dict = {
     objectiveText: 'Knock down the {targets} royal standards',
     objectiveExtra: 'and destroy {pct}% of the fortress',
     objectiveTime: 'within {time} seconds',
+    objectiveAmmo: 'with {n} cobblestones total',
+    howto: 'Pull the cobblestone back, aim, release. Topple the standards (a collapsing wall takes them down too).',
     cta: 'Storm the fortress!',
   },
   checkin: {
@@ -145,6 +147,8 @@ export const en: Dict = {
       r0: 'Onlooker', r1: 'Citizen', r2: 'Rioter', r3: 'Sans-culotte',
       r4: 'Conqueror', r5: 'Legend of the network',
     },
+    toNextRank: '{n} XP to {rank}',
+    maxRank: 'Top rank reached',
     language: 'Language', install: 'Install the app',
     installHint: 'Add Arcadia to your home screen to play full-screen.',
     connected: 'Signed in: {email}',

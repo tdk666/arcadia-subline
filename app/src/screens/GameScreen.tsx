@@ -15,6 +15,10 @@ import { OrientationGate } from '../components/OrientationGate';
 const TIER_COLOR: Record<DifficultyTier, string> = {
   bronze: '#c08a55', silver: '#b9c0c4', gold: '#e3c463',
 };
+// variantes encrées (texte lisible sur fond clair — la couleur médaille pure est trop pâle)
+const TIER_INK: Record<DifficultyTier, string> = {
+  bronze: '#9c5f30', silver: '#6b7280', gold: '#9c7d18',
+};
 
 export function GameScreen() {
   const { slug = '', tier = 'bronze' } = useParams();
@@ -111,7 +115,7 @@ export function GameScreen() {
       {phase === 'brief' && (
         <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center gap-6 px-7 text-center">
           <div className="animate-slide-up w-full">
-            <p className="font-mono text-[11px] uppercase tracking-[0.25em]" style={{ color: TIER_COLOR[difficulty] }}>
+            <p className="font-mono text-[11px] uppercase tracking-[0.25em]" style={{ color: TIER_INK[difficulty] }}>
               {pickText(brief.date, locale)}
             </p>
             <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-pierre">
@@ -128,6 +132,10 @@ export function GameScreen() {
               ⚜ {t('brief.objectiveText', { targets: 3 })}
               {params.targetPct > 0 && <><br />💥 {t('brief.objectiveExtra', { pct: params.targetPct })}</>}
               {params.timeLimitS > 0 && <><br />⏱ {t('brief.objectiveTime', { time: params.timeLimitS })}</>}
+              <br />🪨 {t('brief.objectiveAmmo', { n: params.maxShots })}
+            </p>
+            <p className="mt-2 border-t border-rail pt-2 font-mono text-[10px] leading-relaxed text-pierre-faint">
+              {t('brief.howto')}
             </p>
           </div>
 

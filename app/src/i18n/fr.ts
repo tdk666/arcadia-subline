@@ -63,6 +63,8 @@ export const fr = {
     objectiveText: 'Abats les {targets} étendards royaux',
     objectiveExtra: 'et détruis {pct} % de la forteresse',
     objectiveTime: 'en {time} secondes',
+    objectiveAmmo: 'avec {n} pavés en tout',
+    howto: 'Tire le pavé vers l’arrière, vise, relâche. Fais tomber les étendards (un mur qui s’effondre les emporte aussi).',
     cta: 'À l’assaut !',
   },
   checkin: {
@@ -143,6 +145,8 @@ export const fr = {
       r0: 'Badaud', r1: 'Citoyen·ne', r2: 'Émeutier·ère', r3: 'Sans-culotte',
       r4: 'Conquérant·e', r5: 'Légende du réseau',
     },
+    toNextRank: '{n} XP avant {rank}',
+    maxRank: 'Rang maximal atteint',
     language: 'Langue', install: 'Installer l’app',
     installHint: 'Ajoute Arcadia à ton écran d’accueil pour jouer en plein écran.',
     connected: 'Connecté : {email}',

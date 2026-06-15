@@ -20,7 +20,7 @@
   --color-encre-2: #221b12;   /* encre secondaire */
   --color-pierre: #2a2118;       /* texte primaire (encre chaude) */
   --color-pierre-dim: #5d5446;   /* texte secondaire */
-  --color-pierre-faint: #8a7c63; /* texte tertiaire / labels */
+  --color-pierre-faint: #6f6450; /* texte tertiaire / labels (assombri pour lisibilité sur fond clair) */
 
   /* accents (inchangés — la couleur de marque) */
   --color-laiton: #c9a227;       /* or / laiton — accent, médailles */

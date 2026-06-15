@@ -5,10 +5,22 @@ import { LINE } from '../lib/content';
 import { useArcadia } from '../store';
 import { AuthSheet } from '../components/AuthSheet';
 
+/** Paliers d'XP des rangs — la courbe de progression. */
+const RANK_STEPS = [0, 800, 2000, 4000, 8000];
+
 /** Titre révolutionnaire selon l'XP — l'identité progresse avec la conquête. */
 function rankLabel(t: (k: I18nKey) => string, xp: number): string {
   const tier = xp >= 8000 ? 'r5' : xp >= 4000 ? 'r4' : xp >= 2000 ? 'r3' : xp >= 800 ? 'r2' : xp > 0 ? 'r1' : 'r0';
   return t(`profile.ranks.${tier}` as I18nKey);
+}
+
+/** Progression vers le rang suivant (courbe d'XP rendue visible). */
+function rankProgress(xp: number) {
+  const nextIdx = RANK_STEPS.findIndex((v) => xp < v);
+  if (nextIdx === -1) return { pct: 100, next: null as number | null, remaining: 0 };
+  const prev = RANK_STEPS[nextIdx - 1] ?? 0;
+  const next = RANK_STEPS[nextIdx];
+  return { pct: Math.round(((xp - prev) / (next - prev)) * 100), next, remaining: next - xp };
 }
 
 export function ProfileScreen() {
@@ -53,6 +65,24 @@ export function ProfileScreen() {
         {pending.length > 0 && user && (
           <p className="mt-1 font-mono text-[11px] text-ambre">{t('auth.pendingSync')}</p>
         )}
+
+        {/* courbe de progression : XP vers le rang suivant */}
+        {(() => {
+          const { pct, next, remaining } = rankProgress(stats?.xpTotal ?? 0);
+          return (
+            <div className="mt-3">
+              <div className="h-2 overflow-hidden rounded-full bg-craie-2 shadow-[inset_0_0_0_1px_var(--color-rail)]">
+                <div className="h-full rounded-full transition-[width] duration-500"
+                  style={{ width: `${pct}%`, background: 'linear-gradient(90deg,#e3c45a,#c9a227)' }} />
+              </div>
+              <p className="mt-1 font-mono text-[9px] uppercase tracking-wider text-pierre-faint">
+                {next === null
+                  ? t('profile.maxRank')
+                  : t('profile.toNextRank', { n: remaining.toLocaleString(), rank: rankLabel(t, next) })}
+              </p>
+            </div>
+          );
+        })()}
 
         <div className="mt-4 grid grid-cols-3 gap-2 text-center">
           <div className="rounded-xl bg-craie-2 py-3">

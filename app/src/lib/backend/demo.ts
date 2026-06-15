@@ -146,8 +146,10 @@ export class DemoBackend implements ArcadiaBackend {
     ];
     const myScore = Object.values(this.state.bestScores).reduce((a, b) => a + b, 0);
     const all = [...rivals.map((r) => ({ ...r, isMe: false, playerId: r.displayName }))];
-    if (this.state.user && myScore > 0) {
-      all.push({ displayName: this.state.user.displayName, score: myScore, isMe: true, playerId: 'demo-user' });
+    // scores connectés : l'invité apparaît AUSSI dès qu'il a un score (la boucle
+    // jeu → score → rang se ferme sans attendre un compte ; guest-first).
+    if (myScore > 0) {
+      all.push({ displayName: this.state.user?.displayName ?? 'Toi', score: myScore, isMe: true, playerId: 'demo-user' });
     }
     return all
       .sort((a, b) => b.score - a.score)
