@@ -14,12 +14,27 @@
 - **App** : PWA React/TS/Vite/Tailwind/zustand, monorepo pnpm (`app/`, `games/`,
   `content/`, `supabase/`). Build : `pnpm typecheck && pnpm test && pnpm build`
   (doit rester vert — c'est le gate de la PR).
-- **Déploiement** : Netlify `arcadia-subline-paris`. **Tourne en mode DÉMO**
-  (pas de clés Supabase) → scores/classement simulés.
+- **Déploiement** : Netlify `arcadia-subline-paris`. ~~Mode DÉMO~~ → **SUPABASE
+  BRANCHÉ** (clés posées sur Netlify, scope builds) : le branch-deploy de
+  `claude/happy-sagan-16ktg4` sort du mode démo au prochain build.
 
-### La tâche immédiate qui débloque tout : MONTER SUPABASE
-Le seul vrai blocage produit. Une fois fait : vrais scores serveur, classement
-réel, file invité, **et** ingestion GTFS pour peupler le réseau complet.
+### ✅ FAIT (15 juin 2026) : SUPABASE EST MONTÉ
+Le blocage produit est levé. Réalisé dans la session de reprise :
+- **Projet Supabase** créé : `arcadia-subline`, ref **`pwavyfvxskrsytmqgcvt`**,
+  région eu-west-3 (Paris), org `hlkdelwxbvwrryhpwehb`. URL :
+  `https://pwavyfvxskrsytmqgcvt.supabase.co`.
+- **12 migrations** appliquées dans l'ordre (apply_migration, historisées) +
+  **seed** (réseau IDFM + Ligne 1 complète (25 stations) + Bastille + 3 quêtes-paliers).
+- **Vérifs** : RLS active (18 tables), `fn_submit_attempt` présente, contenu
+  Bastille publié. Boucle serveur testée en réel (tx + rollback, zéro résidu) :
+  victoire Bronze → score 460 + propagation XP/ligne/streak/mastery ; gating
+  Gold-sans-Silver = `TIER_LOCKED` ; télémétrie impossible = `flagged`/score 0.
+- **Clés Netlify** (siteId `a259ca2d-073b-4538-a44d-c773a168d38f`, scope builds) :
+  `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` (clé anon legacy ; **pas commitée**,
+  elle ne vit que sur Netlify).
+
+➡️ **Reste à faire** : confirmer sur le branch-deploy que le bandeau « mode démo »
+a disparu après rebuild, puis enchaîner sur le **réseau complet** (§3, GTFS).
 
 ---
 
