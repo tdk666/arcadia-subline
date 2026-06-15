@@ -108,27 +108,38 @@ Netlify et qu'un build tourne, le bandeau « mode démo » disparaît.
 
 ---
 
-## 3. APRÈS Supabase — le réseau complet (vraies stations)
+## 3. Réseau métro — ✅ STATIONS PEUPLÉES (15 juin 2026)
 
-Le front affiche déjà **les 16 lignes** (cf. §5) mais seule la Ligne 1 a ses
-stations. Les vraies stations + coordonnées + couleurs officielles viennent du
-**GTFS IDFM** (données ouvertes, Licence Mobilités — aucune autorisation requise).
+**Les 321 stations de métro sont en base, avec leurs vraies coordonnées IDFM.**
 
-- Pipeline prévu : `supabase/functions/gtfs-ingest/index.ts` +
-  `supabase/migrations/...0009_gtfs_staging.sql`.
-- Source : Île-de-France Mobilités / plateforme PRIM (`route_color`, `stops` avec
-  lat/long, ordre des stations).
-- **⚠️ Contrainte environnement** : l'egress réseau du conteneur Claude Code est
-  sur **allowlist** — `data.iledefrance-mobilites.fr`, `wikidata`, etc. renvoient
-  `403 Host not in allowlist`. Le `curl` direct ne marche pas d'ici.
-  - Option A (propre) : faire tourner l'ingestion **côté Supabase** (Edge
-    Function `gtfs-ingest`, déployée sur Supabase, qui a accès au net).
-  - Option B : demander à l'utilisateur d'ajouter `data.iledefrance-mobilites.fr`
-    à l'allowlist d'egress (réglages env Claude Code web), puis générer les JSON.
-- **NE JAMAIS** transcrire les 320 stations de mémoire (consigne utilisateur
-  ferme : « n'invente rien »). Données réelles uniquement, via GTFS.
-- Une fois les stations peuplées : upgrader `NetworkScreen` (schéma actuel) vers
-  une **vraie carte géographique** (façon Pokémon GO) à partir des coordonnées.
+- **Source retenue** : référentiel LÉGER IDFM open data, dataset ODS
+  **`arrets-lignes`** (arrêt ↔ ligne ↔ mode + lat/lon). PAS le GTFS-horaires
+  complet : bufferisé en mémoire il déclenche `WORKER_RESOURCE_LIMIT` (Edge
+  Functions plafonnées à **256 Mo sur tous les plans**). `arrets-lignes` filtré
+  côté serveur (`where=mode = "Metro"`) tient large en mémoire.
+- **Edge Function** : `supabase/functions/idfm-gares/index.ts` (déployée,
+  `verify_jwt=false`). Modes `inspect` (sonde le schéma) et `ingest`
+  (filtre métro → staging → RPC `fn_gtfs_match_and_upsert`). Pilotée par body.
+- **Invocation** : depuis Postgres via `pg_net` (`net.http_post`) — le conteneur
+  Claude Code ne peut pas joindre `*.supabase.co/functions` (egress allowlist).
+- **Résultat** : 805 lignes métro source → 315 créées + 490 reliées →
+  **321 stations distinctes, 100 % géolocalisées**, 0 doublon. 16 lignes vues
+  (1,2,3,3bis,4,5,6,7,7bis,8,9,10,11,12,13,14). 3 collisions de nommage
+  (La Défense/Palais Royal/Saint-Paul) fusionnées sur les stations seedées.
+- `gtfs-ingest` (GTFS-horaires complet) reste au repo mais **inutilisable sur
+  free tier** (OOM). À réserver à un runtime hors-Edge ou egress conteneur ouvert.
+
+### Reste à faire sur le réseau
+- **Topologie par ligne** : `arrets-lignes` donne l'appartenance arrêt↔ligne
+  (`shortname`) mais PAS l'ordre. `line_stations.position` n'est peuplé que pour
+  la Ligne 1 (seed). Reconstruire l'ordre depuis `stop_times` (cf. `gtfs-ingest`
+  extension point n°1) ou un dataset séquencé.
+- **Lignes en base** : seule M1 est dans `lines`. Créer les 15 autres + couleurs
+  officielles (`res_com`/`picto` du dataset, ou `route_color` GTFS).
+- Puis : upgrader `NetworkScreen` vers une **vraie carte géographique** (façon
+  Pokémon GO) à partir des coordonnées désormais disponibles.
+- **NE JAMAIS** transcrire des stations de mémoire (« n'invente rien ») —
+  données réelles IDFM uniquement.
 
 ---
 
