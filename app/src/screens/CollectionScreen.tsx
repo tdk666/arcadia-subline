@@ -3,6 +3,7 @@ import { pickText, useI18n } from '../i18n';
 import { getStationContent, isPlayable, LINE, type StationContent } from '../lib/content';
 import { useArcadia } from '../store';
 import { ArchiveCard } from '../components/ArchiveCard';
+import { track } from '../lib/analytics';
 
 /**
  * LA COLLECTION — les « mémoires de Paris » qu'on gagne en conquérant les stations.
@@ -43,7 +44,7 @@ export function CollectionScreen() {
               <button
                 key={station.slug}
                 type="button"
-                onClick={() => setActive(content)}
+                onClick={() => { track('archive_open', { slug: station.slug, source: 'collection' }); setActive(content); }}
                 className="relative overflow-hidden rounded-2xl border border-laiton/55 bg-plomb p-3 text-left shadow-[0_4px_14px_rgba(0,0,0,0.08)] transition active:scale-[0.98]"
                 style={{ background: 'linear-gradient(160deg, #fffdf7 0%, #f6efdd 100%)' }}
               >

@@ -8,6 +8,7 @@ import { pickText, useI18n } from '../i18n';
 import { backend } from '../lib/backend';
 import { getStationContent, type StationContent } from '../lib/content';
 import { previewDemolitionScore } from '../lib/scoring';
+import { track } from '../lib/analytics';
 import { useArcadia, type LastResult } from '../store';
 import { ResultView } from '../components/ResultView';
 import { OrientationGate } from '../components/OrientationGate';
@@ -95,6 +96,7 @@ export function GameScreen() {
     recordResult(r);
     setResult(r);
     setPhase('result');
+    track('game_result', { slug, tier: difficulty, success: r.success, flagged: r.flagged, score: r.score });
   }
 
   function replay(nextTier?: DifficultyTier) {
@@ -141,7 +143,7 @@ export function GameScreen() {
 
           <button
             type="button"
-            onClick={() => setPhase('play')}
+            onClick={() => { track('game_start', { slug, tier: difficulty }); setPhase('play'); }}
             className="animate-pop w-full max-w-xs rounded-2xl py-4 font-display text-lg font-extrabold text-encre shadow-[0_0_30px_rgba(242,194,0,0.35)] transition active:scale-[0.97]"
             style={{ background: TIER_COLOR[difficulty], animationDelay: '0.25s' }}
           >
@@ -207,7 +209,7 @@ export function GameScreen() {
               <button
                 type="button"
                 className="flex-1 rounded-xl border border-rail py-2.5 text-sm text-pierre-dim active:bg-plomb-hi"
-                onClick={() => navigate(`/station/${slug}`)}
+                onClick={() => { track('game_quit', { slug, tier: difficulty }); navigate(`/station/${slug}`); }}
               >
                 {t('game.quitConfirm')}
               </button>

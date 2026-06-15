@@ -7,6 +7,7 @@ import { getStationContent } from '../lib/content';
 import { presenceProviders } from '../lib/presence';
 import { useArcadia } from '../store';
 import { AuthSheet } from '../components/AuthSheet';
+import { track } from '../lib/analytics';
 
 const EMPTY_TIERS: DifficultyTier[] = [];
 
@@ -43,6 +44,8 @@ export function StationScreen() {
   const [cooldownMsg, setCooldownMsg] = useState<string | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [serverState, setServerState] = useState<'discovered' | 'visited' | 'mastered' | null>(null);
+
+  useEffect(() => { track('station_open', { slug }); }, [slug]);
   const [storyOpen, setStoryOpen] = useState(false);
 
   const refresh = useCallback(async () => {
