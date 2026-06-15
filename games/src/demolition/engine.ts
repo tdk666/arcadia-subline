@@ -77,6 +77,17 @@ interface Particle {
 
 interface Ring { x: number; y: number; r: number; maxR: number; life: number; maxLife: number; color: string }
 
+/** Étiquette flottante de récompense (« juice » verbal façon Angry Birds / Royal
+ *  Match : DOUBLE !, ÉTENDARD !, LIBERTÉ !). Purement décorative — aucun lien
+ *  avec le score serveur, donc aucune triche possible. */
+interface FloatLabel { x: number; y: number; text: string; color: string; size: number; life: number; maxLife: number }
+
+/** Cris de récompense bilingues (l'engine est autonome : pas d'accès au i18n app). */
+const LABELS = {
+  fr: { standard: 'ÉTENDARD !', double: 'DOUBLE !', triple: 'TRIPLE !', liberty: 'LIBERTÉ !', cracks: 'ÇA CÈDE !', razed: 'FORTERESSE RASÉE !' },
+  en: { standard: 'STANDARD DOWN!', double: 'DOUBLE!', triple: 'TRIPLE!', liberty: 'LIBERTY!', cracks: 'IT CRACKS!', razed: 'FORTRESS RAZED!' },
+} as const;
+
 interface BlockMeta { hp: number; maxHp: number; material: BlockMaterial; part?: BlockPart }
 
 export class DemolitionEngine {
@@ -121,6 +132,10 @@ export class DemolitionEngine {
 
   private particles: Particle[] = [];
   private rings: Ring[] = [];
+  private labels: FloatLabel[] = [];
+  private targetsThisShot = 0;            // combo : étendards abattus dans le tir courant
+  private destMilestones = new Set<number>(); // paliers de destruction déjà fêtés
+  private lang: 'fr' | 'en' = 'fr';
   private shake = 0;
   private zoomPulse = 0;
   private aimZoom = 1;             // dézoom courant pendant la visée
@@ -153,6 +168,7 @@ export class DemolitionEngine {
     params: DemolitionParams;
     tier: DifficultyTier;
     reducedMotion: boolean;
+    lang?: 'fr' | 'en';
     sfx?: DemolitionSfx | null;
     haptic?: (pattern: number | number[]) => void;
     onHud: (s: HudState) => void;
@@ -164,6 +180,7 @@ export class DemolitionEngine {
     this.params = opts.params;
     this.tier = opts.tier;
     this.reducedMotion = opts.reducedMotion;
+    this.lang = opts.lang ?? 'fr';
     this.sfx = opts.sfx ?? null;
     this.haptic = opts.haptic ?? (() => {});
     this.onHud = opts.onHud;
@@ -278,7 +295,19 @@ export class DemolitionEngine {
       Composite.remove(this.engine.world, body);
       // les créneaux comptent comme décor : exclus du % structurel — sinon
       // destroyed dépasse destructible → pct > 100 → tentative À TORT signalée.
-      if (meta.part !== 'merlon') this.destroyed++;
+      if (meta.part !== 'merlon') {
+        this.destroyed++;
+        // jalons de destruction fêtés une seule fois (lecture de progression)
+        const pct = this.destructionPct();
+        const L = LABELS[this.lang];
+        if (pct >= 100 && !this.destMilestones.has(100)) {
+          this.destMilestones.add(100);
+          this.pushLabel(this.level.worldW * 0.6, this.level.groundY - 150, L.razed, '#e3c463', 34);
+        } else if (pct >= 50 && !this.destMilestones.has(50)) {
+          this.destMilestones.add(50);
+          this.pushLabel(body.position.x, body.position.y - 24, L.cracks, '#e0964a', 24);
+        }
+      }
       this.debris(body, meta.material);
       this.burst(body.position.x, body.position.y, MATERIAL[meta.material].rim, 10);
       this.addShake(7);
@@ -296,7 +325,14 @@ export class DemolitionEngine {
     this.targets.delete(body.id);
     Composite.remove(this.engine.world, body);
     this.targetsDown++;
+    this.targetsThisShot++;
     const isLast = this.targetsDown === this.totalTargets;
+    // récompense verbale escaladante (le combo se construit DANS un même tir)
+    const L = LABELS[this.lang];
+    if (isLast) this.pushLabel(body.position.x, body.position.y - 34, L.liberty, '#f2c200', 42);
+    else if (this.targetsThisShot >= 3) this.pushLabel(body.position.x, body.position.y - 30, L.triple, '#e3c463', 32);
+    else if (this.targetsThisShot === 2) this.pushLabel(body.position.x, body.position.y - 30, L.double, '#e3c463', 28);
+    else this.pushLabel(body.position.x, body.position.y - 28, L.standard, '#e1000f', 22);
     this.burst(body.position.x, body.position.y, '#f2c200', 26);
     this.rings.push({ x: body.position.x, y: body.position.y, r: 8, maxR: 90, life: 420, maxLife: 420, color: '#f2c200' });
     this.addShake(9);
@@ -349,6 +385,7 @@ export class DemolitionEngine {
     this.ballInFlight = true;
     this.flightSince = performance.now();
     this.settleSince = 0;
+    this.targetsThisShot = 0;        // nouveau tir → le compteur de combo repart
     this.shotsUsed++;
     this.dragging = false;
     this.dragPos = null;
@@ -429,6 +466,12 @@ export class DemolitionEngine {
       r.life -= dt;
       r.r += (r.maxR - r.r) * Math.min(1, dt * 0.02);
       return r.life > 0;
+    });
+    // cris de récompense : montée douce + disparition
+    this.labels = this.labels.filter((l) => {
+      l.life -= dt;
+      l.y -= dt * 0.028;
+      return l.life > 0;
     });
     this.shake = Math.max(0, this.shake - dt * 0.02);
     this.zoomPulse = Math.max(0, this.zoomPulse - dt * 0.0002);
@@ -583,6 +626,14 @@ export class DemolitionEngine {
   private addHitstop(ms: number) {
     if (this.reducedMotion || this.timescale < 0.85) return;
     this.hitstop = Math.min(70, Math.max(this.hitstop, ms));
+  }
+
+  /** Pousse un cri de récompense flottant (monte et s'efface). Décoratif. */
+  private pushLabel(x: number, y: number, text: string, color: string, size: number) {
+    // on évite l'empilement illisible : une seule grosse étiquette à la fois
+    if (size >= 30) this.labels = this.labels.filter((l) => l.size < 30);
+    this.labels.push({ x, y, text, color, size, life: 1100, maxLife: 1100 });
+    if (this.labels.length > 6) this.labels.shift();
   }
 
   private burst(x: number, y: number, color: string, n: number) {
@@ -777,6 +828,7 @@ export class DemolitionEngine {
     if (this.dragging && this.dragPos) this.drawAim(ctx);
     this.drawRings(ctx);
     this.drawParticles(ctx);
+    this.drawLabels(ctx);          // cris de récompense (au-dessus de l'action)
     if (this.won) this.drawVictoryFlag(ctx, t); // le tricolore planté sur les ruines
 
     // vignette de ralenti : le monde retient son souffle
@@ -1432,6 +1484,29 @@ export class DemolitionEngine {
       ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
       ctx.stroke();
     }
+    ctx.globalAlpha = 1;
+  }
+
+  /** Cris de récompense flottants : pop élastique à l'entrée, fondu à la sortie,
+   *  contour sombre pour rester lisibles sur n'importe quel fond. */
+  private drawLabels(ctx: CanvasRenderingContext2D) {
+    if (this.labels.length === 0) return;
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    for (const l of this.labels) {
+      const age = 1 - l.life / l.maxLife;           // 0 → 1
+      const pop = age < 0.18 ? 0.5 + 0.5 * (age / 0.18) : 1; // entrée élastique
+      const overshoot = age < 0.18 ? 1 + 0.18 * Math.sin((age / 0.18) * Math.PI) : 1;
+      ctx.globalAlpha = Math.min(1, l.life / 320);  // fondu sur la fin
+      ctx.font = `800 ${l.size * pop * overshoot}px 'Work Sans', system-ui, sans-serif`;
+      ctx.lineWidth = 4.5;
+      ctx.strokeStyle = 'rgba(8,5,2,0.82)';
+      ctx.strokeText(l.text, l.x, l.y);
+      ctx.fillStyle = l.color;
+      ctx.fillText(l.text, l.x, l.y);
+    }
+    ctx.restore();
     ctx.globalAlpha = 1;
   }
 

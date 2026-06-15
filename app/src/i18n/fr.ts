@@ -89,6 +89,7 @@ export const fr = {
   },
   result: {
     victory: 'La Bastille est tombée !', defeat: 'La forteresse tient bon…',
+    defeatHint: 'Si près — encore un assaut et elle cède.',
     victoryGeneric: 'Victoire !',
     score: 'Score', xp: 'XP', mastery: 'Maîtrise',
     bestScore: 'Pas de progression sur ton meilleur score — l’XP récompense la marge.',

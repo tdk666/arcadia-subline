@@ -91,6 +91,7 @@ export const en: Dict = {
   },
   result: {
     victory: 'The Bastille has fallen!', defeat: 'The fortress holds…',
+    defeatHint: 'So close — one more assault and it falls.',
     victoryGeneric: 'Victory!',
     score: 'Score', xp: 'XP', mastery: 'Mastery',
     bestScore: 'No improvement on your best score — XP rewards the margin.',

@@ -78,6 +78,7 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
       params,
       tier: ctx.difficulty,
       reducedMotion: ctx.reducedMotion,
+      lang: ctx.locale.startsWith('en') ? 'en' : 'fr',
       sfx,
       haptic: (pattern) => { try { navigator.vibrate?.(pattern); } catch { /* non supporté */ } },
       onHud: setHud,

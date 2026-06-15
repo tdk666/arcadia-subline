@@ -70,6 +70,10 @@ export function ResultView({
         >
           {result.success ? t('result.victory') : t('result.defeat')}
         </h1>
+        {/* défaite jamais « morte » : on encourage le rejeu (cf. Candy Crush / Royal Match) */}
+        {!result.success && (
+          <p className="mt-2 text-sm text-pierre-dim">{t('result.defeatHint')}</p>
+        )}
       </div>
 
       <div className="animate-slide-up flex w-full max-w-xs flex-col gap-2.5">
