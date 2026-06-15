@@ -5,6 +5,7 @@ import { useArcadia } from './store';
 import { AppLayout } from './components/AppLayout';
 import { ErrorScreen } from './components/ErrorScreen';
 import { Onboarding, ONBOARDING_KEY } from './components/Onboarding';
+import { NetworkScreen } from './screens/NetworkScreen';
 import { LineMapScreen } from './screens/LineMapScreen';
 import { StationScreen } from './screens/StationScreen';
 import { GameScreen } from './screens/GameScreen';
@@ -17,7 +18,8 @@ const router = createBrowserRouter([
     element: <AppLayout />,
     errorElement: <ErrorScreen />,
     children: [
-      { path: '/', element: <LineMapScreen /> },
+      { path: '/', element: <NetworkScreen /> },
+      { path: '/line/:code', element: <LineMapScreen /> },
       { path: '/station/:slug', element: <StationScreen /> },
       { path: '/collection', element: <CollectionScreen /> },
       { path: '/leaderboard', element: <LeaderboardScreen /> },

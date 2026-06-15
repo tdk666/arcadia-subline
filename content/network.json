@@ -1,0 +1,23 @@
+{
+  "city": "Paris",
+  "network": "Île-de-France Mobilités",
+  "_note": "Métadonnées de lignes (le RÉSEAU comme plateau). Couleurs = palette publique standard du métro parisien ; les valeurs officielles et l'ordre/géo des stations seront réconciliés via l'ingestion GTFS IDFM (route_color, stops) — cf. supabase/functions/gtfs-ingest. status: playable = contenu de station disponible ; soon = à venir via le pipeline.",
+  "lines": [
+    { "code": "M1", "name": "Ligne 1", "color": "#F2C200", "termini": "La Défense — Château de Vincennes", "status": "playable" },
+    { "code": "M2", "name": "Ligne 2", "color": "#0064B0", "termini": "Porte Dauphine — Nation", "status": "soon" },
+    { "code": "M3", "name": "Ligne 3", "color": "#9F9825", "termini": "Pont de Levallois — Gallieni", "status": "soon" },
+    { "code": "M3b", "name": "Ligne 3 bis", "color": "#98D4E2", "termini": "Gambetta — Porte des Lilas", "status": "soon" },
+    { "code": "M4", "name": "Ligne 4", "color": "#C04191", "termini": "Porte de Clignancourt — Bagneux", "status": "soon" },
+    { "code": "M5", "name": "Ligne 5", "color": "#F28E42", "termini": "Bobigny — Place d'Italie", "status": "soon" },
+    { "code": "M6", "name": "Ligne 6", "color": "#83C491", "termini": "Charles de Gaulle — Étoile — Nation", "status": "soon" },
+    { "code": "M7", "name": "Ligne 7", "color": "#F3A4BA", "termini": "La Courneuve — Villejuif / Mairie d'Ivry", "status": "soon" },
+    { "code": "M7b", "name": "Ligne 7 bis", "color": "#84C28E", "termini": "Louis Blanc — Pré-Saint-Gervais", "status": "soon" },
+    { "code": "M8", "name": "Ligne 8", "color": "#CEADD2", "termini": "Balard — Pointe du Lac", "status": "soon" },
+    { "code": "M9", "name": "Ligne 9", "color": "#D5C900", "termini": "Pont de Sèvres — Mairie de Montreuil", "status": "soon" },
+    { "code": "M10", "name": "Ligne 10", "color": "#E3B32A", "termini": "Boulogne — Gare d'Austerlitz", "status": "soon" },
+    { "code": "M11", "name": "Ligne 11", "color": "#8D5E2A", "termini": "Châtelet — Rosny-Bois-Perrier", "status": "soon" },
+    { "code": "M12", "name": "Ligne 12", "color": "#00814F", "termini": "Aubervilliers — Mairie d'Issy", "status": "soon" },
+    { "code": "M13", "name": "Ligne 13", "color": "#98D4E2", "termini": "Saint-Denis / Asnières — Châtillon-Montrouge", "status": "soon" },
+    { "code": "M14", "name": "Ligne 14", "color": "#662483", "termini": "Saint-Denis Pleyel — Aéroport d'Orly", "status": "soon" }
+  ]
+}

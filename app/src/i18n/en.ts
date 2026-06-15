@@ -2,7 +2,16 @@ import type { Dict } from './fr';
 
 export const en: Dict = {
   app: { name: 'Arcadia SubLine', tagline: 'Conquer your line' },
-  nav: { map: 'Map', collection: 'Collection', leaderboard: 'Ranking', profile: 'Profile' },
+  nav: { map: 'Map', network: 'Network', collection: 'Collection', leaderboard: 'Ranking', profile: 'Profile' },
+  network: {
+    title: 'The Network',
+    subtitle: 'All of {city}\'s métro — pick the line to conquer',
+    progress: 'Network conquered',
+    heroKicker: 'Your line',
+    resume: 'Resume', start: 'Start', enter: 'Enter', soon: 'Soon',
+    all: 'Whole network',
+    footnote: 'Real stations and routes are added gradually from Île-de-France Mobilités open data.',
+  },
   common: {
     back: 'Back', cancel: 'Cancel', loading: 'Loading…', retry: 'Retry',
     soon: 'Soon', error: 'Something went wrong', offline: 'Offline',

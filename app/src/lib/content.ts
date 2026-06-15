@@ -7,6 +7,7 @@ import type { DifficultyTier, GameArchetype } from '@arcadia/games';
 import type { LocalizedText } from '../i18n';
 import ligne1 from '@content/lines/ligne-1.json';
 import bastille from '@content/stations/bastille.json';
+import networkData from '@content/network.json';
 
 export interface LineContent {
   id: string;
@@ -14,6 +15,22 @@ export interface LineContent {
   name: string;
   color: string;
   stations: { slug: string; name: string }[];
+}
+
+/** Métadonnée de ligne au niveau RÉSEAU (le plateau global, façon plan de métro).
+ *  Légère : la topologie/géo complète des stations vient du pipeline GTFS IDFM. */
+export interface NetworkLine {
+  code: string;
+  name: string;
+  color: string;
+  termini: string;
+  status: 'playable' | 'soon';
+}
+
+export interface NetworkContent {
+  city: string;
+  network: string;
+  lines: NetworkLine[];
 }
 
 export interface StationContent {
@@ -38,6 +55,18 @@ export interface StationContent {
 }
 
 export const LINE: LineContent = ligne1 as LineContent;
+
+/** Le réseau complet (16 lignes). Le plateau de plus haut niveau de l'app. */
+export const NETWORK: NetworkContent = networkData as NetworkContent;
+
+/** Une ligne porte du contenu jouable réel (stations + quêtes). MVP : M1 seule. */
+const LINE_CONTENT: Record<string, LineContent> = {
+  M1: ligne1 as LineContent,
+};
+
+export function getLineContent(code: string): LineContent | null {
+  return LINE_CONTENT[code] ?? null;
+}
 
 const STATION_CONTENT: Record<string, StationContent> = {
   bastille: bastille as unknown as StationContent,

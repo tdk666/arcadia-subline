@@ -72,7 +72,14 @@ export function LineMapScreen() {
   return (
     <div className="flex h-full flex-col">
       {/* ── En-tête + jauge (fixe) ── */}
-      <div className="px-4 pt-5">
+      <div className="px-4 pt-4">
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="mb-2 font-mono text-xs text-pierre-faint active:text-pierre-dim"
+        >
+          ← {t('network.title')}
+        </button>
         <header className="flex items-center gap-3">
           <span
             className="flex h-11 w-11 items-center justify-center rounded-full font-display text-xl font-extrabold text-encre shadow-[0_0_18px_rgba(201,162,39,0.35)]"

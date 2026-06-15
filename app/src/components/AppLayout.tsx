@@ -34,7 +34,7 @@ export function AppLayout() {
         <Outlet />
       </main>
       <nav className="safe-bottom flex border-t border-rail bg-craie-2">
-        <Tab to="/" label={t('nav.map')} icon="◉" />
+        <Tab to="/" label={t('nav.network')} icon="◉" />
         <Tab to="/collection" label={t('nav.collection')} icon="❖" />
         <Tab to="/leaderboard" label={t('nav.leaderboard')} icon="♛" />
         <Tab to="/profile" label={t('nav.profile')} icon="◈" />

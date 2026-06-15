@@ -1,6 +1,15 @@
 export const fr = {
   app: { name: 'Arcadia SubLine', tagline: 'Conquiers ta ligne' },
-  nav: { map: 'Carte', collection: 'Collection', leaderboard: 'Classement', profile: 'Profil' },
+  nav: { map: 'Carte', network: 'Réseau', collection: 'Collection', leaderboard: 'Classement', profile: 'Profil' },
+  network: {
+    title: 'Le Réseau',
+    subtitle: 'Tout le métro de {city} — choisis ta ligne à conquérir',
+    progress: 'Réseau conquis',
+    heroKicker: 'Ta ligne',
+    resume: 'Reprendre', start: 'Commencer', enter: 'Entrer', soon: 'Bientôt',
+    all: 'Tout le réseau',
+    footnote: 'Les stations et tracés réels sont peu à peu ajoutés depuis les données ouvertes Île-de-France Mobilités.',
+  },
   common: {
     back: 'Retour', cancel: 'Annuler', loading: 'Chargement…', retry: 'Réessayer',
     soon: 'Bientôt', error: 'Une erreur est survenue', offline: 'Hors connexion',
