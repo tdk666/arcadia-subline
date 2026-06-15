@@ -6,6 +6,7 @@
  */
 import { useState } from 'react';
 import { useI18n } from '../i18n';
+import { Button } from './Button';
 
 export const ONBOARDING_KEY = 'arcadia.onboarded.v1';
 
@@ -123,7 +124,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
         <Scene />
       </div>
 
-      <div key={`txt-${step}`} className="animate-slide-up flex flex-[2] flex-col px-7 pt-2">
+      <div key={`txt-${step}`} className="animate-slide-up flex min-h-0 flex-[2] flex-col overflow-y-auto px-7 pt-2">
         <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-vermillon">
           {t(`onboarding.${key}.kicker`)}
         </p>
@@ -147,21 +148,13 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
           ))}
         </div>
         {step < SCENES.length - 1 ? (
-          <button
-            type="button"
-            onClick={() => setStep(step + 1)}
-            className="rounded-xl bg-plomb-hi px-6 py-3 font-display font-bold text-pierre active:scale-[0.97]"
-          >
+          <Button variant="secondary" size="md" block={false} onClick={() => setStep(step + 1)}>
             {t('common.continue')} →
-          </button>
+          </Button>
         ) : (
-          <button
-            type="button"
-            onClick={finish}
-            className="animate-glow rounded-xl bg-laiton px-6 py-3 font-display font-bold text-encre active:scale-[0.97]"
-          >
+          <Button variant="gold" size="md" block={false} className="animate-glow" onClick={finish}>
             ⚜ {t('onboarding.cta')}
-          </button>
+          </Button>
         )}
       </div>
     </div>

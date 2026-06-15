@@ -9,6 +9,7 @@ import { backend } from '../lib/backend';
 import { getStationContent, type StationContent } from '../lib/content';
 import { previewDemolitionScore } from '../lib/scoring';
 import { track } from '../lib/analytics';
+import { tap } from '../lib/feedback';
 import { useArcadia, type LastResult } from '../store';
 import { ResultView } from '../components/ResultView';
 import { OrientationGate } from '../components/OrientationGate';
@@ -114,8 +115,10 @@ export function GameScreen() {
           bascule au milieu). Le résultat/archive se lit dans n'importe quel sens. */}
       <OrientationGate active={orientation === 'landscape' && phase !== 'result'}>
       {/* ── BRIEFING : le cadre narratif pose l'enjeu avant l'assaut ── */}
+      {/* défilable : sur petit écran le CTA reste toujours atteignable (jamais rogné) */}
       {phase === 'brief' && (
-        <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center gap-6 px-7 text-center">
+        <div className="h-full overflow-y-auto">
+        <div className="mx-auto flex min-h-full max-w-md flex-col items-center justify-center gap-6 px-7 py-8 text-center">
           <div className="animate-slide-up w-full">
             <p className="font-mono text-[11px] uppercase tracking-[0.25em]" style={{ color: TIER_INK[difficulty] }}>
               {pickText(brief.date, locale)}
@@ -143,8 +146,8 @@ export function GameScreen() {
 
           <button
             type="button"
-            onClick={() => { track('game_start', { slug, tier: difficulty }); setPhase('play'); }}
-            className="animate-pop w-full max-w-xs rounded-2xl py-4 font-display text-lg font-extrabold text-encre shadow-[0_0_30px_rgba(242,194,0,0.35)] transition active:scale-[0.97]"
+            onClick={() => { tap(); track('game_start', { slug, tier: difficulty }); setPhase('play'); }}
+            className="animate-pop w-full max-w-xs rounded-2xl py-4 font-display text-lg font-extrabold text-encre shadow-[0_5px_0_rgba(0,0,0,0.22),0_0_30px_rgba(242,194,0,0.35)] ring-1 ring-inset ring-white/40 transition-[transform,box-shadow] duration-75 active:translate-y-[3px] active:shadow-[0_2px_0_rgba(0,0,0,0.22),0_0_20px_rgba(242,194,0,0.3)]"
             style={{ background: TIER_COLOR[difficulty], animationDelay: '0.25s' }}
           >
             ⚔ {t('brief.cta')}
@@ -156,6 +159,7 @@ export function GameScreen() {
           >
             ← {t('common.back')}
           </button>
+        </div>
         </div>
       )}
 

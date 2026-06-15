@@ -8,6 +8,7 @@ import { presenceProviders } from '../lib/presence';
 import { useArcadia } from '../store';
 import { AuthSheet } from '../components/AuthSheet';
 import { track } from '../lib/analytics';
+import { tap } from '../lib/feedback';
 
 const EMPTY_TIERS: DifficultyTier[] = [];
 
@@ -73,6 +74,7 @@ export function StationScreen() {
   const isMastered = serverState === 'mastered';
 
   async function doCheckIn() {
+    tap();
     if (!user) { setAuthOpen(true); return; }
     setCheckInBusy(true);
     setCooldownMsg(null);
@@ -155,7 +157,7 @@ export function StationScreen() {
                 key={tier}
                 type="button"
                 disabled={!unlocked}
-                onClick={() => navigate(`/play/${slug}/${tier}`)}
+                onClick={() => { tap(); navigate(`/play/${slug}/${tier}`); }}
                 className={`flex items-center gap-3.5 rounded-xl border bg-plomb px-3.5 py-3 text-left transition active:scale-[0.985] disabled:opacity-45 ${style.ring} ${
                   unlocked ? 'active:bg-plomb-hi' : ''
                 }`}

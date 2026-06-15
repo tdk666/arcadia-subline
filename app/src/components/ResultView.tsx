@@ -5,8 +5,10 @@ import { useI18n } from '../i18n';
 import { backend } from '../lib/backend';
 import type { StationContent } from '../lib/content';
 import { useArcadia, type LastResult } from '../store';
+import { tap } from '../lib/feedback';
 import { AuthSheet } from './AuthSheet';
 import { ArchiveCard } from './ArchiveCard';
+import { Button } from './Button';
 
 /** Compteur animé (le "juice" du score). */
 function CountUp({ value }: { value: number }) {
@@ -127,44 +129,34 @@ export function ResultView({
         <div className="animate-slide-up w-full max-w-xs rounded-2xl border border-laiton/50 bg-laiton/10 p-4" style={{ animationDelay: '0.3s' }}>
           <p className="font-display font-bold text-laiton">★ {t('result.guestSave.title')}</p>
           <p className="mt-1 text-xs text-pierre-dim">{t('result.guestSave.body')}</p>
-          <button
-            type="button"
-            className="mt-3 w-full rounded-xl bg-laiton py-2.5 font-display text-sm font-bold text-encre active:scale-[0.98]"
-            onClick={() => setAuthOpen(true)}
-          >
+          <Button variant="gold" size="sm" className="mt-3" onClick={() => setAuthOpen(true)}>
             {t('result.guestSave.cta')}
-          </button>
+          </Button>
         </div>
       )}
 
       <div className="flex w-full max-w-xs flex-col gap-2">
         {result.success && nextTier ? (
-          <button
-            type="button"
-            className="rounded-xl bg-ambre py-3 font-display font-bold text-encre active:scale-[0.98]"
-            onClick={() => onNextTier(nextTier)}
-          >
+          <Button variant="gold" size="md" onClick={() => onNextTier(nextTier)}>
             ⬆ {t('result.nextTier')} · {t(`station.tiers.${nextTier}`)}
-          </button>
+          </Button>
         ) : (
-          <button
-            type="button"
-            className="rounded-xl bg-ambre py-3 font-display font-bold text-encre active:scale-[0.98]"
-            onClick={onReplay}
-          >
+          <Button variant="gold" size="md" onClick={onReplay}>
             ↻ {t('result.replay')}
-          </button>
+          </Button>
         )}
         <div className="flex gap-2">
           <Link
             to={`/station/${result.slug}`}
-            className="flex-1 rounded-xl border border-rail py-2.5 text-sm text-pierre-dim active:bg-plomb-hi"
+            onClick={() => tap()}
+            className="flex-1 rounded-xl border border-rail py-2.5 text-center text-sm text-pierre-dim active:bg-plomb-hi"
           >
             {t('result.toStation')}
           </Link>
           <Link
             to="/leaderboard"
-            className="flex-1 rounded-xl border border-rail py-2.5 text-sm text-pierre-dim active:bg-plomb-hi"
+            onClick={() => tap()}
+            className="flex-1 rounded-xl border border-rail py-2.5 text-center text-sm text-pierre-dim active:bg-plomb-hi"
           >
             ♛ {t('result.toLeaderboard')}
           </Link>

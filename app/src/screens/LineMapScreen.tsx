@@ -2,7 +2,10 @@ import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { pickText, useI18n } from '../i18n';
 import { getStationContent, isPlayable, LINE } from '../lib/content';
+import { tap } from '../lib/feedback';
 import { useArcadia } from '../store';
+
+const TIERS = ['bronze', 'silver', 'gold'] as const;
 
 /**
  * LE PLATEAU DE CONQUÊTE — la ligne 1 comme une carte VIVANTE (façon Pokémon GO).
@@ -42,6 +45,17 @@ export function LineMapScreen() {
     (s) => isPlayable(s.slug) && (tiersWon[s.slug] ?? []).length < 3,
   );
   const hero = heroIndex >= 0 ? getStationContent(LINE.stations[heroIndex].slug) : null;
+  // 1-tap-to-play (loi UX #2) : le défi du jour lance directement le prochain
+  // palier non gagné (gating séquentiel → c'est le 1er palier débloqué restant).
+  const heroNextTier = hero
+    ? (TIERS.find((tr) => !(tiersWon[hero.slug] ?? []).includes(tr)) ?? 'bronze')
+    : 'bronze';
+
+  function playHero() {
+    if (!hero) return;
+    tap();
+    navigate(`/play/${hero.slug}/${heroNextTier}`);
+  }
 
   const W = PAD_X * 2 + (LINE.stations.length - 1) * NODE_DX;
   const H = 380;
@@ -227,13 +241,15 @@ export function LineMapScreen() {
         </svg>
       </div>
 
-      {/* ── Carte-héros : le défi du jour appelle à l'assaut (fixe en bas) ── */}
+      {/* ── Carte-héros : le défi du jour appelle à l'assaut (fixe en bas) ──
+          1-tap-to-play : la carte ENTIÈRE lance la partie ; un lien discret mène
+          au détail de la station pour qui veut le contexte. */}
       {hero && (
         <div className="px-4 pb-4">
           <button
             type="button"
-            onClick={() => navigate(`/station/${hero.slug}`)}
-            className="relative block w-full overflow-hidden rounded-2xl bg-email p-4 text-left text-white shadow-[0_8px_22px_rgba(10,90,158,0.3)] ring-2 ring-white/80 ring-inset transition active:scale-[0.99]"
+            onClick={playHero}
+            className="relative block w-full overflow-hidden rounded-2xl bg-email p-4 text-left text-white shadow-[0_6px_0_#073f6e,0_10px_22px_rgba(10,90,158,0.3)] ring-2 ring-white/80 ring-inset transition-[transform,box-shadow] duration-75 active:translate-y-[3px] active:shadow-[0_3px_0_#073f6e,0_5px_12px_rgba(10,90,158,0.3)]"
           >
             <div className="pointer-events-none absolute -right-6 -top-8 text-[88px] text-white opacity-15">⚑</div>
             <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-laiton-clair">★ {t('map.heroKicker')}</p>
@@ -242,7 +258,7 @@ export function LineMapScreen() {
             </h2>
             <div className="mt-2 flex items-center justify-between">
               <div className="flex gap-1.5">
-                {(['bronze', 'silver', 'gold'] as const).map((tr) => (
+                {TIERS.map((tr) => (
                   <span key={tr} className={`h-2.5 w-2.5 rounded-full border ${
                     (tiersWon[hero.slug] ?? []).includes(tr)
                       ? 'border-laiton bg-laiton shadow-[0_0_6px_rgba(242,194,0,0.7)]'
@@ -255,9 +271,18 @@ export function LineMapScreen() {
               </span>
             </div>
           </button>
-          {!user && (
-            <p className="mt-2 text-center font-mono text-[11px] text-pierre-faint">{t('map.playWithoutAccount')}</p>
-          )}
+          <div className="mt-2 flex items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate(`/station/${hero.slug}`)}
+              className="font-mono text-[11px] text-pierre-faint underline-offset-2 active:text-pierre-dim active:underline"
+            >
+              {hero.name} ›
+            </button>
+            {!user && (
+              <span className="font-mono text-[11px] text-pierre-faint">· {t('map.playWithoutAccount')}</span>
+            )}
+          </div>
         </div>
       )}
     </div>

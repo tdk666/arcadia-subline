@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { backend } from '../lib/backend';
 import { useI18n } from '../i18n';
+import { Button } from './Button';
 
 /**
  * Fiche d'auth en bas d'écran — appelée au "point de conversion" (après la
@@ -70,13 +71,9 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
           />
           {/* message générique only : on n'expose pas le code d'erreur brut à l'utilisateur */}
           {error && <p className="text-xs text-vermillon" title={error}>{t('auth.errors.generic')}</p>}
-          <button
-            type="submit"
-            disabled={busy}
-            className="rounded-xl bg-laiton py-3 font-display font-bold text-encre transition active:scale-[0.98] disabled:opacity-50"
-          >
+          <Button type="submit" variant="gold" size="md" disabled={busy}>
             {busy ? t('common.loading') : mode === 'signup' ? t('auth.signup') : t('auth.login')}
-          </button>
+          </Button>
         </form>
 
         <button

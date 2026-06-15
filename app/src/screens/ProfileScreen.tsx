@@ -4,6 +4,7 @@ import { backend } from '../lib/backend';
 import { LINE } from '../lib/content';
 import { useArcadia } from '../store';
 import { AuthSheet } from '../components/AuthSheet';
+import { Button } from '../components/Button';
 
 /** Paliers d'XP des rangs — la courbe de progression. */
 const RANK_STEPS = [0, 800, 2000, 4000, 8000];
@@ -101,15 +102,14 @@ export function ProfileScreen() {
           </div>
         </div>
 
-        <button
-          type="button"
-          className={`mt-4 w-full rounded-xl py-2.5 font-display text-sm font-bold transition active:scale-[0.98] ${
-            user ? 'border border-rail text-pierre-dim' : 'bg-laiton text-encre'
-          }`}
+        <Button
+          variant={user ? 'secondary' : 'gold'}
+          size="sm"
+          className="mt-4"
           onClick={() => (user ? void backend.signOut() : setAuthOpen(true))}
         >
           {user ? t('auth.signoutCta') : t('auth.signupTitle')}
-        </button>
+        </Button>
       </div>
 
       {/* langue */}
