@@ -129,13 +129,24 @@ Netlify et qu'un build tourne, le bandeau « mode démo » disparaît.
 - `gtfs-ingest` (GTFS-horaires complet) reste au repo mais **inutilisable sur
   free tier** (OOM). À réserver à un runtime hors-Edge ou egress conteneur ouvert.
 
+### ✅ AUSSI FAIT (même session) : 16 lignes + topologie
+- **16 lignes en base** avec **couleurs officielles IDFM** (`referentiel-des-lignes`,
+  `colourweb_hexa`) : M1–M14 + M3B (3bis) + M7B (7bis). 15/18 (Grand Paris Express)
+  écartées (pas encore ouvertes, aucune station en service).
+- **Topologie `line_stations` reconstruite pour les 16 lignes** (405 entrées) par
+  **projection des stations sur le tracé officiel** (`traces-des-lignes...`,
+  `route_type=Subway`) via PostGIS `ST_LineLocatePoint`. Validée EXACTE sur la
+  Ligne 1 (reproduit l'ordre seed). **Termini corrects et à jour** (extensions
+  récentes incluses : M4→Bagneux, M11→Rosny, M12→Aubervilliers, M14→Pleyel↔Orly).
+- Runbook reproductible : `supabase/scripts/build_metro_network.sql`.
+
 ### Reste à faire sur le réseau
-- **Topologie par ligne** : `arrets-lignes` donne l'appartenance arrêt↔ligne
-  (`shortname`) mais PAS l'ordre. `line_stations.position` n'est peuplé que pour
-  la Ligne 1 (seed). Reconstruire l'ordre depuis `stop_times` (cf. `gtfs-ingest`
-  extension point n°1) ou un dataset séquencé.
-- **Lignes en base** : seule M1 est dans `lines`. Créer les 15 autres + couleurs
-  officielles (`res_com`/`picto` du dataset, ou `route_color` GTFS).
+- **Ordre EXACT aux embranchements** : la projection est exacte pour les lignes
+  linéaires, mais **approximative aux fourches** (M7, M10, M13 : branches/boucle).
+  Pour l'ordre exact de branche → `stop_times` GTFS (cf. `gtfs-ingest`, extension
+  point n°1) sur un runtime hors-Edge (le GTFS-horaires complet OOM en Edge 256 Mo).
+- **Noms de lignes** : M2–M14/M3B/M7B portent un libellé générique « Ligne N » ;
+  M1 garde son nom terminus seedé. Enrichir avec les termini officiels si voulu.
 - Puis : upgrader `NetworkScreen` vers une **vraie carte géographique** (façon
   Pokémon GO) à partir des coordonnées désormais disponibles.
 - **NE JAMAIS** transcrire des stations de mémoire (« n'invente rien ») —
