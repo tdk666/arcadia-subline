@@ -192,3 +192,23 @@ ne doit jamais rendre le jeu anxiogène (garder « la culture jamais imposée »
 
 > On ne code rien de tout ça tant que §4–§5 ne sont pas validés. Quand on en sera
 > fier, on exécute le §7 dans l'ordre.
+
+---
+
+## 8. DÉCISIONS VALIDÉES (15 juin 2026)
+
+- **DA** : **« Métro Clair » premium** (on garde la base claire/parisienne et on la
+  hisse en système cohérent).
+- **Mascotte** : **le poinçonneur** revisité avec **un côté mignon-animal façon
+  Ratatouille** (un petit rongeur/animal parisien en tenue de poinçonneur RATP).
+  Porte FTUE, vides, victoires, rappels de streak.
+- **Méthode** : **entonnoir** — on pose d'abord ce qui détermine le reste (les
+  fondations du palais), puis on monte la pyramide.
+
+### Exécution — état (funnel)
+1. ✅ **Fondation DA + habitude** : système d'icônes cohérent (`components/icons.tsx`,
+   fini les emojis système) + **barre de statut persistante** (`StatusBar` :
+   flamme de streak, rang, XP) + logique de rang partagée (`lib/rank.ts`).
+2. ⏭️ **Streak + récompense quotidienne + objectif du jour** (la flamme prend vie).
+3. ⏭️ **Mascotte poinçonneur-souris** (SVG) + style-guide une page.
+4. ⏭️ FTUE « apprendre en jouant » · Ligue hebdo · Pass de saison · Carte vivante.

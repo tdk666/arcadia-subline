@@ -1,28 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useI18n, type I18nKey, type Locale } from '../i18n';
+import { useI18n, type Locale } from '../i18n';
 import { backend } from '../lib/backend';
 import { LINE } from '../lib/content';
+import { rankLabel, rankProgress } from '../lib/rank';
 import { useArcadia } from '../store';
 import { AuthSheet } from '../components/AuthSheet';
 import { Button } from '../components/Button';
-
-/** Paliers d'XP des rangs — la courbe de progression. */
-const RANK_STEPS = [0, 800, 2000, 4000, 8000];
-
-/** Titre révolutionnaire selon l'XP — l'identité progresse avec la conquête. */
-function rankLabel(t: (k: I18nKey) => string, xp: number): string {
-  const tier = xp >= 8000 ? 'r5' : xp >= 4000 ? 'r4' : xp >= 2000 ? 'r3' : xp >= 800 ? 'r2' : xp > 0 ? 'r1' : 'r0';
-  return t(`profile.ranks.${tier}` as I18nKey);
-}
-
-/** Progression vers le rang suivant (courbe d'XP rendue visible). */
-function rankProgress(xp: number) {
-  const nextIdx = RANK_STEPS.findIndex((v) => xp < v);
-  if (nextIdx === -1) return { pct: 100, next: null as number | null, remaining: 0 };
-  const prev = RANK_STEPS[nextIdx - 1] ?? 0;
-  const next = RANK_STEPS[nextIdx];
-  return { pct: Math.round(((xp - prev) / (next - prev)) * 100), next, remaining: next - xp };
-}
 
 export function ProfileScreen() {
   const { t, locale, setLocale } = useI18n();
