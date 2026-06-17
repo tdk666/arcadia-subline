@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { getLineContent, LINE, NETWORK, type NetworkLine } from '../lib/content';
@@ -56,6 +56,7 @@ export function NetworkScreen() {
     { done: 0, total: 0 },
   );
   const heroLine = playableLines[0] ?? null;
+  const [zoom, setZoom] = useState(1);
   const playableCodes = useMemo(
     () => new Set(NETWORK.lines.filter((l) => l.status === 'playable').map((l) => l.code)),
     [],
@@ -91,10 +92,24 @@ export function NetworkScreen() {
         </div>
       </header>
 
-      {/* ── La carte : le réseau métro RÉEL (coordonnées + tracés IDFM) ── */}
-      <div className="mt-4 overflow-hidden rounded-2xl border border-rail bg-[#0d1726] shadow-[inset_0_2px_10px_rgba(0,0,0,0.4)]">
-        <div className="max-h-[58vh] overflow-y-auto overscroll-contain">
-          <NetworkMap playableCodes={playableCodes} onPickLine={openLineByCode} />
+      {/* ── La carte : le réseau métro RÉEL (coordonnées + tracés IDFM) ──
+          Carte vivante : zoom (+/−) et déplacement au doigt (scroll natif). */}
+      <div className="relative mt-4 overflow-hidden rounded-2xl border border-rail bg-[#0d1726] shadow-[inset_0_2px_10px_rgba(0,0,0,0.4)]">
+        <div className="max-h-[62vh] overflow-auto overscroll-contain">
+          <NetworkMap playableCodes={playableCodes} onPickLine={openLineByCode} zoom={zoom} />
+        </div>
+        {/* commandes de zoom (cibles tactiles confortables, ne défilent pas) */}
+        <div className="absolute right-2 top-2 flex flex-col overflow-hidden rounded-xl border border-white/15 bg-encre/80 backdrop-blur">
+          <button
+            type="button" aria-label="Zoom avant"
+            onClick={() => { tap(); setZoom((z) => Math.min(4, +(z + 0.5).toFixed(1))); }}
+            className="px-3.5 py-2 font-display text-xl leading-none text-white active:bg-white/15"
+          >+</button>
+          <button
+            type="button" aria-label="Zoom arrière" disabled={zoom <= 1}
+            onClick={() => { tap(); setZoom((z) => Math.max(1, +(z - 0.5).toFixed(1))); }}
+            className="border-t border-white/15 px-3.5 py-2 font-display text-xl leading-none text-white active:bg-white/15 disabled:opacity-30"
+          >−</button>
         </div>
         <p className="border-t border-rail/70 px-3 py-1.5 text-center font-mono text-[9px] uppercase tracking-widest text-pierre-faint/80">
           {t('network.mapHint', { stations: GEO_STATIONS.length })}

@@ -11,9 +11,11 @@ interface Props {
   /** Codes des lignes jouables (mises en avant + tactiles). */
   playableCodes: Set<string>;
   onPickLine?: (code: string) => void;
+  /** Facteur de zoom (1 = carte ajustée à la largeur ; >1 = on explore au scroll). */
+  zoom?: number;
 }
 
-export function NetworkMap({ playableCodes, onPickLine }: Props) {
+export function NetworkMap({ playableCodes, onPickLine, zoom = 1 }: Props) {
   const proj = useMemo(() => makeProjection(700), []);
 
   const linePaths = useMemo(
@@ -45,7 +47,8 @@ export function NetworkMap({ playableCodes, onPickLine }: Props) {
   return (
     <svg
       viewBox={`0 0 ${proj.width} ${proj.height.toFixed(0)}`}
-      className="block h-auto w-full"
+      className="block h-auto"
+      style={{ width: `${zoom * 100}%`, minWidth: '100%' }}
       role="img"
       aria-label="Carte géographique du réseau métro parisien"
     >
