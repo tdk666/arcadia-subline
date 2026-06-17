@@ -169,6 +169,13 @@ body {
 @keyframes seine-flow { to { stroke-dashoffset: -240; } }
 .animate-seine { stroke-dasharray: 9 13; animation: seine-flow 7s linear infinite; }
 
+/* halo qui respire sous la ligne JOUABLE de la carte réseau (la rendre évidente) */
+@keyframes line-pulse {
+  0%, 100% { opacity: 0.18; }
+  50% { opacity: 0.5; }
+}
+.animate-line-pulse { animation: line-pulse 2.4s ease-in-out infinite; }
+
 /* invite à pivoter le téléphone (mini-jeu paysage) */
 @keyframes rotate-hint {
   0%, 18% { transform: rotate(0deg); }
@@ -181,5 +188,5 @@ body {
   .animate-pop, .animate-slide-up, .animate-glow, .animate-ob-scene,
   .ob-line, .ob-station, .ob-train, .animate-stamp, .animate-shine,
   .animate-map-bob, .animate-map-pulse, .animate-seine,
-  .animate-rotate-hint { animation: none; }
+  .animate-line-pulse, .animate-rotate-hint { animation: none; }
 }

@@ -34,6 +34,13 @@ export function NetworkMap({ playableCodes, onPickLine }: Props) {
   );
 
   const hasFocus = playableCodes.size > 0;
+  // ordre de rendu : lignes « à venir » dessous, ligne JOUABLE par-dessus (z-order)
+  const ordered = useMemo(
+    () => [...linePaths].sort(
+      (a, b) => Number(playableCodes.has(a.line.code)) - Number(playableCodes.has(b.line.code)),
+    ),
+    [linePaths, playableCodes],
+  );
 
   return (
     <svg
@@ -44,19 +51,40 @@ export function NetworkMap({ playableCodes, onPickLine }: Props) {
     >
       <rect x="0" y="0" width={proj.width} height={proj.height} fill="#0d1726" />
 
-      {/* Tracés des lignes (ordre officiel des stations) */}
-      {linePaths.map(({ line, pts }) => (
-        <polyline
-          key={line.code}
-          points={pts}
-          fill="none"
-          stroke={line.color}
-          strokeWidth={playableCodes.has(line.code) ? 5.5 : 3.5}
-          strokeLinejoin="round"
-          strokeLinecap="round"
-          opacity={!hasFocus || playableCodes.has(line.code) ? 1 : 0.8}
-        />
-      ))}
+      {/* Tracés des lignes (ordre officiel des stations).
+          La ligne jouable RESSORT : trait épais + halo qui respire ; les lignes
+          « à venir » s'effacent en arrière-plan (loi DA « un seul CTA évident »). */}
+      {ordered.map(({ line, pts }) => {
+        const playable = playableCodes.has(line.code);
+        if (playable) {
+          return (
+            <g key={line.code}>
+              {/* halo pulsé sous la ligne jouable */}
+              <polyline
+                points={pts} fill="none" stroke={line.color} strokeWidth={13}
+                strokeLinejoin="round" strokeLinecap="round"
+                className="animate-line-pulse"
+              />
+              <polyline
+                points={pts} fill="none" stroke={line.color} strokeWidth={6}
+                strokeLinejoin="round" strokeLinecap="round" opacity={1}
+              />
+            </g>
+          );
+        }
+        return (
+          <polyline
+            key={line.code}
+            points={pts}
+            fill="none"
+            stroke={line.color}
+            strokeWidth={2.5}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            opacity={hasFocus ? 0.3 : 1}
+          />
+        );
+      })}
 
       {/* Stations (correspondances = pastilles claires plus grandes) */}
       {GEO_STATIONS.map((s) => {

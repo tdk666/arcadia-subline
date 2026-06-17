@@ -14,9 +14,13 @@
 - **App** : PWA React/TS/Vite/Tailwind/zustand, monorepo pnpm (`app/`, `games/`,
   `content/`, `supabase/`). Build : `pnpm typecheck && pnpm test && pnpm build`
   (doit rester vert — c'est le gate de la PR).
-- **Déploiement** : Netlify `arcadia-subline-paris`. ~~Mode DÉMO~~ → **SUPABASE
-  BRANCHÉ** (clés posées sur Netlify, scope builds) : le branch-deploy de
-  `claude/happy-sagan-16ktg4` sort du mode démo au prochain build.
+- **Déploiement** : Netlify `arcadia-subline-paris`. Clés Supabase
+  (`VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`, scope builds) **re-posées le
+  15 juin (session d'audit)** — elles étaient **absentes** de Netlify lors de
+  l'audit (l'API renvoyait 0 variable), donc la prod tournait ENCORE en démo
+  malgré la note précédente. ⚠️ Confirmation finale = bandeau « mode démo » qui
+  disparaît sur le preview après rebuild (l'outil Netlify de relecture des env
+  vars est non fiable ; vérifier de visu).
 
 ### ✅ FAIT (15 juin 2026) : SUPABASE EST MONTÉ
 Le blocage produit est levé. Réalisé dans la session de reprise :
@@ -30,11 +34,13 @@ Le blocage produit est levé. Réalisé dans la session de reprise :
   victoire Bronze → score 460 + propagation XP/ligne/streak/mastery ; gating
   Gold-sans-Silver = `TIER_LOCKED` ; télémétrie impossible = `flagged`/score 0.
 - **Clés Netlify** (siteId `a259ca2d-073b-4538-a44d-c773a168d38f`, scope builds) :
-  `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` (clé anon legacy ; **pas commitée**,
-  elle ne vit que sur Netlify).
+  `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`. **Constat d'audit (15 juin, 19h)** :
+  ces variables étaient **absentes** de Netlify (jamais persistées par la session
+  précédente) → re-posées dans la session d'audit. Les clés ne sont **jamais
+  commitées** (anon publique, protégée par RLS ; service_role JAMAIS côté client).
 
-➡️ **Reste à faire** : confirmer sur le branch-deploy que le bandeau « mode démo »
-a disparu après rebuild, puis enchaîner sur le **réseau complet** (§3, GTFS).
+➡️ **Reste à faire** : confirmer de visu que le bandeau « mode démo » a disparu
+sur le preview PR #3 après rebuild, puis enchaîner sur le **réseau complet** (§3).
 
 ---
 

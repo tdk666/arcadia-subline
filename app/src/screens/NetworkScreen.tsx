@@ -10,10 +10,10 @@ import { useArcadia } from '../store';
 /**
  * LE RÉSEAU — le plateau de plus haut niveau (au-dessus d'une ligne).
  * Inspiration assumée : la carte-monde d'un Pokémon GO (on choisit son territoire)
- * + la signalétique du métro parisien (pastilles de ligne colorées, lecture
- * instantanée). On ne prétend PAS à une géo exacte tant que le pipeline GTFS IDFM
- * n'a pas peuplé stations + coordonnées : le bandeau est un schéma décoratif, la
- * navigation se fait par les pastilles de ligne (cibles tactiles ≥ 56 px).
+ * + la signalétique du métro parisien. La carte est désormais GÉOGRAPHIQUE :
+ * vraies coordonnées + tracés IDFM (cf. NetworkMap / lib/geo), projetés en SVG
+ * offline-first. La ligne jouable ressort (halo pulsé) ; sous la carte, la liste
+ * des 16 lignes donne le statut (jouable / à venir) et la conquête.
  */
 
 /** Nombre de stations conquises sur une ligne jouable (MVP : M1 seule a du contenu). */
