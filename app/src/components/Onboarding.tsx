@@ -100,15 +100,24 @@ function SceneBastille() {
 
 const SCENES = [SceneEiffel, SceneNetwork, SceneBastille];
 
-export function Onboarding({ onDone }: { onDone: () => void }) {
+export function Onboarding({ onDone, onStart }: { onDone: () => void; onStart?: () => void }) {
   const { t } = useI18n();
   const [step, setStep] = useState(0);
   const Scene = SCENES[step];
   const key = (`s${step + 1}`) as 's1' | 's2' | 's3';
 
-  function finish() {
+  function mark() {
     localStorage.setItem(ONBOARDING_KEY, '1');
+  }
+  // « Passer » : on ferme, on reste sur la carte.
+  function finish() {
+    mark();
     onDone();
+  }
+  // CTA final : apprendre EN JOUANT → on enchaîne sur la 1re partie guidée.
+  function start() {
+    mark();
+    (onStart ?? onDone)();
   }
 
   return (
@@ -156,7 +165,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
             {t('common.continue')} →
           </Button>
         ) : (
-          <Button variant="gold" size="md" block={false} className="animate-glow" onClick={finish}>
+          <Button variant="gold" size="md" block={false} className="animate-glow" onClick={start}>
             ⚜ {t('onboarding.cta')}
           </Button>
         )}

@@ -219,4 +219,8 @@ ne doit jamais rendre le jeu anxiogène (garder « la culture jamais imposée »
    `app/public/mascotte/poinconneur.png` (hors précache PWA, chargée à la demande).
    _À affiner plus tard : logo de l'app sur la casquette ; poses dédiées
    (joyeux/pouce levé/endormi) à découper depuis la feuille d'expressions._
-4. ⏭️ FTUE « apprendre en jouant » · Ligue hebdo · Pass de saison · Carte vivante.
+4. ✅ **FTUE « apprendre en jouant »** : l'onboarding (remonté dans le routeur via
+   AppLayout) enchaîne le CTA final **direct sur la 1re partie guidée** (Bastille
+   Bronze) ; « Passer » reste sur la carte. Le poinçonneur accueille au dernier écran.
+5. ⏭️ **Carte vivante** (PROCHAIN) : stations tappables, labels au zoom, « tu es ici ».
+6. ⏭️ Ligue hebdo · Pass de saison.

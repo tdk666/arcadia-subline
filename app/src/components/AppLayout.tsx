@@ -1,10 +1,15 @@
-import { NavLink, Outlet } from 'react-router-dom';
-import type { ReactNode } from 'react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useEffect, useState, type ReactNode } from 'react';
 import { backend } from '../lib/backend';
 import { useI18n } from '../i18n';
 import { StatusBar } from './StatusBar';
 import { DailyReward } from './DailyReward';
+import { Onboarding, ONBOARDING_KEY } from './Onboarding';
+import { isPlayable } from '../lib/content';
 import { IconNetwork, IconCollection, IconLeague, IconProfile } from './icons';
+
+/** Station du tout premier défi guidé (FTUE « apprendre en jouant »). */
+const FIRST_GAME = '/play/bastille/bronze';
 
 function Tab({ to, label, icon }: { to: string; label: string; icon: ReactNode }) {
   return (
@@ -24,6 +29,16 @@ function Tab({ to, label, icon }: { to: string; label: string; icon: ReactNode }
 
 export function AppLayout() {
   const { t } = useI18n();
+  const navigate = useNavigate();
+  const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem(ONBOARDING_KEY));
+
+  // l'intro peut être rejouée depuis le profil
+  useEffect(() => {
+    const handler = () => setShowOnboarding(true);
+    window.addEventListener('arcadia:replay-intro', handler);
+    return () => window.removeEventListener('arcadia:replay-intro', handler);
+  }, []);
+
   return (
     <div className="safe-top mx-auto flex h-full max-w-md flex-col">
       {backend.mode === 'demo' && (
@@ -45,6 +60,16 @@ export function AppLayout() {
         <Tab to="/profile" label={t('nav.profile')} icon={<IconProfile size={22} />} />
       </nav>
       <DailyReward />
+      {showOnboarding && (
+        <Onboarding
+          onDone={() => setShowOnboarding(false)}
+          onStart={() => {
+            setShowOnboarding(false);
+            // apprendre en jouant : on enchaîne direct sur le 1er défi guidé
+            if (isPlayable('bastille')) navigate(FIRST_GAME);
+          }}
+        />
+      )}
     </div>
   );
 }
