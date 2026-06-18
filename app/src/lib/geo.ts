@@ -89,6 +89,22 @@ export function stationsOnLines(codes: Set<string>): Set<string> {
   return out;
 }
 
+/** Emprise géographique des lignes jouables (pour cadrer la caméra à l'ouverture). */
+export function playableBounds(codes: Set<string>): [[number, number], [number, number]] | null {
+  let minLon = Infinity, minLat = Infinity, maxLon = -Infinity, maxLat = -Infinity, any = false;
+  for (const l of GEO_LINES) {
+    if (!codes.has(l.code)) continue;
+    for (const slug of l.stops) {
+      const s = geoStation(slug);
+      if (!s) continue;
+      any = true;
+      minLon = Math.min(minLon, s.lon); maxLon = Math.max(maxLon, s.lon);
+      minLat = Math.min(minLat, s.lat); maxLat = Math.max(maxLat, s.lat);
+    }
+  }
+  return any ? [[minLon, minLat], [maxLon, maxLat]] : null;
+}
+
 export interface Projection {
   width: number;
   height: number;
