@@ -11,6 +11,18 @@ export const fr = {
     mapHint: 'Réseau réel · {stations} stations · 16 lignes · données IDFM — touche la Ligne 1 pour jouer',
     footnote: 'Stations, tracés et couleurs réels issus des données ouvertes Île-de-France Mobilités.',
   },
+  daily: {
+    streakTitle: 'Ta série',
+    title: 'Objectif du jour',
+    todo: 'Gagne {n} défi aujourd’hui', todoPlural: 'Gagne {n} défis aujourd’hui',
+    done: 'Objectif du jour atteint !',
+    atRisk: 'Joue aujourd’hui pour garder ta série',
+    reward: {
+      title: 'Série +1 !',
+      body: '{n} jours d’affilée. Reviens demain pour la garder.',
+      cta: 'Continuer',
+    },
+  },
   common: {
     back: 'Retour', cancel: 'Annuler', loading: 'Chargement…', retry: 'Réessayer',
     soon: 'Bientôt', error: 'Une erreur est survenue', offline: 'Hors connexion',

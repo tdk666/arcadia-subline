@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { backend } from '../lib/backend';
 import { useI18n } from '../i18n';
 import { StatusBar } from './StatusBar';
+import { DailyReward } from './DailyReward';
 import { IconNetwork, IconCollection, IconLeague, IconProfile } from './icons';
 
 function Tab({ to, label, icon }: { to: string; label: string; icon: ReactNode }) {
@@ -43,6 +44,7 @@ export function AppLayout() {
         <Tab to="/leaderboard" label={t('nav.leaderboard')} icon={<IconLeague size={22} />} />
         <Tab to="/profile" label={t('nav.profile')} icon={<IconProfile size={22} />} />
       </nav>
+      <DailyReward />
     </div>
   );
 }

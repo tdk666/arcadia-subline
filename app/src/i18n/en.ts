@@ -13,6 +13,18 @@ export const en: Dict = {
     mapHint: 'Real network · {stations} stations · 16 lines · IDFM data — tap Line 1 to play',
     footnote: 'Real stations, routes and colors from Île-de-France Mobilités open data.',
   },
+  daily: {
+    streakTitle: 'Your streak',
+    title: 'Daily goal',
+    todo: 'Win {n} challenge today', todoPlural: 'Win {n} challenges today',
+    done: 'Daily goal complete!',
+    atRisk: 'Play today to keep your streak',
+    reward: {
+      title: 'Streak +1!',
+      body: '{n} days in a row. Come back tomorrow to keep it.',
+      cta: 'Continue',
+    },
+  },
   common: {
     back: 'Back', cancel: 'Cancel', loading: 'Loading…', retry: 'Retry',
     soon: 'Soon', error: 'Something went wrong', offline: 'Offline',

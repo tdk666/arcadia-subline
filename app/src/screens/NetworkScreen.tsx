@@ -4,6 +4,7 @@ import { useI18n } from '../i18n';
 import { getLineContent, LINE, NETWORK, type NetworkLine } from '../lib/content';
 import { GEO_STATIONS } from '../lib/geo';
 import { NetworkMap } from '../components/NetworkMap';
+import { DailyObjective } from '../components/DailyObjective';
 import { tap } from '../lib/feedback';
 import { useArcadia } from '../store';
 
@@ -91,6 +92,9 @@ export function NetworkScreen() {
           <p className="font-mono text-[9px] uppercase tracking-widest text-pierre-faint">{t('network.progress')}</p>
         </div>
       </header>
+
+      {/* ── Objectif du jour : la raison de revenir chaque jour (habitude) ── */}
+      <DailyObjective />
 
       {/* ── La carte : le réseau métro RÉEL (coordonnées + tracés IDFM) ──
           Carte vivante : zoom (+/−) et déplacement au doigt (scroll natif). */}

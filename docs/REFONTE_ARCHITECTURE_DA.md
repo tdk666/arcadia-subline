@@ -209,6 +209,9 @@ ne doit jamais rendre le jeu anxiogène (garder « la culture jamais imposée »
 1. ✅ **Fondation DA + habitude** : système d'icônes cohérent (`components/icons.tsx`,
    fini les emojis système) + **barre de statut persistante** (`StatusBar` :
    flamme de streak, rang, XP) + logique de rang partagée (`lib/rank.ts`).
-2. ⏭️ **Streak + récompense quotidienne + objectif du jour** (la flamme prend vie).
+2. ✅ **Streak + objectif du jour + récompense quotidienne** : couche d'habitude
+   locale (`lib/daily.ts`, testée), `DailyObjective` sur l'accueil, `DailyReward`
+   global, la flamme de la `StatusBar` reflète la série vivante (aversion à la
+   perte). Marche en démo comme en Supabase.
 3. ⏭️ **Mascotte poinçonneur-souris** (SVG) + style-guide une page.
 4. ⏭️ FTUE « apprendre en jouant » · Ligue hebdo · Pass de saison · Carte vivante.

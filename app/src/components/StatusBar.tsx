@@ -9,12 +9,14 @@ import { backend } from '../lib/backend';
 import { useI18n } from '../i18n';
 import { useArcadia } from '../store';
 import { rankLabel } from '../lib/rank';
+import { liveStreak, doneToday } from '../lib/daily';
 import { IconFlame } from './icons';
 
 export function StatusBar() {
   const { t } = useI18n();
   const user = useArcadia((s) => s.user);
   const lastResult = useArcadia((s) => s.lastResult); // re-lecture après une partie
+  const daily = useArcadia((s) => s.daily);
   const [stats, setStats] = useState<{ xpTotal: number; streak: number } | null>(null);
 
   useEffect(() => {
@@ -24,12 +26,13 @@ export function StatusBar() {
   }, [user, lastResult]);
 
   const xp = stats?.xpTotal ?? 0;
-  const streak = stats?.streak ?? 0;
+  const streak = liveStreak(daily);
+  const safe = doneToday(daily); // objectif du jour atteint → flamme « assurée »
 
   return (
     <div className="flex items-center justify-between gap-3 border-b border-rail/70 bg-craie-2/80 px-4 py-1.5 backdrop-blur">
-      <div className="flex items-center gap-1.5" title={t('profile.streak')}>
-        <IconFlame size={18} className={streak > 0 ? 'text-ambre' : 'text-pierre-faint/60'} />
+      <div className="flex items-center gap-1.5" title={t('daily.streakTitle')}>
+        <IconFlame size={18} className={streak > 0 ? (safe ? 'text-vermillon' : 'text-ambre') : 'text-pierre-faint/50'} />
         <span className={`font-display text-sm font-extrabold tabular-nums ${streak > 0 ? 'text-pierre' : 'text-pierre-faint'}`}>
           {streak}
         </span>

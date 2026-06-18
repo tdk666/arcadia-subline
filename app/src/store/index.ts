@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { TIER_ORDER, type DifficultyTier, type GameAnswers } from '@arcadia/games';
 import { backend, type AttemptResult, type BackendUser } from '../lib/backend';
+import { advanceDaily, INITIAL_DAILY, type DailyState } from '../lib/daily';
 
 /** Tentative gagnée en invité, à rejouer côté serveur après création du compte. */
 export interface PendingAttempt {
@@ -30,9 +31,13 @@ interface ArcadiaState {
   localBest: Record<string, number>; // questId → meilleur score vu
   pending: PendingAttempt[];
   lastResult: LastResult | null;
+  /** Couche d'habitude quotidienne (streak / objectif du jour). */
+  daily: DailyState;
 
   recordResult: (r: LastResult) => void;
   queuePending: (p: PendingAttempt) => void;
+  /** Consomme la récompense de série après l'avoir célébrée. */
+  clearDailyReward: () => void;
   /** Rejoue les tentatives invitées via fn_submit_attempt (post-signup). */
   flushPending: () => Promise<void>;
   highestTierWon: (slug: string) => DifficultyTier | null;
@@ -54,6 +59,7 @@ export const useArcadia = create<ArcadiaState>()(
       localBest: {},
       pending: [],
       lastResult: null,
+      daily: INITIAL_DAILY,
 
       recordResult: (r) => {
         set((s) => {
@@ -64,10 +70,14 @@ export const useArcadia = create<ArcadiaState>()(
             next.tiersWon = { ...s.tiersWon, [r.slug]: TIER_ORDER.filter((t) => won.has(t)) };
             next.mastery = { ...s.mastery, [r.slug]: Math.max(s.mastery[r.slug] ?? 0, r.mastery) };
             next.storyUnlocked = { ...s.storyUnlocked, [r.slug]: true };
+            // une victoire propre fait avancer l'objectif du jour / la série
+            next.daily = advanceDaily(s.daily);
           }
           return next;
         });
       },
+
+      clearDailyReward: () => set((s) => ({ daily: { ...s.daily, rewardPending: false } })),
 
       queuePending: (p) => {
         set((s) => ({
@@ -116,6 +126,7 @@ export const useArcadia = create<ArcadiaState>()(
         storyUnlocked: s.storyUnlocked,
         localBest: s.localBest,
         pending: s.pending,
+        daily: s.daily,
       }),
     },
   ),
