@@ -11,6 +11,9 @@ export const fr = {
     mapHint: 'Réseau réel · {stations} stations · 16 lignes · données IDFM — touche la Ligne 1 pour jouer',
     footnote: 'Stations, tracés et couleurs réels issus des données ouvertes Île-de-France Mobilités.',
   },
+  shop: {
+    coins: 'Jetons',
+  },
   daily: {
     streakTitle: 'Ta série',
     title: 'Objectif du jour',

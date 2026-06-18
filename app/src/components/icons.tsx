@@ -89,6 +89,17 @@ export function IconStar(p: IconProps) {
   );
 }
 
+/** Jeton — la monnaie du jeu (pièce frappée façon jeton de métro). */
+export function IconToken(p: IconProps) {
+  return (
+    <svg {...base(p)}>
+      <circle cx="12" cy="12" r="8.5" fill="currentColor" />
+      <circle cx="12" cy="12" r="6" fill="none" stroke="#15110c" strokeOpacity="0.35" strokeWidth="1.2" />
+      <path d="M12 8.5 V15.5 M9.2 12 H14.8" stroke="#15110c" strokeOpacity="0.55" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /** Cadenas — contenu verrouillé. */
 export function IconLock(p: IconProps) {
   return (

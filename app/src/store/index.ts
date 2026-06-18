@@ -33,6 +33,8 @@ interface ArcadiaState {
   lastResult: LastResult | null;
   /** Couche d'habitude quotidienne (streak / objectif du jour). */
   daily: DailyState;
+  /** Jetons — monnaie gagnée en jouant (substrat de la future boutique). */
+  coins: number;
 
   recordResult: (r: LastResult) => void;
   queuePending: (p: PendingAttempt) => void;
@@ -60,6 +62,7 @@ export const useArcadia = create<ArcadiaState>()(
       pending: [],
       lastResult: null,
       daily: INITIAL_DAILY,
+      coins: 0,
 
       recordResult: (r) => {
         set((s) => {
@@ -72,6 +75,8 @@ export const useArcadia = create<ArcadiaState>()(
             next.storyUnlocked = { ...s.storyUnlocked, [r.slug]: true };
             // une victoire propre fait avancer l'objectif du jour / la série
             next.daily = advanceDaily(s.daily);
+            // jetons gagnés selon le palier (récompense immédiate + substrat boutique)
+            next.coins = s.coins + ({ bronze: 10, silver: 20, gold: 30 } as const)[r.tier];
           }
           return next;
         });
@@ -127,6 +132,7 @@ export const useArcadia = create<ArcadiaState>()(
         localBest: s.localBest,
         pending: s.pending,
         daily: s.daily,
+        coins: s.coins,
       }),
     },
   ),

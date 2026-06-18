@@ -13,6 +13,9 @@ export const en: Dict = {
     mapHint: 'Real network · {stations} stations · 16 lines · IDFM data — tap Line 1 to play',
     footnote: 'Real stations, routes and colors from Île-de-France Mobilités open data.',
   },
+  shop: {
+    coins: 'Tokens',
+  },
   daily: {
     streakTitle: 'Your streak',
     title: 'Daily goal',
