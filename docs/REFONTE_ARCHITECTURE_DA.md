@@ -222,5 +222,12 @@ ne doit jamais rendre le jeu anxiogène (garder « la culture jamais imposée »
 4. ✅ **FTUE « apprendre en jouant »** : l'onboarding (remonté dans le routeur via
    AppLayout) enchaîne le CTA final **direct sur la 1re partie guidée** (Bastille
    Bronze) ; « Passer » reste sur la carte. Le poinçonneur accueille au dernier écran.
-5. ⏭️ **Carte vivante** (PROCHAIN) : stations tappables, labels au zoom, « tu es ici ».
+5. ✅ **Carte vivante — moteur WebGL réel** (MapLibre GL JS + tuiles vectorielles
+   OpenFreeMap/OSM, comme Citymapper ; caméra 3D inclinée + extrusion des bâtiments,
+   comme Pokémon GO). La carte EST l'accueil (plein écran, lazy-chunk ~295 Ko gz).
+   Nos lignes + 321 stations réelles en overlays GeoJSON ; ligne jouable mise en
+   avant + halo ; **labels de stations au zoom** ; **stations/lignes tappables** ;
+   **géolocalisation native + suivi** (« tu es ici »). CTA héros flottant.
+   _Suite : style DA sur-mesure (custom style JSON), offline via Protomaps PMTiles
+   (pilier « line-pack »), focus caméra initial sur ta ligne._
 6. ⏭️ Ligue hebdo · Pass de saison.

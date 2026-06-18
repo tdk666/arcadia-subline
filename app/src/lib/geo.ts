@@ -49,6 +49,46 @@ export function linesAt(slug: string): number {
   return LINE_COUNT.get(slug) ?? 0;
 }
 
+/* ── GeoJSON pour MapLibre (carte WebGL réelle) ──────────────────────────── */
+import type { FeatureCollection, LineString, Point } from 'geojson';
+
+/** Tracés des lignes en GeoJSON (LineString par ligne, dans l'ordre officiel). */
+export function lineFeatureCollection(playable: Set<string>): FeatureCollection<LineString> {
+  return {
+    type: 'FeatureCollection',
+    features: GEO_LINES.map((l) => ({
+      type: 'Feature',
+      properties: { code: l.code, name: l.name, color: l.color, playable: playable.has(l.code) },
+      geometry: {
+        type: 'LineString',
+        coordinates: l.stops
+          .map((s) => geoStation(s))
+          .filter((s): s is GeoStation => !!s)
+          .map((s) => [s.lon, s.lat]),
+      },
+    })),
+  };
+}
+
+/** Stations en GeoJSON (Point), avec drapeau correspondance + jouable. */
+export function stationFeatureCollection(playableSlugs: Set<string>): FeatureCollection<Point> {
+  return {
+    type: 'FeatureCollection',
+    features: GEO_STATIONS.map((s) => ({
+      type: 'Feature',
+      properties: { slug: s.slug, name: s.name, interchange: linesAt(s.slug) > 1, playable: playableSlugs.has(s.slug) },
+      geometry: { type: 'Point', coordinates: [s.lon, s.lat] },
+    })),
+  };
+}
+
+/** Slugs des stations desservies par au moins une ligne jouable. */
+export function stationsOnLines(codes: Set<string>): Set<string> {
+  const out = new Set<string>();
+  for (const l of GEO_LINES) if (codes.has(l.code)) for (const s of l.stops) out.add(s);
+  return out;
+}
+
 export interface Projection {
   width: number;
   height: number;
