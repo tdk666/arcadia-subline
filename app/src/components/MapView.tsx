@@ -70,13 +70,30 @@ export function MapView({ playableCodes, onPickLine }: Props) {
     });
 
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
-    map.addControl(
-      new maplibregl.GeolocateControl({
-        positionOptions: { enableHighAccuracy: true },
-        trackUserLocation: true,     // suit la localisation (le « jeu du métro »)
-      }),
-      'top-right',
-    );
+    const geo = new maplibregl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: true },
+      trackUserLocation: true,     // suit la localisation (le « jeu du métro »)
+      showUserLocation: false,     // on remplace le point bleu par NOTRE avatar-mascotte
+    });
+    map.addControl(geo, 'top-right');
+
+    // ── AVATAR : la mascotte posée à ta position, qui te suit (façon Pokémon GO) ──
+    let avatar: maplibregl.Marker | null = null;
+    geo.on('geolocate', (e) => {
+      const c = (e as GeolocationPosition).coords;
+      const lngLat: [number, number] = [c.longitude, c.latitude];
+      if (!avatar) {
+        const el = document.createElement('div');
+        el.className = 'arcadia-avatar';
+        const img = document.createElement('img');
+        img.src = '/mascotte/poinconneur.png';
+        img.alt = '';
+        el.appendChild(img);
+        avatar = new maplibregl.Marker({ element: el, anchor: 'bottom' }).setLngLat(lngLat).addTo(map);
+      } else {
+        avatar.setLngLat(lngLat);
+      }
+    });
 
     map.on('load', () => {
       curate(map);

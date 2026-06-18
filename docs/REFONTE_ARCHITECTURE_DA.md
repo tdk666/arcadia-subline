@@ -228,6 +228,9 @@ ne doit jamais rendre le jeu anxiogène (garder « la culture jamais imposée »
    Nos lignes + 321 stations réelles en overlays GeoJSON ; ligne jouable mise en
    avant + halo ; **labels de stations au zoom** ; **stations/lignes tappables** ;
    **géolocalisation native + suivi** (« tu es ici »). CTA héros flottant.
-   _Suite : style DA sur-mesure (custom style JSON), offline via Protomaps PMTiles
-   (pilier « line-pack »), focus caméra initial sur ta ligne._
-6. ⏭️ Ligue hebdo · Pass de saison.
+   Fond épuré « positron » recoloré « Métro Clair » + anti-densité (ligne jouable
+   en ruban jaune, reste dégressif au zoom) + cadrage initial sur ta ligne.
+   **Avatar-mascotte géolocalisé** (façon Pokémon GO) : le poinçonneur posé à ta
+   position, qui te suit (remplace le point bleu).
+   _Suite : style 100 % sur-mesure, offline Protomaps PMTiles, pins de station custom._
+6. ⏭️ **Boutique de cosmétiques** (avatar customisable, monnaie) · Ligue hebdo · Pass de saison.

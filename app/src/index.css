@@ -176,6 +176,23 @@ body {
 }
 .animate-line-pulse { animation: line-pulse 2.4s ease-in-out infinite; }
 
+/* avatar-mascotte posé à ta position sur la carte (façon Pokémon GO) */
+.arcadia-avatar { position: relative; width: 56px; height: 60px; pointer-events: none; }
+.arcadia-avatar img {
+  position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+  width: 52px; height: 52px; object-fit: contain;
+  filter: drop-shadow(0 4px 5px rgba(0,0,0,0.4));
+}
+.arcadia-avatar::after {
+  content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+  width: 24px; height: 8px; border-radius: 50%;
+  background: rgba(10,90,158,0.4); animation: avatar-ring 2s ease-in-out infinite;
+}
+@keyframes avatar-ring {
+  0%, 100% { opacity: 0.4; width: 22px; }
+  50% { opacity: 0.8; width: 34px; }
+}
+
 /* invite à pivoter le téléphone (mini-jeu paysage) */
 @keyframes rotate-hint {
   0%, 18% { transform: rotate(0deg); }
@@ -188,5 +205,5 @@ body {
   .animate-pop, .animate-slide-up, .animate-glow, .animate-ob-scene,
   .ob-line, .ob-station, .ob-train, .animate-stamp, .animate-shine,
   .animate-map-bob, .animate-map-pulse, .animate-seine,
-  .animate-line-pulse, .animate-rotate-hint { animation: none; }
+  .animate-line-pulse, .arcadia-avatar::after, .animate-rotate-hint { animation: none; }
 }
