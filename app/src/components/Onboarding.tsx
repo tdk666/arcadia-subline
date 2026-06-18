@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { useI18n } from '../i18n';
 import { Button } from './Button';
+import { Mascotte } from './Mascotte';
 
 export const ONBOARDING_KEY = 'arcadia.onboarded.v1';
 
@@ -125,6 +126,9 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
       </div>
 
       <div key={`txt-${step}`} className="animate-slide-up flex min-h-0 flex-[2] flex-col overflow-y-auto px-7 pt-2">
+        {step === SCENES.length - 1 && (
+          <Mascotte size={84} className="animate-pop mb-1 drop-shadow-[0_6px_10px_rgba(0,0,0,0.18)]" />
+        )}
         <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-vermillon">
           {t(`onboarding.${key}.kicker`)}
         </p>

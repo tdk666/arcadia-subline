@@ -213,5 +213,10 @@ ne doit jamais rendre le jeu anxiogène (garder « la culture jamais imposée »
    locale (`lib/daily.ts`, testée), `DailyObjective` sur l'accueil, `DailyReward`
    global, la flamme de la `StatusBar` reflète la série vivante (aversion à la
    perte). Marche en démo comme en Supabase.
-3. ⏭️ **Mascotte poinçonneur-souris** (SVG) + style-guide une page.
+3. ✅ **Mascotte « le poinçonneur »** (souris contrôleuse, rendu 3D premium type
+   Ratatouille, générée via Gemini/Nano Banana 2) + **style-guide** une page.
+   Intégrée : récompense de série, onboarding (le guide), classement vide.
+   `app/public/mascotte/poinconneur.png` (hors précache PWA, chargée à la demande).
+   _À affiner plus tard : logo de l'app sur la casquette ; poses dédiées
+   (joyeux/pouce levé/endormi) à découper depuis la feuille d'expressions._
 4. ⏭️ FTUE « apprendre en jouant » · Ligue hebdo · Pass de saison · Carte vivante.
