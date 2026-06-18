@@ -32,23 +32,25 @@ export class SupabaseBackend implements ArcadiaBackend {
     return () => data.subscription.unsubscribe();
   }
 
-  async signUp(email: string, password: string, displayName: string): Promise<{ error?: string }> {
+  async signUp(email: string, password: string, displayName: string): Promise<{ error?: string; needsConfirm?: boolean }> {
     const { data, error } = await this.sb.auth.signUp({
       email, password,
       options: { data: { display_name: displayName } },
     });
     if (error) return { error: error.message };
-    // Le trigger d'auto-provisionnement est désactivé en 0004 : on crée le
-    // profil players nous-mêmes (RLS : insert de son propre id autorisé).
-    if (data.user) {
+    // Le profil players est créé par le trigger SECURITY DEFINER (migration 0013).
+    // Filet de secours si le trigger n'est pas encore appliqué ET qu'une session
+    // existe (sinon la RLS bloque, c'est normal — le trigger prend le relais).
+    if (data.user && data.session) {
       await this.sb.from('players')
         .insert({ id: data.user.id, display_name: displayName })
         .then(({ error: e }) => {
-          // 23505 = profil déjà créé (re-signup) : bénin
           if (e && e.code !== '23505') console.warn('players insert:', e.message);
         });
     }
-    return {};
+    // Pas de session = confirmation e-mail requise (réglage Supabase) : on le dit
+    // clairement plutôt que de laisser croire à un échec.
+    return data.session ? {} : { needsConfirm: true };
   }
 
   async signIn(email: string, password: string): Promise<{ error?: string }> {

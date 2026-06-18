@@ -50,7 +50,7 @@ export interface ArcadiaBackend {
 
   getUser(): Promise<BackendUser | null>;
   onAuthChange(cb: (user: BackendUser | null) => void): () => void;
-  signUp(email: string, password: string, displayName: string): Promise<{ error?: string }>;
+  signUp(email: string, password: string, displayName: string): Promise<{ error?: string; needsConfirm?: boolean }>;
   signIn(email: string, password: string): Promise<{ error?: string }>;
   signOut(): Promise<void>;
 

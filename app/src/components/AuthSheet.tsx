@@ -15,6 +15,7 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
   const [displayName, setDisplayName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmSent, setConfirmSent] = useState(false);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -26,6 +27,7 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
         : await backend.signIn(email, password);
     setBusy(false);
     if (res.error) setError(res.error);
+    else if ('needsConfirm' in res && res.needsConfirm) setConfirmSent(true);
     else onClose();
   }
 
@@ -38,8 +40,20 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
         <h2 className="font-display text-xl font-extrabold tracking-tight">
           {mode === 'signup' ? t('auth.signupTitle') : t('auth.loginTitle')}
         </h2>
-        {intro && <p className="mt-1 text-sm text-pierre-dim">{intro}</p>}
+        {intro && !confirmSent && <p className="mt-1 text-sm text-pierre-dim">{intro}</p>}
 
+        {confirmSent ? (
+          <div className="mt-4 text-center">
+            <p className="text-sm text-pierre">✉ {t('auth.confirmSent', { email })}</p>
+            <button
+              type="button"
+              className="mt-4 w-full rounded-xl border border-rail py-2.5 text-sm text-pierre-dim active:bg-plomb-hi"
+              onClick={onClose}
+            >
+              {t('common.continue')}
+            </button>
+          </div>
+        ) : (
         <form onSubmit={submit} className="mt-4 flex flex-col gap-3">
           {mode === 'signup' && (
             <input
@@ -75,14 +89,17 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
             {busy ? t('common.loading') : mode === 'signup' ? t('auth.signup') : t('auth.login')}
           </Button>
         </form>
+        )}
 
-        <button
-          type="button"
-          className="mt-3 w-full text-center text-xs text-pierre-dim underline-offset-2 active:underline"
-          onClick={() => setMode(mode === 'signup' ? 'login' : 'signup')}
-        >
-          {mode === 'signup' ? t('auth.toLogin') : t('auth.toSignup')}
-        </button>
+        {!confirmSent && (
+          <button
+            type="button"
+            className="mt-3 w-full text-center text-xs text-pierre-dim underline-offset-2 active:underline"
+            onClick={() => setMode(mode === 'signup' ? 'login' : 'signup')}
+          >
+            {mode === 'signup' ? t('auth.toLogin') : t('auth.toSignup')}
+          </button>
+        )}
       </div>
     </div>
   );

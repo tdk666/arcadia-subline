@@ -111,9 +111,21 @@ export function MapView({ playableCodes, onPickLine }: Props) {
         type: 'line',
         filter: ['==', ['get', 'playable'], true],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
-        paint: { 'line-color': ['get', 'color'], 'line-width': 16, 'line-opacity': 0.22, 'line-blur': 8 },
+        paint: { 'line-color': ['get', 'color'], 'line-width': 18, 'line-opacity': 0.22, 'line-blur': 8 },
       });
-      // tracés : jouable héros (épais, opaque) ; « à venir » discrètes
+      // liseré blanc sous la ligne jouable → ruban net « plan de métro » (premium)
+      map.addLayer({
+        id: 'lines-casing',
+        source: 'metro-lines',
+        type: 'line',
+        filter: ['==', ['get', 'playable'], true],
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': '#fffdf7',
+          'line-width': ['interpolate', ['linear'], ['zoom'], 10, 8, 14, 12],
+        },
+      });
+      // tracés : jouable héros (ruban épais opaque) ; « à venir » discrètes
       map.addLayer({
         id: 'lines',
         source: 'metro-lines',
@@ -122,9 +134,9 @@ export function MapView({ playableCodes, onPickLine }: Props) {
         paint: {
           'line-color': ['get', 'color'],
           'line-width': ['interpolate', ['linear'], ['zoom'],
-            10, ['case', ['get', 'playable'], 4.5, 1.2],
-            14, ['case', ['get', 'playable'], 8, 2.6]],
-          'line-opacity': ['case', ['get', 'playable'], 1, 0.35],
+            10, ['case', ['get', 'playable'], 5.5, 1.2],
+            14, ['case', ['get', 'playable'], 9, 2.6]],
+          'line-opacity': ['case', ['get', 'playable'], 1, 0.32],
         },
       });
 
@@ -143,17 +155,18 @@ export function MapView({ playableCodes, onPickLine }: Props) {
           'circle-opacity': 0.7,
         },
       });
-      // stations jouables : toujours visibles, mises en avant
+      // stations jouables : pastilles « plan de métro » (blanc, fin liseré encre)
+      // discrètes en ville pour laisser le ruban jaune dominer, nettes au zoom
       map.addLayer({
         id: 'stations',
         source: 'metro-stations',
         type: 'circle',
         filter: ['==', ['get', 'playable'], true],
         paint: {
-          'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, ['case', ['get', 'interchange'], 4, 3], 15, ['case', ['get', 'interchange'], 8, 6]],
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, ['case', ['get', 'interchange'], 3, 2.2], 15, ['case', ['get', 'interchange'], 6.5, 5]],
           'circle-color': '#fffdf7',
-          'circle-stroke-color': '#0a5a9e',
-          'circle-stroke-width': 2.4,
+          'circle-stroke-color': '#1f1812',
+          'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 10, 1.2, 15, 2],
         },
       });
       // libellés au zoom (jouables d'abord)

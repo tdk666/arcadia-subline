@@ -151,6 +151,7 @@ export const fr = {
       demoMode: 'Mode démo : ajoute tes clés Supabase pour activer les comptes.',
     },
     pendingSync: 'Tes victoires invitées vont être enregistrées…',
+    confirmSent: 'Compte créé ! Confirme ton e-mail ({email}) pour te connecter.',
   },
   leaderboard: {
     title: 'Classement', subtitle: 'Ligne 1 — conquiers ta ligne',

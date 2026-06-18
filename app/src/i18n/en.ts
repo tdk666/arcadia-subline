@@ -153,6 +153,7 @@ export const en: Dict = {
       demoMode: 'Demo mode: add your Supabase keys to enable accounts.',
     },
     pendingSync: 'Saving your guest victories…',
+    confirmSent: 'Account created! Confirm your e-mail ({email}) to sign in.',
   },
   leaderboard: {
     title: 'Ranking', subtitle: 'Line 1 — conquer your line',
