@@ -12,7 +12,6 @@ import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import {
-  GEO_LINES,
   lineFeatureCollection,
   playableBounds,
   stationFeatureCollection,
@@ -27,7 +26,7 @@ const PARIS: [number, number] = [2.3488, 48.8534];
 
 interface Props {
   playableCodes: Set<string>;
-  onPickLine: (code: string) => void;
+  onStation: (slug: string, name: string) => void;
 }
 
 /** Recolore « Métro Clair » + retire le bruit. Tout est gardé (style tiers). */
@@ -48,17 +47,13 @@ function curate(map: maplibregl.Map) {
   }
 }
 
-export function MapView({ playableCodes, onPickLine }: Props) {
+export function MapView({ playableCodes, onStation }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const onPick = useRef(onPickLine);
-  onPick.current = onPickLine;
+  const onStationRef = useRef(onStation);
+  onStationRef.current = onStation;
 
   useEffect(() => {
     if (!ref.current) return;
-    const slugToPlayLine = new Map<string, string>();
-    for (const l of GEO_LINES) {
-      if (playableCodes.has(l.code)) for (const s of l.stops) if (!slugToPlayLine.has(s)) slugToPlayLine.set(s, l.code);
-    }
 
     const map = new maplibregl.Map({
       container: ref.current,
@@ -211,22 +206,29 @@ export function MapView({ playableCodes, onPickLine }: Props) {
       const b = playableBounds(playableCodes);
       if (b) map.fitBounds(b, { padding: 48, maxZoom: 13.5, bearing: -17, pitch: 50, duration: 0 });
 
-      const pick = (e: maplibregl.MapLayerMouseEvent) => {
+      // tap STATION → fiche en bottom-sheet (tout vit sur la carte, zéro aller-retour)
+      const pickStation = (e: maplibregl.MapLayerMouseEvent) => {
         const f = e.features?.[0];
         if (!f) return;
-        const props = f.properties as { code?: string; slug?: string; name?: string };
-        const code = props.code ?? (props.slug ? slugToPlayLine.get(props.slug) : undefined);
-        if (code && playableCodes.has(code)) { onPick.current(code); return; }
-        new maplibregl.Popup({ closeButton: false, offset: 10 })
-          .setLngLat(e.lngLat)
-          .setHTML(`<div style="font:600 12px 'Work Sans',sans-serif;color:#2a2118">${props.name ?? ''}<br><span style="color:#6f6450;font-weight:500">Bientôt</span></div>`)
-          .addTo(map);
+        const props = f.properties as { slug?: string; name?: string };
+        if (props.slug) onStationRef.current(props.slug, props.name ?? '');
       };
-      for (const layer of ['lines', 'stations', 'stations-soon'] as const) {
-        map.on('click', layer, pick);
+      for (const layer of ['stations', 'stations-soon'] as const) {
+        map.on('click', layer, pickStation);
         map.on('mouseenter', layer, () => { map.getCanvas().style.cursor = 'pointer'; });
         map.on('mouseleave', layer, () => { map.getCanvas().style.cursor = ''; });
       }
+      // tap LIGNE → on zoome dessus (focus), sans changer d'écran
+      map.on('click', 'lines', (e) => {
+        const f = e.features?.[0];
+        if (!f || f.geometry.type !== 'LineString') return;
+        const coords = f.geometry.coordinates as [number, number][];
+        if (!coords.length) return;
+        const bb = coords.reduce((acc, c) => acc.extend(c), new maplibregl.LngLatBounds(coords[0], coords[0]));
+        map.fitBounds(bb, { padding: 56, maxZoom: 14, bearing: -17, pitch: 50 });
+      });
+      map.on('mouseenter', 'lines', () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'lines', () => { map.getCanvas().style.cursor = ''; });
     });
 
     return () => map.remove();

@@ -1,8 +1,8 @@
-import { Suspense, lazy, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Suspense, lazy, useMemo, useState } from 'react';
 import { useI18n } from '../i18n';
-import { getLineContent, LINE, NETWORK, type NetworkLine } from '../lib/content';
+import { getLineContent, isPlayable, LINE, NETWORK, type NetworkLine } from '../lib/content';
 import { DailyObjective } from '../components/DailyObjective';
+import { StationSheet } from '../components/StationSheet';
 import { tap } from '../lib/feedback';
 import { useArcadia } from '../store';
 
@@ -39,8 +39,8 @@ function LineBadge({ line, size = 44 }: { line: NetworkLine; size?: number }) {
 
 export function NetworkScreen() {
   const { t } = useI18n();
-  const navigate = useNavigate();
   const tiersWon = useArcadia((s) => s.tiersWon);
+  const [station, setStation] = useState<{ slug: string; name: string } | null>(null);
 
   const playableLines = NETWORK.lines.filter((l) => l.status === 'playable');
   const totals = playableLines.reduce(
@@ -56,10 +56,13 @@ export function NetworkScreen() {
     [],
   );
 
-  function openLineByCode(code: string) {
-    const line = NETWORK.lines.find((l) => l.code === code);
-    if (line && line.status === 'playable') { tap(); navigate(`/line/${code}`); }
+  function openStation(slug: string, name: string) {
+    tap();
+    setStation({ slug, name });
   }
+
+  // station-cœur de la ligne héros (celle qui a du contenu) → CTA « reprendre »
+  const heroStationSlug = LINE.stations.find((s) => isPlayable(s.slug))?.slug ?? null;
 
   return (
     <div className="flex h-full flex-col">
@@ -89,15 +92,15 @@ export function NetworkScreen() {
             </div>
           }
         >
-          <MapView playableCodes={playableCodes} onPickLine={openLineByCode} />
+          <MapView playableCodes={playableCodes} onStation={openStation} />
         </Suspense>
 
-        {heroLine && (() => {
+        {heroLine && heroStationSlug && (() => {
           const c = conqueredCount(heroLine.code, tiersWon);
           return (
             <button
               type="button"
-              onClick={() => openLineByCode(heroLine.code)}
+              onClick={() => openStation(heroStationSlug, LINE.name)}
               className="absolute inset-x-3 bottom-3 flex items-center gap-3 rounded-2xl bg-email/95 p-3 text-left text-white shadow-[0_6px_0_#073f6e,0_10px_22px_rgba(10,90,158,0.35)] ring-2 ring-white/80 ring-inset backdrop-blur transition-[transform,box-shadow] duration-75 active:translate-y-[3px] active:shadow-[0_3px_0_#073f6e]"
             >
               <LineBadge line={heroLine} size={46} />
@@ -114,6 +117,8 @@ export function NetworkScreen() {
           );
         })()}
       </div>
+
+      {station && <StationSheet slug={station.slug} name={station.name} onClose={() => setStation(null)} />}
     </div>
   );
 }
