@@ -6,6 +6,7 @@ import { AppLayout } from './components/AppLayout';
 import { ErrorScreen } from './components/ErrorScreen';
 import { NetworkScreen } from './screens/NetworkScreen';
 import { LineMapScreen } from './screens/LineMapScreen';
+import { BoutiqueScreen } from './screens/BoutiqueScreen';
 import { StationScreen } from './screens/StationScreen';
 import { GameScreen } from './screens/GameScreen';
 import { LeaderboardScreen } from './screens/LeaderboardScreen';
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
       { path: '/line/:code', element: <LineMapScreen /> },
       { path: '/station/:slug', element: <StationScreen /> },
       { path: '/collection', element: <CollectionScreen /> },
+      { path: '/boutique', element: <BoutiqueScreen /> },
       { path: '/leaderboard', element: <LeaderboardScreen /> },
       { path: '/profile', element: <ProfileScreen /> },
     ],

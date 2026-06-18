@@ -186,7 +186,7 @@ body {
 .arcadia-avatar::after {
   content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
   width: 24px; height: 8px; border-radius: 50%;
-  background: rgba(10,90,158,0.4); animation: avatar-ring 2s ease-in-out infinite;
+  background: var(--aura, #0a5a9e); animation: avatar-ring 2s ease-in-out infinite;
 }
 @keyframes avatar-ring {
   0%, 100% { opacity: 0.4; width: 22px; }

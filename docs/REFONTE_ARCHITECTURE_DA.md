@@ -233,4 +233,8 @@ ne doit jamais rendre le jeu anxiogène (garder « la culture jamais imposée »
    **Avatar-mascotte géolocalisé** (façon Pokémon GO) : le poinçonneur posé à ta
    position, qui te suit (remplace le point bleu).
    _Suite : style 100 % sur-mesure, offline Protomaps PMTiles, pins de station custom._
-6. ⏭️ **Boutique de cosmétiques** (avatar customisable, monnaie) · Ligue hebdo · Pass de saison.
+6. ✅ **Économie + Boutique v1** : jetons gagnés en jouant (bronze/argent/or) ;
+   `BoutiqueScreen` (route /boutique, accès via Profil) ; cosmétiques **halos
+   d'avatar** (code, vrai sink) achetés/équipés, appliqués à l'avatar sur la carte.
+   _Suite : tenues illustrées de la mascotte (art Nano Banana), monnaie côté serveur._
+7. ⏭️ Ligue hebdo · Pass de saison.

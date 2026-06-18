@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useI18n, type Locale } from '../i18n';
 import { backend } from '../lib/backend';
 import { LINE } from '../lib/content';
@@ -6,12 +7,15 @@ import { rankLabel, rankProgress } from '../lib/rank';
 import { useArcadia } from '../store';
 import { AuthSheet } from '../components/AuthSheet';
 import { Button } from '../components/Button';
+import { IconToken } from '../components/icons';
 
 export function ProfileScreen() {
   const { t, locale, setLocale } = useI18n();
+  const navigate = useNavigate();
   const user = useArcadia((s) => s.user);
   const tiersWon = useArcadia((s) => s.tiersWon);
   const pending = useArcadia((s) => s.pending);
+  const coins = useArcadia((s) => s.coins);
   const [stats, setStats] = useState<{ xpTotal: number; streak: number } | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [installEvt, setInstallEvt] = useState<Event | null>(null);
@@ -113,6 +117,20 @@ export function ProfileScreen() {
           ))}
         </div>
       </div>
+
+      {/* boutique */}
+      <button
+        type="button"
+        className="mt-4 flex w-full items-center justify-between rounded-2xl border border-laiton/40 bg-laiton/10 px-5 py-4 text-left active:scale-[0.99]"
+        onClick={() => navigate('/boutique')}
+      >
+        <span className="flex items-center gap-2 text-sm font-semibold text-pierre">
+          <IconToken size={20} className="text-laiton" /> {t('shop.openCta')}
+        </span>
+        <span className="flex items-center gap-1 font-display text-sm font-extrabold tabular-nums text-laiton">
+          {coins.toLocaleString()} <IconToken size={14} />
+        </span>
+      </button>
 
       {/* revoir l'intro */}
       <button

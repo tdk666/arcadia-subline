@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { TIER_ORDER, type DifficultyTier, type GameAnswers } from '@arcadia/games';
 import { backend, type AttemptResult, type BackendUser } from '../lib/backend';
 import { advanceDaily, INITIAL_DAILY, type DailyState } from '../lib/daily';
+import { cosmetic, DEFAULT_OWNED } from '../lib/cosmetics';
 
 /** Tentative gagnée en invité, à rejouer côté serveur après création du compte. */
 export interface PendingAttempt {
@@ -33,13 +34,20 @@ interface ArcadiaState {
   lastResult: LastResult | null;
   /** Couche d'habitude quotidienne (streak / objectif du jour). */
   daily: DailyState;
-  /** Jetons — monnaie gagnée en jouant (substrat de la future boutique). */
+  /** Jetons — monnaie gagnée en jouant. */
   coins: number;
+  /** Cosmétiques possédés + équipés (boutique). */
+  owned: string[];
+  equippedAura: string;
 
   recordResult: (r: LastResult) => void;
   queuePending: (p: PendingAttempt) => void;
   /** Consomme la récompense de série après l'avoir célébrée. */
   clearDailyReward: () => void;
+  /** Achète un cosmétique si assez de jetons (et l'équipe). Renvoie le succès. */
+  buyCosmetic: (id: string) => boolean;
+  /** Équipe un cosmétique déjà possédé. */
+  equipCosmetic: (id: string) => void;
   /** Rejoue les tentatives invitées via fn_submit_attempt (post-signup). */
   flushPending: () => Promise<void>;
   highestTierWon: (slug: string) => DifficultyTier | null;
@@ -63,6 +71,8 @@ export const useArcadia = create<ArcadiaState>()(
       lastResult: null,
       daily: INITIAL_DAILY,
       coins: 0,
+      owned: DEFAULT_OWNED,
+      equippedAura: 'aura-email',
 
       recordResult: (r) => {
         set((s) => {
@@ -83,6 +93,18 @@ export const useArcadia = create<ArcadiaState>()(
       },
 
       clearDailyReward: () => set((s) => ({ daily: { ...s.daily, rewardPending: false } })),
+
+      buyCosmetic: (id) => {
+        const c = cosmetic(id);
+        const s = get();
+        if (!c || s.owned.includes(id) || s.coins < c.cost) return false;
+        set({ coins: s.coins - c.cost, owned: [...s.owned, id], equippedAura: id });
+        return true;
+      },
+      equipCosmetic: (id) => {
+        const s = get();
+        if (s.owned.includes(id)) set({ equippedAura: id });
+      },
 
       queuePending: (p) => {
         set((s) => ({
@@ -133,6 +155,8 @@ export const useArcadia = create<ArcadiaState>()(
         pending: s.pending,
         daily: s.daily,
         coins: s.coins,
+        owned: s.owned,
+        equippedAura: s.equippedAura,
       }),
     },
   ),

@@ -13,6 +13,14 @@ export const fr = {
   },
   shop: {
     coins: 'Jetons',
+    title: 'Boutique',
+    subtitle: 'Personnalise ton avatar avec tes jetons',
+    balance: 'Tes jetons',
+    auras: 'Halos d’avatar',
+    equip: 'Équiper', equipped: 'Équipé', buy: 'Acheter',
+    notEnough: 'Pas assez de jetons',
+    soon: 'Tenues de la mascotte — bientôt',
+    openCta: 'Boutique',
   },
   daily: {
     streakTitle: 'Ta série',

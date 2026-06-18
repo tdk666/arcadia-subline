@@ -15,6 +15,14 @@ export const en: Dict = {
   },
   shop: {
     coins: 'Tokens',
+    title: 'Shop',
+    subtitle: 'Customise your avatar with your tokens',
+    balance: 'Your tokens',
+    auras: 'Avatar halos',
+    equip: 'Equip', equipped: 'Equipped', buy: 'Buy',
+    notEnough: 'Not enough tokens',
+    soon: 'Mascot outfits — soon',
+    openCta: 'Shop',
   },
   daily: {
     streakTitle: 'Your streak',

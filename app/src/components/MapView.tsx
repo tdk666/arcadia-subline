@@ -18,6 +18,8 @@ import {
   stationFeatureCollection,
   stationsOnLines,
 } from '../lib/geo';
+import { auraColor } from '../lib/cosmetics';
+import { useArcadia } from '../store';
 
 // fond épuré (lignée CARTO Positron) — la base « Citymapper-clean »
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
@@ -85,6 +87,8 @@ export function MapView({ playableCodes, onPickLine }: Props) {
       if (!avatar) {
         const el = document.createElement('div');
         el.className = 'arcadia-avatar';
+        // halo de l'aura équipée (cosmétique de la boutique)
+        el.style.setProperty('--aura', auraColor(useArcadia.getState().equippedAura));
         const img = document.createElement('img');
         img.src = '/mascotte/poinconneur.png';
         img.alt = '';
