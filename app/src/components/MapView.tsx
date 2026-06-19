@@ -19,6 +19,7 @@ import {
 } from '../lib/geo';
 import { auraColor } from '../lib/cosmetics';
 import { useArcadia } from '../store';
+import type { AvatarHandle } from './avatar3d';
 
 // fond épuré (lignée CARTO Positron) — la base « Citymapper-clean »
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
@@ -95,23 +96,36 @@ export function MapView({ playableCodes, onStation }: Props) {
     });
     map.addControl(geo, 'top-right');
 
-    // ── AVATAR : la mascotte posée à ta position, qui te suit (façon Pokémon GO) ──
-    let avatar: maplibregl.Marker | null = null;
+    // ── AVATAR : 2D instantané (placeholder) puis MARC 3D chargé en lazy ──
+    let avatar2d: maplibregl.Marker | null = null;
+    let avatar3d: AvatarHandle | null = null;
+    let loading3d = false;
+    const place2d = (lngLat: [number, number]) => {
+      if (avatar2d) { avatar2d.setLngLat(lngLat); return; }
+      const el = document.createElement('div');
+      el.className = 'arcadia-avatar';
+      el.style.setProperty('--aura', auraColor(useArcadia.getState().equippedAura));
+      const img = document.createElement('img');
+      img.src = '/mascotte/poinconneur.png';
+      img.alt = '';
+      el.appendChild(img);
+      avatar2d = new maplibregl.Marker({ element: el, anchor: 'bottom' }).setLngLat(lngLat).addTo(map);
+    };
     geo.on('geolocate', (e) => {
       const c = (e as GeolocationPosition).coords;
       const lngLat: [number, number] = [c.longitude, c.latitude];
-      if (!avatar) {
-        const el = document.createElement('div');
-        el.className = 'arcadia-avatar';
-        // halo de l'aura équipée (cosmétique de la boutique)
-        el.style.setProperty('--aura', auraColor(useArcadia.getState().equippedAura));
-        const img = document.createElement('img');
-        img.src = '/mascotte/poinconneur.png';
-        img.alt = '';
-        el.appendChild(img);
-        avatar = new maplibregl.Marker({ element: el, anchor: 'bottom' }).setLngLat(lngLat).addTo(map);
-      } else {
-        avatar.setLngLat(lngLat);
+      const heading = typeof c.heading === 'number' && !Number.isNaN(c.heading) ? c.heading : undefined;
+      if (avatar3d) { avatar3d.setPosition(lngLat[0], lngLat[1], heading); return; }
+      place2d(lngLat);
+      if (!loading3d) {
+        loading3d = true;
+        // le .glb (lourd) + Three.js ne se chargent QUE quand on se géolocalise
+        import('./avatar3d').then(({ createAvatar }) => {
+          const a = createAvatar(map, () => { avatar2d?.remove(); avatar2d = null; });
+          a.setPosition(lngLat[0], lngLat[1], heading);
+          map.addLayer(a.layer);
+          avatar3d = a;
+        }).catch(() => { loading3d = false; });
       }
     });
 

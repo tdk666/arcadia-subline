@@ -29,9 +29,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
-        // la mascotte (~1 Mo) n'est pas pré-cachée : chargée à la demande
-        // (FTUE / récompense), puis mise en cache par le navigateur.
-        globIgnores: ['**/mascotte/**'],
+        // hors précache (chargés à la demande, puis cache navigateur) :
+        // la mascotte/le modèle 3D (lourds) et le chunk Three.js de l'avatar.
+        globIgnores: ['**/mascotte/**', '**/avatar3d-*.js'],
         navigateFallback: '/index.html',
         // les appels Supabase ne passent jamais par le cache SW
         navigateFallbackDenylist: [/^\/rest/, /^\/auth/],
