@@ -12,6 +12,7 @@
 import maplibregl from 'maplibre-gl';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 
 const MODEL_URL = '/mascotte/marc.glb';
 const TARGET_METERS = 60; // hauteur « réelle » de l'avatar sur la carte (réglable)
@@ -39,7 +40,9 @@ export function createAvatar(map: maplibregl.Map, onReady?: () => void): AvatarH
       scene.add(key);
       scene.add(new THREE.AmbientLight(0xffffff, 1.4));
 
-      new GLTFLoader().load(MODEL_URL, (gltf) => {
+      const loader = new GLTFLoader();
+      loader.setMeshoptDecoder(MeshoptDecoder); // EXT_meshopt_compression (modèle optimisé)
+      loader.load(MODEL_URL, (gltf) => {
         const model = gltf.scene;
         // normalise : hauteur = 1 unité, pieds posés à l'origine (robuste quel
         // que soit l'export Meshy).
