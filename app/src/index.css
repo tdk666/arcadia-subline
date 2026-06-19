@@ -31,7 +31,7 @@
   --color-vermillon: #bb2e2a;    /* vermillon — cibles, danger, rivalité */
   --color-zinc: #8a96a0;         /* zinc des toits */
 
-  --font-display: 'Marcellus', ui-serif, Georgia, serif;
+  --font-display: 'Outfit', system-ui, sans-serif;
   --font-ui: 'Work Sans', system-ui, sans-serif;
   /* « mono » repensé : Work Sans en capitales espacées, pas de Space Mono */
   --font-mono: 'Work Sans', system-ui, sans-serif;
