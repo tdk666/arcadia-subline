@@ -71,3 +71,29 @@ réconcilier le registre. Garde-fou : le seed 0017 ne doit PAS **dupliquer** les
 migration passe par le mécanisme enregistré, fini le SQL Editor non tracé.**
 
 **Statut.** Ouvert.
+
+---
+
+## DEC-004 — Discipline de déploiement (stop la fuite de crédits Netlify)
+
+**Cause.** 97,6 % des crédits Netlify partaient en builds de **prod** (56 × 15 cr)
+déclenchés à **chaque push** (probablement parce que la branche de prod ≠ `main`).
+56 déploiements prod pour 1 testeur = on *builde* plus qu'on *apprend*.
+
+**Décision.** Prod = `main` **uniquement** ; les commits **doc-only** ne déclenchent
+plus de build ; déployer en prod devient un **geste délibéré** (≈ 1 / sprint), pas un
+effet de bord de push.
+
+**Mise en œuvre (Claude Code).** `netlify.toml` → `[build].ignore` :
+`git diff --quiet HEAD^ HEAD -- ':!*.md' ':!brain/**' ':!docs/**' ':!.obsidian/**'`
+(exit 0 = aucun fichier applicatif changé = build annulé ; fail-open si `HEAD^`
+absent). Vérifié sur l'historique réel : commit `.obsidian`/`.md`-only → skip ;
+commit `content/` → build. `content/` reste applicatif (data bundlée). Cache pnpm :
+auto par Netlify (champ `packageManager` + lockfile), aucun réglage requis.
+
+**Dépendance hors périmètre Claude Code.** La **branche de prod Netlify doit être
+réglée sur `main`** dans le dashboard (action Théophile) — sinon prod continue de
+suivre une branche de feature. (Cf. constat sprint « Mise en orbite » : le deploy
+prod courant était bâti depuis la branche de travail, pas `main`.)
+
+**Statut.** Appliqué (netlify.toml) + dépend d'une action dashboard (branche prod = main).
