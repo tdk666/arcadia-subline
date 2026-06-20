@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { backend } from './lib/backend';
+import { track } from './lib/analytics';
 import { useArcadia } from './store';
 import { AppLayout } from './components/AppLayout';
 import { ErrorScreen } from './components/ErrorScreen';
@@ -38,6 +39,9 @@ export default function App() {
     void backend.getUser().then(setUser);
     return backend.onAuthChange(setUser);
   }, [setUser]);
+
+  // début de session (durée déduite côté analyse via server_ts du flush)
+  useEffect(() => { track('session_start'); }, []);
 
   // L'onboarding vit DANS le routeur (cf. AppLayout) pour pouvoir enchaîner sur
   // la 1re partie guidée (apprendre en jouant).

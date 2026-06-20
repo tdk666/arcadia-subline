@@ -61,4 +61,6 @@ export interface ArcadiaBackend {
   getLineLeaderboard(lineId: string): Promise<LeaderboardEntry[]>;
   getMyStationProgress(stationId: string): Promise<StationProgress | null>;
   getMyStats(): Promise<{ xpTotal: number; streak: number } | null>;
+  /** Sink télémétrie (events). Non bloquant, best-effort, jamais d'await UI. */
+  logEvents(batch: { name: string; props: Record<string, unknown>; clientTs: number }[]): Promise<void>;
 }

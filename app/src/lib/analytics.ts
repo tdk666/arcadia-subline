@@ -1,15 +1,26 @@
 /**
- * Instrumentation produit — privacy-first, sans dépendance, sans PII, sans cookie.
- * On PLACE les events maintenant (le plus dur) ; le SINK est branchable plus tard
- * (Plausible/PostHog/Supabase) sans toucher aux call-sites. La thèse d'Arcadia est
- * « rétention = revenu » → il faut mesurer le funnel dès aujourd'hui.
+ * Instrumentation produit — privacy-first, sans PII, sans cookie.
+ * `track()` reste l'API unique des call-sites. Le SINK serveur (table events)
+ * est branché ici : un outbox en mémoire est vidé périodiquement et aux moments
+ * critiques (onglet caché / page quittée) vers backend.logEvents(). Best-effort,
+ * jamais bloquant, ne lève jamais. La thèse « rétention = revenu » exige qu'on
+ * mesure le funnel (J1/J7) en réel.
  */
+import { backend } from './backend';
+
 type Props = Record<string, string | number | boolean | null | undefined>;
 
 const BUFFER_KEY = 'arcadia.events.v1';
 const MAX_BUFFER = 100;
+const FLUSH_EVERY_MS = 10_000;
 
-/** Tampon local (anneau) : utile au QA / debug et comme file d'attente d'envoi. */
+interface OutEvent { name: string; props: Record<string, unknown>; clientTs: number }
+
+/** File d'envoi en mémoire (vidée vers le serveur). */
+let outbox: OutEvent[] = [];
+let started = false;
+
+/** Tampon local (anneau) : utile au QA / debug. */
 function persist(ev: Props & { t: number; name: string }) {
   try {
     const raw = localStorage.getItem(BUFFER_KEY);
@@ -20,19 +31,47 @@ function persist(ev: Props & { t: number; name: string }) {
   } catch { /* quota/SSR : on ignore, jamais bloquant */ }
 }
 
-/** Émet un event. Ne lève jamais — l'analytics ne doit jamais casser le jeu. */
-export function track(name: string, props: Props = {}) {
-  const ev = { t: Date.now(), name, ...props };
-  try { if (import.meta.env.DEV) console.debug('[evt]', name, props); } catch { /* noop */ }
-  persist(ev);
-  // sinks optionnels (branchés sans modifier les appels) :
+/** Vide l'outbox vers le sink serveur. Best-effort : re-queue borné si échec. */
+export function flushEvents(): void {
+  if (outbox.length === 0) return;
+  const batch = outbox;
+  outbox = [];
   try {
-    (window as unknown as { plausible?: (n: string, o?: { props?: Props }) => void })
-      .plausible?.(name, { props });
-  } catch { /* noop */ }
+    void backend.logEvents(batch).catch(() => {
+      // remet en file (borné) pour retenter au prochain flush (offline/tunnel)
+      outbox = [...batch, ...outbox].slice(0, MAX_BUFFER);
+    });
+  } catch {
+    outbox = [...batch, ...outbox].slice(0, MAX_BUFFER);
+  }
 }
 
-/** Lecture du tampon (debug / future synchro serveur). */
+/** Démarre les déclencheurs de flush (idempotent, navigateur uniquement). */
+function ensureStarted() {
+  if (started || typeof window === 'undefined') return;
+  started = true;
+  setInterval(flushEvents, FLUSH_EVERY_MS);
+  // moments critiques : on ne perd pas la fin de session
+  window.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushEvents();
+  });
+  window.addEventListener('pagehide', flushEvents);
+}
+
+/** Émet un event. Ne lève jamais — l'analytics ne doit jamais casser le jeu. */
+export function track(name: string, props: Props = {}) {
+  const t = Date.now();
+  try { if (import.meta.env.DEV) console.debug('[evt]', name, props); } catch { /* noop */ }
+  persist({ t, name, ...props });
+  // props jsonb propre : on retire undefined/null
+  const clean: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(props)) if (v !== undefined && v !== null) clean[k] = v;
+  outbox.push({ name, props: clean, clientTs: t });
+  if (outbox.length > MAX_BUFFER) outbox = outbox.slice(-MAX_BUFFER);
+  ensureStarted();
+}
+
+/** Lecture du tampon (debug). */
 export function readEvents(): unknown[] {
   try { return JSON.parse(localStorage.getItem(BUFFER_KEY) ?? '[]'); } catch { return []; }
 }

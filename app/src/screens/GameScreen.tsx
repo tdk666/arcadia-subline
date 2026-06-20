@@ -49,6 +49,11 @@ export function GameScreen() {
     if (!allowed) navigate(`/station/${slug}`, { replace: true });
   }, [allowed, navigate, slug]);
 
+  // funnel : vue du briefing (une par entrée dans le brief)
+  useEffect(() => {
+    if (phase === 'brief') track('brief_view', { slug, tier: difficulty });
+  }, [phase, slug, difficulty]);
+
   const Game = useMemo(() => {
     if (!content) return null;
     const def = getGame(content.game.archetype);
@@ -146,7 +151,17 @@ export function GameScreen() {
 
           <button
             type="button"
-            onClick={() => { tap(); track('game_start', { slug, tier: difficulty }); setPhase('play'); }}
+            onClick={() => {
+              tap();
+              try {
+                if (!localStorage.getItem('arcadia.firstplay.v1')) {
+                  localStorage.setItem('arcadia.firstplay.v1', '1');
+                  track('first_play', { slug, tier: difficulty });
+                }
+              } catch { /* noop */ }
+              track('game_start', { slug, tier: difficulty });
+              setPhase('play');
+            }}
             className="animate-pop w-full max-w-xs rounded-2xl py-4 font-display text-lg font-extrabold text-encre shadow-[0_5px_0_rgba(0,0,0,0.22),0_0_30px_rgba(242,194,0,0.35)] ring-1 ring-inset ring-white/40 transition-[transform,box-shadow] duration-75 active:translate-y-[3px] active:shadow-[0_2px_0_rgba(0,0,0,0.22),0_0_20px_rgba(242,194,0,0.3)]"
             style={{ background: TIER_COLOR[difficulty], animationDelay: '0.25s' }}
           >
@@ -154,7 +169,7 @@ export function GameScreen() {
           </button>
           <button
             type="button"
-            onClick={() => navigate(`/station/${slug}`)}
+            onClick={() => { track('drop_off', { slug, tier: difficulty }); navigate(`/station/${slug}`); }}
             className="font-mono text-xs text-pierre-faint active:text-pierre-dim"
           >
             ← {t('common.back')}

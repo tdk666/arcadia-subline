@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { getAnonId } from '../anonId';
 import type {
   ArcadiaBackend, AttemptResult, BackendUser, CheckInResult, LeaderboardEntry, StationProgress,
 } from './types';
@@ -144,5 +145,24 @@ export class SupabaseBackend implements ArcadiaBackend {
       .eq('id', session.session.user.id)
       .maybeSingle();
     return data ? { xpTotal: data.xp_total, streak: data.streak_count } : null;
+  }
+
+  async logEvents(batch: { name: string; props: Record<string, unknown>; clientTs: number }[]): Promise<void> {
+    if (batch.length === 0) return;
+    try {
+      const { data } = await this.sb.auth.getSession();
+      const pid = data.session?.user.id ?? null;
+      const anon = pid ? null : getAnonId();
+      const rows = batch.map((e) => ({
+        player_id: pid,
+        anon_id: anon,
+        name: e.name,
+        props: e.props,
+        client_ts: new Date(e.clientTs).toISOString(),
+      }));
+      await this.sb.from('events').insert(rows);
+    } catch {
+      /* best-effort : la télémétrie ne casse jamais le jeu */
+    }
   }
 }

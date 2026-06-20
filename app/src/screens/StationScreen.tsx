@@ -82,6 +82,7 @@ export function StationScreen() {
     const provider = presenceProviders[0];
     const res = await provider.checkIn(content!.stationId);
     setCheckInBusy(false);
+    track('checkin', { slug, result: res.ok ? 'ok' : (res.error ?? 'error') });
     if (res.ok) {
       setCheckInUntil(res.expiresAt ?? null);
       void refresh();

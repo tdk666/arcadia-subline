@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { backend } from '../lib/backend';
+import { track } from '../lib/analytics';
 import { useI18n } from '../i18n';
 import { Button } from './Button';
 
@@ -27,8 +28,11 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
         : await backend.signIn(email, password);
     setBusy(false);
     if (res.error) setError(res.error);
-    else if ('needsConfirm' in res && res.needsConfirm) setConfirmSent(true);
-    else onClose();
+    else {
+      if (mode === 'signup') track('signup_from_guest');
+      if ('needsConfirm' in res && res.needsConfirm) setConfirmSent(true);
+      else onClose();
+    }
   }
 
   return (

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useI18n } from '../i18n';
 import { useArcadia } from '../store';
 import { haptic } from '../lib/feedback';
+import { track } from '../lib/analytics';
 import { Button } from './Button';
 import { Mascotte } from './Mascotte';
 import { IconFlame } from './icons';
@@ -23,8 +24,10 @@ export function DailyReward() {
 
   if (!pending) return null;
 
+  const dismiss = () => { track('daily_reward_claim', { streak }); clear(); };
+
   return (
-    <div className="fixed inset-0 z-[55] flex items-center justify-center bg-black/60 px-8" onClick={clear}>
+    <div className="fixed inset-0 z-[55] flex items-center justify-center bg-black/60 px-8" onClick={dismiss}>
       <div
         className="animate-pop w-full max-w-xs rounded-2xl border border-laiton/50 bg-plomb p-6 text-center shadow-[0_16px_44px_rgba(0,0,0,0.35)]"
         onClick={(e) => e.stopPropagation()}
@@ -37,7 +40,7 @@ export function DailyReward() {
         </div>
         <p className="mt-2 font-display text-2xl font-extrabold text-pierre">{t('daily.reward.title')}</p>
         <p className="mt-1 text-sm text-pierre-dim">{t('daily.reward.body', { n: streak })}</p>
-        <Button variant="gold" size="md" className="mt-4" onClick={clear}>
+        <Button variant="gold" size="md" className="mt-4" onClick={dismiss}>
           {t('daily.reward.cta')}
         </Button>
       </div>

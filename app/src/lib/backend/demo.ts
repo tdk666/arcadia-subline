@@ -163,4 +163,9 @@ export class DemoBackend implements ArcadiaBackend {
   async getMyStats() {
     return { xpTotal: this.state.xpTotal, streak: this.state.streak };
   }
+
+  // Mode démo : pas de sink serveur (l'app reste 100 % jouable hors-ligne).
+  async logEvents() {
+    /* no-op */
+  }
 }
