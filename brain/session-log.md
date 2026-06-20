@@ -5,42 +5,35 @@
 
 ## ÉTAT (2026-06-20)
 
-- **Branche de travail** : `claude/happy-sagan-16ktg4` → **PR #3** (draft, ouverte,
-  CI `verify` verte). Tête : sprint « Cerveau Augmenté » au-dessus de `419017e`.
-- **`main` = `8866f93`** → la **prod** (Netlify `arcadia-subline-paris`) tourne donc
-  un build **antérieur au Moteur V2 et au sprint Première Minute** (PR #3 NON mergée).
-  C'est ce build ancien qu'Agathe a testé le 20/06.
-- **Empilé sur PR #3, non mergé** :
-  - Sprint « Preuve du cœur » : 2ᵉ archétype (quiz) + station Louvre-Rivoli v1.
-  - Sprint « Moteur V2 » : banque tiérée 30/30/90, seuils de points, images en
-    reveal (migrations 0016/0017 **écrites**).
-  - Sprint « Première Minute » : onboarding → carte (Louvre mis en avant, plus de
-    Bastille forcé), quiz thème clair lisible, feedback couleur corrigé, résultat
-    sans « maîtrise 0 », jauge cible Bastille.
-  - Sprint « Cerveau Augmenté » : ce vault `/brain` + DEC-001 (Bastille réaligné).
-- **Rétention J+1 : NON lue** (aucun joueur réel sur un build à jour tant que PR #3
-  n'est pas mergée).
+- **PR #3 MERGÉE dans `main`** (merge-commit, sprint « Mise en orbite »). La
+  **prod** (Netlify `arcadia-subline-paris`, build de `main`) passe enfin au
+  **Moteur V2 + Première Minute** (avant : `main = 8866f93`, build qu'Agathe avait
+  testé). Branche de travail `claude/happy-sagan-16ktg4` désormais fusionnée.
+- **Moteur V2 confirmé LIVE en base** (board, 20/06) : `player_quest_progress`
+  (RLS + 1 policy select-own), `points_threshold`, `fn_get_quest_progress`, bucket
+  `station-images` public, Louvre-Rivoli 150 items / 3 quêtes banque.
+- Contenu prod : Bastille (démolition, paysage, boss) aligné sur le seed (DEC-001)
+  + copie Gold corrigée (3 boulets) ; Louvre-Rivoli (quiz portrait, banque).
+- **Rétention J+1 : NON lue** (la prod vient seulement de passer à jour).
 
 ## EN COURS
 
-- Transaction #001 (Bastille mirror) + matérialisation du cerveau — cette PR.
+- Rien d'ouvert en code après le merge. Surveillance prod post-déploiement.
 
 ## PROCHAIN GESTE
 
-1. **Merger PR #3** (décision Théophile/board) → la prod passe enfin au Moteur V2 +
-   Première Minute.
-2. **Re-test 3–5 humains neufs** sur le parcours Louvre (quiz portrait, première
-   minute) — pas Bastille en premier.
-3. **Lire la rétention J+1** (requête documentée dans `migrations/...0014_events.sql`).
+1. **Re-test 3–5 humains NEUFS** sur le parcours Louvre (première minute → carte →
+   quiz portrait), build de prod à jour. Observer, ne pas guider.
+2. **Lire la rétention J+1** (requête dans `migrations/...0014_events.sql`).
    Pas de scale (Manus / nouvelles stations) avant cette lecture.
 
 ## BLOQUEURS / À VÉRIFIER
 
-- **Supabase MCP intermittent** : les migrations **0016/0017 (Moteur V2)** ont été
-  ÉCRITES mais leur application live n'a **pas pu être vérifiée** par Claude Code
-  (connecteur down lors des sprints concernés). **À confirmer** avant/au merge :
-  si elles ne sont pas appliquées, la prod quiz tournera l'ancien moteur.
-  Ref projet : `pwavyfvxskrsytmqgcvt` (eu-west-3).
-- Flags board ouverts (cf. `decision-log.md` + `docs/HANDOFF.md`) : option A Bastille
-  (étendards seule condition de victoire — touche `answer_key`, donc futur sprint
-  scoring) ; copie « quatre boulets » Gold à corriger ; tilt 52° (décision DA).
+- **DETTE DB (DEC-003)** : registre `supabase_migrations` désync — 0016/0017
+  appliqués à la main (SQL Editor), non enregistrés. Objets OK en prod, mais un
+  `db reset` ne les rejouerait pas. À réconcilier au prochain sprint touchant la DB
+  (réappliquer via le mécanisme, idempotent, sans dupliquer les 150 items).
+- Flags board ouverts : option A Bastille (étendards seule condition de victoire —
+  touche `answer_key`, futur sprint scoring) ; tilt 52° de la carte (décision DA).
+- Ref infra : Supabase `pwavyfvxskrsytmqgcvt` (eu-west-3) ; voir
+  `source-registry.md`.
