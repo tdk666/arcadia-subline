@@ -94,7 +94,9 @@ export const fr = {
       bronze: '{q} questions · {lives} vies · sans chrono',
       silver: '{q} questions · {lives} vies · {time} s/question',
       gold: '{q} questions · {lives} vie · {time} s/question',
+      banked: '{draw} questions tirées · {lives} vie(s)',
     },
+    quizPoints: '{pts}/{threshold} pts vers le palier',
   },
   brief: {
     objective: 'Objectif',

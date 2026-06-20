@@ -6,6 +6,63 @@
 
 ---
 
+## 0ter. Sprint « Moteur V2 » — banque tiérée + seuils + images (20 juin 2026)
+
+Passage du quiz « N questions fixes » au modèle **banque large → tirage → seuil
+de points cumulés → image/explication en reveal**. 100 % ADDITIF : démolition et
+branche `kind:'minigame'` strictement inchangées.
+
+### Contrat de schéma v2 (content/stations/<slug>.json, `schemaVersion: 2`)
+- `progression: { model:'points_threshold', thresholds:{ bronzeToSilver, silverToGold, goldMastery } }`.
+- `quests.{bronze,silver,gold}.params`: `{ bankTarget, draw, lives, timerS, questions[] }`.
+  - banque Louvre **30/30/90** ; tirage **5/6/8** ; vies **3/2/1** ; chrono **0/12/8 s** ; seuils **30/36/56**.
+- item (= 1 quest_step) : `{ stepId(slug, ex. "louvre-b-01"), points, answer, question{fr,en},
+  choices[{id,text{fr,en}}], explain{fr,en}, image{url,source,license,attribution,status} }`.
+  - `image.status`: `verified` (sourcée+licence) ou `to_verify` (pas d'URL jouable → fallback client).
+
+### Côté serveur (migrations 0016 + 0017, ÉCRITES — à appliquer quand le connecteur Supabase revient)
+- **0016** `moteur_v2_banque.sql` :
+  - `quests.points_threshold` (NULL = quête non-banque → comportement 0012 inchangé).
+  - table **`player_quest_progress`** (player_id, quest_id, points_total, passed_step_ids text[]) ;
+    RLS **select-own uniquement**, AUCUNE policy write → écrite seulement par fn_submit_attempt (security definer).
+  - **`fn_submit_attempt` v3** (même signature, même autorité) : branche banque
+    additive — ne note QUE les items tirés/soumis (`coalesce(payload->>'stepId', id::text)`
+    comme clé d'appariement), ne re-crédite jamais un item déjà réussi, cumule vers
+    le seuil, gating par seuil du palier précédent. **Démolition byte-identique**
+    (payload sans `stepId` → clé = id ; `v_banked` faux → tout le code 0012 s'exécute).
+  - **`fn_get_quest_progress(uuid[])`** security definer, owner-only : points cumulés,
+    items réussis, seuils, déblocage (calculés SERVEUR — le client affiche, ne décide pas).
+  - bucket Storage **`station-images`** public en lecture (write service_role).
+- **0017** `louvre_rivoli_bank_seed.sql` : 150 quest_steps GÉNÉRÉS par
+  `supabase/scripts/gen-bank-seed.mjs` (station_id résolu par requête, answer_key
+  `{"answer"}`, pas de `kind`). Régénérer le fichier après toute édition du JSON.
+- ⚠️ **Connecteur Supabase MCP déconnecté pendant ce sprint** → 0016/0017 NON
+  encore appliqués en base. À appliquer (`apply_migration`) + vérifier (`execute_sql`)
+  dès reconnexion. La **démo tourne sans base** : 100 % jouable, scoring/seuils simulés
+  localement (mirroir de 0016 dans `lib/scoring.ts` + `backend/demo.ts`).
+
+### Côté client
+- `games/src/quiz/QuizGame.tsx` v2 : carte de **reveal post-réponse** (image si
+  `verified` + URL jouable, sinon fallback propre ; **attribution visible** sous
+  l'image = obligation de licence ; `explain` ; feedback). Image **jamais avant**
+  la réponse (décision board, §2 du brief).
+- `GameScreen` tire `draw` items via `drawBank()` en excluant les déjà réussis
+  (récupérés par `backend.getQuestProgress`). `StationScreen` affiche les points/seuil
+  et le déblocage par palier.
+- **Pipeline images** : `supabase/scripts/ingest-station-images.mjs` (Commons → bucket
+  Storage, réécrit `payload.image.url`). Clés service_role par ENV, jamais commitées.
+  Les 37 images « verified » pointent encore des pages `/wiki/File:` → le client
+  fallback (pas d'`<img>`) tant que le rapatriement n'a pas tourné. Hors-périmètre : sourcer les 113 restantes.
+
+### Suivi / dette
+- `content.ts` importe les JSON de station en statique → le bundle initial a grossi
+  (~+130 Ko avec la banque Louvre). À terme : **lazy-load du contenu de station**
+  (import dynamique par slug) quand le nombre de stations augmente.
+- Tension answer_key/quiz visible client (cf. 0bis) inchangée : standing rule board
+  (pas d'enjeu compétitif tant que non verrouillé serveur).
+
+---
+
 ## 0bis. Sprint « Preuve du cœur » — ✅ FAIT (20 juin 2026)
 
 Objectif : prouver la **rétention J1** sur la tranche jouable avant d'élargir.

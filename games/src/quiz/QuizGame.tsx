@@ -1,16 +1,19 @@
 /**
- * Archétype QUIZ — habillage « Le Cabinet des Merveilles » (Louvre-Rivoli).
- * Portrait, full DOM (zéro canvas), conforme au contrat GameProps.
+ * Archétype QUIZ V2 — habillage « Le Cabinet des Merveilles » (Louvre-Rivoli).
+ * Portrait, full DOM, conforme au contrat GameProps.
  *
  * INVARIANT DE SÉCURITÉ : le quiz ne calcule JAMAIS de score. Il remonte les
- * réponses brutes du joueur dans `answers`, keyé par quest_step.id —
+ * réponses brutes du joueur dans `answers`, keyé par le slug stepId —
  * fn_submit_attempt les compare à answer_key (jamais exposé) et tranche.
- * Le champ `answer` du contenu sert UNIQUEMENT au ressenti local (feedback,
- * vies, série) — cf. note d'invariant dans docs/HANDOFF.md.
+ * Le champ `answer` du contenu sert UNIQUEMENT au ressenti local.
+ *
+ * V2 : le host (GameScreen) a déjà tiré `draw` items parmi la banque (en
+ * excluant ceux déjà réussis). Ici on joue ces items et, APRÈS chaque réponse,
+ * on révèle une carte image + explication (jamais avant — décision board).
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GameProps } from '../contract';
-import type { QuizParams } from './types';
+import { isUsableQuizImage, type QuizParams } from './types';
 
 const TIER_LABEL = { bronze: 'BRONZE', silver: 'ARGENT', gold: 'OR' } as const;
 const TIER_TINT = { bronze: '#c08a55', silver: '#b9c0c4', gold: '#e3c463' } as const;
@@ -24,6 +27,7 @@ function vibrate(pattern: number | number[]) {
 export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
   const en = ctx.locale.startsWith('en');
   const tr = useCallback((fr: string, eng: string) => (en ? eng : fr), [en]);
+  const L = en ? 'en' : 'fr';
 
   const params: QuizParams = { ...DEFAULTS, ...(ctx.params as unknown as Partial<QuizParams>) };
   const questions = params.questions;
@@ -31,12 +35,14 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
   const [index, setIndex] = useState(0);
   const [lives, setLives] = useState(params.lives);
   const [picked, setPicked] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState(false);
   const [streak, setStreak] = useState(0);
   const [timeLeft, setTimeLeft] = useState(params.timerS);
 
   const answersRef = useRef<Record<string, string>>({});
   const startRef = useRef(0);
   const doneRef = useRef(false);
+  const livesAtPickRef = useRef(params.lives);
 
   if (startRef.current === 0) startRef.current = (typeof performance !== 'undefined' ? performance.now() : Date.now());
 
@@ -54,7 +60,6 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
     });
   }, [questions, onFinish]);
 
-  // Aucune question (contenu manquant) : on clôt proprement plutôt que de figer.
   useEffect(() => {
     if (questions.length === 0) finish();
   }, [questions.length, finish]);
@@ -67,25 +72,28 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
       const correct = choiceId !== null && choiceId === q.answer;
       if (choiceId !== null) answersRef.current[q.stepId] = choiceId;
       setPicked(choiceId ?? '__timeout__');
+      setRevealed(true);
       if (correct) { vibrate(30); setStreak((s) => s + 1); }
       else { vibrate([55, 40, 55]); setStreak(0); }
       const nextLives = correct ? lives : lives - 1;
+      livesAtPickRef.current = nextLives;
       setLives(nextLives);
-
-      const delay = ctx.reducedMotion ? 360 : 1050;
-      window.setTimeout(() => {
-        const nextIndex = index + 1;
-        if (nextIndex >= questions.length || nextLives <= 0) {
-          finish();
-        } else {
-          setPicked(null);
-          setIndex(nextIndex);
-          setTimeLeft(params.timerS);
-        }
-      }, delay);
     },
-    [picked, q, lives, index, questions.length, params.timerS, ctx.reducedMotion, finish],
+    [picked, q, lives],
   );
+
+  // avance vers la question suivante (depuis la carte de reveal) ou termine
+  const next = useCallback(() => {
+    const nextIndex = index + 1;
+    if (nextIndex >= questions.length || livesAtPickRef.current <= 0) {
+      finish();
+    } else {
+      setPicked(null);
+      setRevealed(false);
+      setIndex(nextIndex);
+      setTimeLeft(params.timerS);
+    }
+  }, [index, questions.length, params.timerS, finish]);
 
   // Chrono par question (paliers argent/or). Au temps mort = réponse manquée.
   useEffect(() => {
@@ -97,8 +105,11 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
 
   if (!q) return null;
 
+  const correct = picked !== null && picked === q.answer;
+  const timedOut = picked === '__timeout__';
   const urgent = params.timerS > 0 && picked === null && timeLeft <= 3;
   const tint = TIER_TINT[ctx.difficulty];
+  const showImage = revealed && isUsableQuizImage(q.image);
 
   return (
     <div
@@ -119,8 +130,6 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
         >
           ✕
         </button>
-
-        {/* progression : segments qui se remplissent à mesure des questions */}
         <div className="flex flex-1 gap-1.5">
           {questions.map((qq, i) => (
             <span
@@ -130,8 +139,6 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
             />
           ))}
         </div>
-
-        {/* vies : cœurs qui se vident */}
         <div className="flex flex-none items-center gap-0.5" aria-label={tr('Vies', 'Lives')}>
           {Array.from({ length: params.lives }).map((_, i) => (
             <span
@@ -190,7 +197,7 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
           key={q.stepId}
           className={`mt-2 font-display text-[clamp(1.35rem,5.5vw,2rem)] font-extrabold leading-tight text-[#f4eeda] ${ctx.reducedMotion ? '' : 'animate-slide-up'}`}
         >
-          {q.question[en ? 'en' : 'fr'] ?? q.question.fr}
+          {q.question[L] ?? q.question.fr}
         </h1>
       </div>
 
@@ -200,7 +207,6 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
           const isAnswered = picked !== null;
           const isCorrect = c.id === q.answer;
           const isPicked = c.id === picked;
-          // Révélation : la bonne réponse s'allume en vert, le mauvais choix en rouge.
           let bg = 'rgba(255,255,255,0.06)';
           let ring = 'rgba(255,255,255,0.14)';
           let fg = '#e9eef5';
@@ -224,11 +230,60 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
               >
                 {isAnswered && isCorrect ? '✓' : isAnswered && isPicked ? '✕' : c.id}
               </span>
-              <span className="font-semibold leading-snug">{c.text[en ? 'en' : 'fr'] ?? c.text.fr}</span>
+              <span className="font-semibold leading-snug">{c.text[L] ?? c.text.fr}</span>
             </button>
           );
         })}
       </div>
+
+      {/* ── CARTE DE REVEAL (image + explication + feedback) — APRÈS la réponse ── */}
+      {revealed && (
+        <div className="absolute inset-0 z-30 flex flex-col justify-end bg-black/55" onClick={next}>
+          <div
+            className={`rounded-t-3xl border-t bg-[#16203a] px-5 pb-[max(env(safe-area-inset-bottom),1.1rem)] pt-4 ${ctx.reducedMotion ? '' : 'animate-slide-up'}`}
+            style={{ borderColor: correct ? 'rgba(123,211,154,0.5)' : timedOut ? 'rgba(227,196,99,0.5)' : 'rgba(232,138,134,0.5)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="font-display text-lg font-extrabold" style={{ color: correct ? '#7bd39a' : timedOut ? '#e3c463' : '#e88a86' }}>
+              {correct ? tr('Exact !', 'Correct!') : timedOut ? tr('Temps écoulé', "Time's up") : tr('Raté', 'Wrong')}
+            </p>
+
+            {showImage && (
+              <figure className="mt-3">
+                <img
+                  src={q.image!.url}
+                  alt=""
+                  loading="lazy"
+                  className="max-h-44 w-full rounded-xl object-cover"
+                  style={{ background: 'rgba(255,255,255,0.05)' }}
+                  onError={(e) => { (e.currentTarget.style.display = 'none'); }}
+                />
+                {/* Attribution visible : obligation de licence (CC BY-SA…). */}
+                {(q.image!.attribution || q.image!.license) && (
+                  <figcaption className="mt-1 font-mono text-[9px] leading-tight text-white/40">
+                    {[q.image!.source, q.image!.license, q.image!.attribution].filter(Boolean).join(' · ')}
+                  </figcaption>
+                )}
+              </figure>
+            )}
+
+            {q.explain && (
+              <p className="mt-3 text-sm leading-relaxed text-white/80">{q.explain[L] ?? q.explain.fr}</p>
+            )}
+
+            <button
+              type="button"
+              onClick={next}
+              className="mt-4 w-full rounded-2xl py-3.5 font-display text-base font-extrabold text-encre active:translate-y-[2px]"
+              style={{ background: tint, boxShadow: '0 4px 0 rgba(0,0,0,0.25)' }}
+            >
+              {index + 1 >= questions.length || livesAtPickRef.current <= 0
+                ? tr('Terminer', 'Finish')
+                : tr('Continuer', 'Continue')}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -103,7 +103,21 @@ export function ResultView({
             </p>
           </div>
         </div>
-        {result.success && result.xpGained === 0 && !result.flagged && (
+        {/* banque V2 : progression cumulée vers le seuil de palier */}
+        {result.pointsThreshold != null && result.pointsThreshold > 0 && result.pointsTotal != null && (
+          <div className="rounded-2xl border border-rail bg-plomb px-4 py-3">
+            <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">
+              {t('station.quizPoints', { pts: Math.min(result.pointsTotal, result.pointsThreshold), threshold: result.pointsThreshold })}
+            </p>
+            <span className="mt-1.5 block h-1.5 w-full overflow-hidden rounded-full bg-rail/50">
+              <span
+                className="block h-full rounded-full bg-laiton"
+                style={{ width: `${Math.min(100, Math.round((result.pointsTotal / result.pointsThreshold) * 100))}%` }}
+              />
+            </span>
+          </div>
+        )}
+        {result.success && result.xpGained === 0 && !result.flagged && result.pointsThreshold == null && (
           <p className="text-xs text-pierre-faint">{t('result.bestScore')}</p>
         )}
         {result.flagged && <p className="text-xs text-vermillon">⚠ {t('result.flagged')}</p>}

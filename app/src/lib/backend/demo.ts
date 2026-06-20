@@ -5,16 +5,18 @@
  * que le passage en mode réel ne change RIEN au ressenti.
  * L'UI affiche en permanence le bandeau "mode démo" — aucun score n'est réel.
  */
-import type { DifficultyTier, GameAnswers } from '@arcadia/games';
-import { getStationContent, LINE } from '../content';
-import { previewDemolitionScore, previewQuizScore } from '../scoring';
+import type { DifficultyTier, GameAnswers, QuizQuestion } from '@arcadia/games';
+import { getStationContent, isBankedQuiz, LINE, tierThreshold, type StationContent } from '../content';
+import { previewBankedQuizScore, previewDemolitionScore } from '../scoring';
 import type {
-  ArcadiaBackend, AttemptResult, BackendUser, CheckInResult, LeaderboardEntry, StationProgress,
+  ArcadiaBackend, AttemptResult, BackendUser, CheckInResult, LeaderboardEntry, QuestProgress, StationProgress,
 } from './types';
 
 const KEY = 'arcadia.demo.v1';
 const COOLDOWN_S = 90;
 const TTL_MIN = 10;
+
+interface BankProgress { pointsTotal: number; passed: string[] }
 
 interface DemoState {
   user: BackendUser | null;
@@ -23,10 +25,23 @@ interface DemoState {
   bestScores: Record<string, number>; // questId → meilleur score
   stations: Record<string, StationProgress>;
   checkIns: { stationId: string; createdAt: number; expiresAt: number }[];
+  // Banque V2 : progression cumulée par questId (points + items réussis).
+  questProgress: Record<string, BankProgress>;
 }
 
 function fresh(): DemoState {
-  return { user: null, xpTotal: 0, streak: 0, bestScores: {}, stations: {}, checkIns: [] };
+  return { user: null, xpTotal: 0, streak: 0, bestScores: {}, stations: {}, checkIns: [], questProgress: {} };
+}
+
+/** Retrouve le contenu de station + le palier d'une quête (par questId). */
+function locate(questId: string): { content: StationContent; tier: DifficultyTier } | null {
+  for (const s of LINE.stations) {
+    const c = getStationContent(s.slug);
+    if (!c) continue;
+    const entry = Object.entries(c.quests).find(([, q]) => q.questId === questId);
+    if (entry) return { content: c, tier: entry[0] as DifficultyTier };
+  }
+  return null;
 }
 
 export class DemoBackend implements ArcadiaBackend {
@@ -79,39 +94,83 @@ export class DemoBackend implements ArcadiaBackend {
     this.emit();
   }
 
-  /** Réplique fidèle de la formule serveur (migration 0012) — démo uniquement. */
+  /** Met à jour la maîtrise de station (mêmes règles que le serveur). */
+  private bumpStation(content: StationContent, mastery: number) {
+    const prev = this.state.stations[content.stationId];
+    const masteryScore = Math.max(prev?.masteryScore ?? 0, mastery);
+    const visited = prev?.state === 'visited' || prev?.state === 'mastered';
+    this.state.stations[content.stationId] = {
+      masteryScore,
+      state: visited && masteryScore >= 80 ? 'mastered' : visited ? 'visited' : 'discovered',
+    };
+  }
+
+  /** Réplique fidèle des formules serveur (0012 démolition / 0016 banque) — démo. */
   async submitAttempt(questId: string, answers: Record<string, unknown>, durationMs: number): Promise<AttemptResult> {
-    const station = LINE.stations.map((s) => getStationContent(s.slug)).find(
-      (c) => c && Object.values(c.quests).some((q) => q.questId === questId),
-    );
-    const tier = (Object.entries(station?.quests ?? {}).find(([, q]) => q.questId === questId)?.[0] ?? 'bronze') as DifficultyTier;
+    const loc = locate(questId);
+    const station = loc?.content;
+    const tier = loc?.tier ?? 'bronze';
     const params = station?.quests[tier]?.params ?? {};
 
+    // ── Quiz BANQUE V2 : cumul vers le seuil, jamais re-créditer un item réussi ──
+    if (station && station.game.archetype === 'quiz' && isBankedQuiz(station)) {
+      const questions = (params.questions as QuizQuestion[]) ?? [];
+      const threshold = tierThreshold(station, tier);
+      const prog = this.state.questProgress[questId] ?? { pointsTotal: 0, passed: [] };
+      const r = previewBankedQuizScore(
+        questions, tier, answers as GameAnswers, durationMs, threshold, prog.pointsTotal, prog.passed,
+      );
+      if (!r.flagged) {
+        this.state.questProgress[questId] = {
+          pointsTotal: r.pointsTotal,
+          passed: Array.from(new Set([...prog.passed, ...r.newPassed])),
+        };
+        this.state.xpTotal += r.xpGained;
+        this.state.streak = Math.max(1, this.state.streak);
+        this.bumpStation(station, r.mastery);
+        this.save();
+      }
+      return {
+        attemptId: null, score: r.score, success: r.success, xpGained: r.xpGained,
+        mastery: r.mastery, flagged: r.flagged, pointsTotal: r.pointsTotal, pointsThreshold: threshold,
+      };
+    }
+
+    // ── Démolition (0012) : p_answers = { "<step_id>": télémétrie } ──
     const best = this.state.bestScores[questId] ?? 0;
-    // Quiz : p_answers est déjà keyé par step → noté tel quel. Démolition :
-    // p_answers = { "<step_id>": télémétrie } → on déballe la télémétrie.
-    const result = station?.game.archetype === 'quiz'
-      ? previewQuizScore(params, tier, answers as GameAnswers, durationMs, best)
-      : previewDemolitionScore(params, tier, (Object.values(answers)[0] ?? {}) as GameAnswers, durationMs, best);
-    const { score, success, xpGained, mastery, flagged } = result;
+    const { score, success, xpGained, mastery, flagged } =
+      previewDemolitionScore(params, tier, (Object.values(answers)[0] ?? {}) as GameAnswers, durationMs, best);
 
     if (!flagged) {
       this.state.bestScores[questId] = Math.max(best, score);
       this.state.xpTotal += xpGained;
       this.state.streak = Math.max(1, this.state.streak);
-      if (station) {
-        const prev = this.state.stations[station.stationId];
-        const masteryScore = Math.max(prev?.masteryScore ?? 0, mastery);
-        const visited = prev?.state === 'visited' || prev?.state === 'mastered';
-        this.state.stations[station.stationId] = {
-          masteryScore,
-          state: visited && masteryScore >= 80 ? 'mastered' : visited ? 'visited' : 'discovered',
-        };
-      }
+      if (station) this.bumpStation(station, mastery);
       this.save();
     }
 
     return { attemptId: null, score, success, xpGained, mastery, flagged };
+  }
+
+  async getQuestProgress(questIds: string[]): Promise<QuestProgress[]> {
+    return questIds.map((qid) => {
+      const loc = locate(qid);
+      const prog = this.state.questProgress[qid] ?? { pointsTotal: 0, passed: [] };
+      if (!loc) {
+        return { questId: qid, pointsTotal: prog.pointsTotal, pointsThreshold: null, passedStepIds: prog.passed, unlocked: true };
+      }
+      const { content, tier } = loc;
+      const threshold = tierThreshold(content, tier);
+      let unlocked = true;
+      if (tier !== 'bronze') {
+        const prevTier: DifficultyTier = tier === 'silver' ? 'bronze' : 'silver';
+        const prevId = content.quests[prevTier].questId;
+        const prevPoints = this.state.questProgress[prevId]?.pointsTotal ?? 0;
+        const prevThresh = tierThreshold(content, prevTier);
+        unlocked = prevThresh > 0 && prevPoints >= prevThresh;
+      }
+      return { questId: qid, pointsTotal: prog.pointsTotal, pointsThreshold: threshold || null, passedStepIds: prog.passed, unlocked };
+    });
   }
 
   async checkIn(stationId: string, _method: 'manual'): Promise<CheckInResult> {

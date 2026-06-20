@@ -96,7 +96,9 @@ export const en: Dict = {
       bronze: '{q} questions · {lives} lives · no timer',
       silver: '{q} questions · {lives} lives · {time}s/question',
       gold: '{q} questions · {lives} life · {time}s/question',
+      banked: '{draw} questions drawn · {lives} life/lives',
     },
+    quizPoints: '{pts}/{threshold} pts toward the tier',
   },
   brief: {
     objective: 'Objective',

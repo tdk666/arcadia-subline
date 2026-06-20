@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { getAnonId } from '../anonId';
 import type {
-  ArcadiaBackend, AttemptResult, BackendUser, CheckInResult, LeaderboardEntry, StationProgress,
+  ArcadiaBackend, AttemptResult, BackendUser, CheckInResult, LeaderboardEntry, QuestProgress, StationProgress,
 } from './types';
 
 export class SupabaseBackend implements ArcadiaBackend {
@@ -77,7 +77,29 @@ export class SupabaseBackend implements ArcadiaBackend {
       xpGained: data.xp_gained ?? 0,
       mastery: data.mastery ?? 0,
       flagged: !!data.flagged,
+      pointsTotal: data.points_total ?? null,
+      pointsThreshold: data.points_threshold ?? null,
     };
+  }
+
+  async getQuestProgress(questIds: string[]): Promise<QuestProgress[]> {
+    if (questIds.length === 0) return [];
+    // RPC owner-only (raise AUTH_REQUIRED si invité) : pas de session → vide,
+    // le client retombe sur les seuils du contenu + sa progression locale.
+    const { data: session } = await this.sb.auth.getSession();
+    if (!session.session) return [];
+    const { data, error } = await this.sb.rpc('fn_get_quest_progress', { p_quest_ids: questIds });
+    if (error || !data) return [];
+    return (data as Array<{
+      quest_id: string; points_total: number; points_threshold: number | null;
+      passed_step_ids: string[] | null; unlocked: boolean;
+    }>).map((r) => ({
+      questId: r.quest_id,
+      pointsTotal: r.points_total ?? 0,
+      pointsThreshold: r.points_threshold ?? null,
+      passedStepIds: r.passed_step_ids ?? [],
+      unlocked: !!r.unlocked,
+    }));
   }
 
   async checkIn(stationId: string, method: 'manual'): Promise<CheckInResult> {

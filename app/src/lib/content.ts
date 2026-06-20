@@ -34,7 +34,15 @@ export interface NetworkContent {
   lines: NetworkLine[];
 }
 
+/** Banque V2 : déblocage par seuils de points cumulés (jamais par perfection). */
+export interface Progression {
+  model: string;
+  thresholds: { bronzeToSilver: number; silverToGold: number; goldMastery: number };
+  note?: string;
+}
+
 export interface StationContent {
+  schemaVersion?: number;
   slug: string;
   stationId: string;
   lineId: string;
@@ -45,6 +53,7 @@ export interface StationContent {
     title: LocalizedText;
     tagline: LocalizedText;
   };
+  progression?: Progression;
   quests: Record<DifficultyTier, { questId: string; params: Record<string, unknown> }>;
   briefs: Record<DifficultyTier, { date: LocalizedText; title: LocalizedText; body: LocalizedText }>;
   archive: { number: string; collection: LocalizedText; era: LocalizedText };
@@ -80,4 +89,17 @@ export function getStationContent(slug: string): StationContent | null {
 
 export function isPlayable(slug: string): boolean {
   return slug in STATION_CONTENT;
+}
+
+/** Quiz « banque V2 » = un tirage `draw` est défini sur le palier bronze. */
+export function isBankedQuiz(content: StationContent): boolean {
+  return content.game.archetype === 'quiz'
+    && typeof (content.quests.bronze.params as Record<string, unknown>).draw === 'number';
+}
+
+/** Seuil de points d'un palier (autorité serveur en mode réel ; affichage/démo ici). */
+export function tierThreshold(content: StationContent, tier: DifficultyTier): number {
+  const th = content.progression?.thresholds;
+  if (!th) return 0;
+  return tier === 'bronze' ? th.bronzeToSilver : tier === 'silver' ? th.silverToGold : th.goldMastery;
 }

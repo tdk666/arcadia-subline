@@ -13,6 +13,19 @@ export interface AttemptResult {
   xpGained: number;
   mastery: number;
   flagged: boolean;
+  /** Banque V2 : points cumulés vers le seuil (null = quête non-banque). */
+  pointsTotal?: number | null;
+  /** Banque V2 : seuil de points du palier (null = quête non-banque). */
+  pointsThreshold?: number | null;
+}
+
+/** Progression banque V2 par quête (lecture). Seuils/déblocage = autorité serveur. */
+export interface QuestProgress {
+  questId: string;
+  pointsTotal: number;
+  pointsThreshold: number | null;
+  passedStepIds: string[];
+  unlocked: boolean;
 }
 
 export type CheckInError = 'cooldown' | 'auth_required' | 'error';
@@ -61,6 +74,8 @@ export interface ArcadiaBackend {
   getLineLeaderboard(lineId: string): Promise<LeaderboardEntry[]>;
   getMyStationProgress(stationId: string): Promise<StationProgress | null>;
   getMyStats(): Promise<{ xpTotal: number; streak: number } | null>;
+  /** Banque V2 : progression par quête (points cumulés, items réussis, déblocage). */
+  getQuestProgress(questIds: string[]): Promise<QuestProgress[]>;
   /** Sink télémétrie (events). Non bloquant, best-effort, jamais d'await UI. */
   logEvents(batch: { name: string; props: Record<string, unknown>; clientTs: number }[]): Promise<void>;
 }

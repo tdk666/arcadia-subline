@@ -1,77 +1,116 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import type { GameAnswers, QuizQuestion } from '@arcadia/games';
-import { previewQuizScore, TIER_MASTERY } from './scoring';
+import { drawBank, previewBankedQuizScore, scoreBankedRound, TIER_MASTERY } from './scoring';
 
 /**
- * Verrou sur la branche QUIZ du scoring (miroir de fn_submit_attempt, migr. 0012) :
- *   · succès UNIQUEMENT si toutes les réponses sont correctes,
- *   · anti-triche durée (300 ms × nombre d'étapes),
- *   · XP = marge au-delà du meilleur score, mastery imposée par palier.
- * On joue sur le VRAI contenu Louvre pour prouver qu'il est cohérent et jouable.
+ * Verrou sur la BANQUE V2 (miroir de la branche banque de fn_submit_attempt,
+ * migration 0016) : seuls les items tirés/soumis comptent, un item déjà réussi
+ * n'est JAMAIS re-crédité, succès = CUMUL ≥ seuil, anti-triche durée.
+ * On joue sur le VRAI contenu Louvre v2.
  */
-
 const louvre = JSON.parse(
   readFileSync(new URL('../../../content/stations/louvre-rivoli.json', import.meta.url), 'utf8'),
 ) as {
-  quests: Record<'bronze' | 'silver' | 'gold', { params: { questions: QuizQuestion[] } }>;
+  progression: { thresholds: { bronzeToSilver: number; silverToGold: number; goldMastery: number } };
+  quests: Record<'bronze' | 'silver' | 'gold', { params: { draw: number; questions: QuizQuestion[] } }>;
 };
 
-/** Réponses « sans faute » d'un palier : chaque step → son bon choix (contenu). */
-function perfectAnswers(questions: QuizQuestion[]): GameAnswers {
-  const out: GameAnswers = {};
-  for (const q of questions) out[q.stepId] = q.answer;
-  return out;
+const TH = louvre.progression.thresholds;
+
+/** Tire les `n` premiers items du palier et répond juste à chacun. */
+function correctDraw(tier: 'bronze' | 'silver' | 'gold', n: number): { answers: GameAnswers; qs: QuizQuestion[] } {
+  const qs = louvre.quests[tier].params.questions.slice(0, n);
+  const answers: GameAnswers = {};
+  for (const q of qs) answers[q.stepId] = q.answer;
+  return { answers, qs };
 }
 
-describe('previewQuizScore — succès / échec', () => {
-  it('victoire « sans faute » sur les 3 paliers Louvre (score = 10 × questions)', () => {
-    for (const tier of ['bronze', 'silver', 'gold'] as const) {
-      const qs = louvre.quests[tier].params.questions;
-      const r = previewQuizScore(louvre.quests[tier].params, tier, perfectAnswers(qs), 60_000);
-      expect(r.flagged).toBe(false);
-      expect(r.success).toBe(true);
-      expect(r.score).toBe(qs.length * 10);
-      expect(r.mastery).toBe(TIER_MASTERY[tier]);
-    }
+describe('scoreBankedRound — ne crédite que les items soumis et non déjà réussis', () => {
+  it('crédite les bonnes réponses tirées (10 pts/item)', () => {
+    const { answers } = correctDraw('bronze', 5);
+    const r = scoreBankedRound(louvre.quests.bronze.params.questions, answers, []);
+    expect(r.correct).toBe(5);
+    expect(r.submitted).toBe(5);
+    expect(r.pointsGained).toBe(50);
+    expect(r.newPassed).toHaveLength(5);
   });
 
-  it('une seule mauvaise réponse → pas de succès, score partiel', () => {
-    const qs = louvre.quests.bronze.params.questions;
-    const answers = perfectAnswers(qs);
-    // on casse la 1ʳᵉ réponse en choisissant un id volontairement faux
-    answers[qs[0].stepId] = qs[0].answer === 'a' ? 'b' : 'a';
-    const r = previewQuizScore(louvre.quests.bronze.params, 'bronze', answers, 60_000);
-    expect(r.success).toBe(false);
-    expect(r.mastery).toBe(0);
-    expect(r.score).toBe((qs.length - 1) * 10);
+  it('ne re-crédite JAMAIS un item déjà réussi', () => {
+    const { answers, qs } = correctDraw('bronze', 5);
+    const r = scoreBankedRound(louvre.quests.bronze.params.questions, answers, qs.map((q) => q.stepId));
+    expect(r.correct).toBe(5);       // toujours correct…
+    expect(r.pointsGained).toBe(0);  // …mais 0 point neuf
+    expect(r.newPassed).toHaveLength(0);
   });
 
-  it('réponses manquantes (vies épuisées) → pas de succès', () => {
-    const qs = louvre.quests.gold.params.questions;
+  it('ignore une mauvaise réponse (pas de point, pas de passed)', () => {
+    const qs = louvre.quests.bronze.params.questions.slice(0, 3);
     const answers: GameAnswers = {};
-    answers[qs[0].stepId] = qs[0].answer; // une seule répondue
-    const r = previewQuizScore(louvre.quests.gold.params, 'gold', answers, 60_000);
-    expect(r.success).toBe(false);
-    expect(r.score).toBe(10);
+    answers[qs[0].stepId] = qs[0].answer;
+    answers[qs[1].stepId] = qs[1].answer === 'a' ? 'b' : 'a'; // faux
+    answers[qs[2].stepId] = qs[2].answer;
+    const r = scoreBankedRound(louvre.quests.bronze.params.questions, answers, []);
+    expect(r.correct).toBe(2);
+    expect(r.pointsGained).toBe(20);
   });
 });
 
-describe('previewQuizScore — anti-triche & XP', () => {
-  it('manche trop rapide (< 300 ms × étapes) → flagged, score 0', () => {
-    const qs = louvre.quests.bronze.params.questions;
-    const r = previewQuizScore(louvre.quests.bronze.params, 'bronze', perfectAnswers(qs), 100);
-    expect(r.flagged).toBe(true);
-    expect(r.score).toBe(0);
-    expect(r.success).toBe(false);
+describe('drawBank — tirage qui ne rejoue jamais un item réussi', () => {
+  const bank = louvre.quests.gold.params.questions; // 90 items
+
+  it('tire exactement `draw` items, jamais un déjà réussi', () => {
+    const passed = bank.slice(0, 10).map((q) => q.stepId);
+    const drawn = drawBank(bank, 8, passed);
+    expect(drawn).toHaveLength(8);
+    expect(drawn.every((q) => !passed.includes(q.stepId))).toBe(true);
+    // pas de doublon dans la manche
+    expect(new Set(drawn.map((q) => q.stepId)).size).toBe(8);
   });
 
-  it('xpGained = score sans meilleur précédent, puis 0 sans progression', () => {
-    const qs = louvre.quests.silver.params.questions;
-    const a = perfectAnswers(qs);
-    const first = previewQuizScore(louvre.quests.silver.params, 'silver', a, 60_000);
-    expect(first.xpGained).toBe(first.score);
-    const again = previewQuizScore(louvre.quests.silver.params, 'silver', a, 60_000, first.score);
-    expect(again.xpGained).toBe(0);
+  it('banque épuisée (tout réussi) → repart de la banque complète', () => {
+    const passed = bank.map((q) => q.stepId); // tout réussi
+    const drawn = drawBank(bank, 8, passed);
+    expect(drawn).toHaveLength(8); // rejouabilité plutôt que blocage
+  });
+});
+
+describe('previewBankedQuizScore — succès par SEUIL cumulé', () => {
+  it('un tirage parfait de 5 (50 pts) dépasse le seuil bronze (30) → succès', () => {
+    const { answers } = correctDraw('bronze', 5);
+    const r = previewBankedQuizScore(louvre.quests.bronze.params.questions, 'bronze', answers, 60_000, TH.bronzeToSilver);
+    expect(r.flagged).toBe(false);
+    expect(r.score).toBe(50);
+    expect(r.pointsTotal).toBe(50);
+    expect(r.success).toBe(true);
+    expect(r.mastery).toBe(TIER_MASTERY.bronze);
+  });
+
+  it('cumul sur plusieurs manches jusqu’au seuil (gold = 56)', () => {
+    // manche 1 : 4 items justes = 40 pts (< 56) → pas encore
+    const d1 = correctDraw('gold', 4);
+    const r1 = previewBankedQuizScore(louvre.quests.gold.params.questions, 'gold', d1.answers, 60_000, TH.goldMastery, 0, []);
+    expect(r1.success).toBe(false);
+    expect(r1.pointsTotal).toBe(40);
+    // manche 2 : 2 NOUVEAUX items justes = 20 pts → cumul 60 ≥ 56 → succès
+    const next = louvre.quests.gold.params.questions.slice(4, 6);
+    const a2: GameAnswers = {};
+    for (const q of next) a2[q.stepId] = q.answer;
+    const r2 = previewBankedQuizScore(
+      louvre.quests.gold.params.questions, 'gold', a2, 60_000, TH.goldMastery,
+      r1.pointsTotal, d1.qs.map((q) => q.stepId),
+    );
+    expect(r2.pointsTotal).toBe(60);
+    expect(r2.success).toBe(true);
+    expect(r2.mastery).toBe(TIER_MASTERY.gold);
+  });
+
+  it('manche trop rapide (< 300 ms × items) → flagged, 0 pt, rien de passé', () => {
+    const { answers } = correctDraw('bronze', 5);
+    const r = previewBankedQuizScore(louvre.quests.bronze.params.questions, 'bronze', answers, 100, TH.bronzeToSilver);
+    expect(r.flagged).toBe(true);
+    expect(r.score).toBe(0);
+    expect(r.pointsTotal).toBe(0);
+    expect(r.newPassed).toHaveLength(0);
   });
 });

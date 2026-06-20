@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { TIER_ORDER, type DifficultyTier } from '@arcadia/games';
 import { pickText, useI18n } from '../i18n';
 import { backend } from '../lib/backend';
-import { getStationContent } from '../lib/content';
+import { getStationContent, isBankedQuiz, tierThreshold } from '../lib/content';
 import { presenceProviders } from '../lib/presence';
 import { useArcadia } from '../store';
 import { AuthSheet } from '../components/AuthSheet';
@@ -45,9 +45,13 @@ export function StationScreen() {
   const [cooldownMsg, setCooldownMsg] = useState<string | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [serverState, setServerState] = useState<'discovered' | 'visited' | 'mastered' | null>(null);
+  // Banque V2 : points cumulés + déblocage par palier (clé = tier)
+  const [bankProg, setBankProg] = useState<Record<string, { pointsTotal: number; threshold: number; unlocked: boolean }>>({});
 
   useEffect(() => { track('station_open', { slug }); }, [slug]);
   const [storyOpen, setStoryOpen] = useState(false);
+
+  const banked = !!content && isBankedQuiz(content);
 
   const refresh = useCallback(async () => {
     if (!content) return;
@@ -57,6 +61,22 @@ export function StationScreen() {
     ]);
     setCheckInUntil(ci?.expiresAt ?? null);
     setServerState(prog?.state ?? null);
+
+    if (isBankedQuiz(content)) {
+      const ids = TIER_ORDER.map((tr) => content.quests[tr].questId);
+      const list = await backend.getQuestProgress(ids);
+      const byTier: Record<string, { pointsTotal: number; threshold: number; unlocked: boolean }> = {};
+      TIER_ORDER.forEach((tr) => {
+        const e = list.find((x) => x.questId === content.quests[tr].questId);
+        byTier[tr] = {
+          pointsTotal: e?.pointsTotal ?? 0,
+          threshold: e?.pointsThreshold ?? tierThreshold(content, tr),
+          // serveur authoritatif si dispo ; sinon bronze libre, suivants par cumul local
+          unlocked: e?.unlocked ?? (tr === 'bronze'),
+        };
+      });
+      setBankProg(byTier);
+    }
   }, [content]);
 
   useEffect(() => { void refresh(); }, [refresh, user]);
@@ -149,8 +169,11 @@ export function StationScreen() {
         <h2 className="font-display text-lg font-bold">{pickText(content.game.title, locale)}</h2>
         <div className="mt-3 flex flex-col gap-2.5">
           {TIER_ORDER.map((tier) => {
-            const unlocked = isTierUnlocked(slug, tier);
-            const won = tiersWon.includes(tier);
+            const bp = bankProg[tier];
+            const unlocked = banked ? (bp?.unlocked ?? isTierUnlocked(slug, tier)) : isTierUnlocked(slug, tier);
+            const won = banked
+              ? !!bp && bp.threshold > 0 && bp.pointsTotal >= bp.threshold
+              : tiersWon.includes(tier);
             const p = content.quests[tier].params as Record<string, number>;
             const style = TIER_STYLE[tier];
             return (
@@ -194,18 +217,38 @@ export function StationScreen() {
                   <span className="mt-0.5 block text-[10px] leading-tight text-pierre-faint">
                     {!unlocked
                       ? t('station.tierLocked')
-                      : content.game.archetype === 'quiz'
-                        ? t(`station.quizRules.${tier}`, {
-                            q: ((p.questions as unknown as unknown[]) ?? []).length,
+                      : banked
+                        ? t('station.quizRules.banked', {
+                            draw: Number((p as Record<string, unknown>).draw ?? 0),
                             lives: Number(p.lives ?? 0),
                             time: Number(p.timerS ?? 0),
                           })
-                        : t(`station.rules.${tier}`, {
-                            shots: p.maxShots,
-                            pct: p.targetPct,
-                            time: p.timeLimitS,
-                          })}
+                        : content.game.archetype === 'quiz'
+                          ? t(`station.quizRules.${tier}`, {
+                              q: ((p.questions as unknown as unknown[]) ?? []).length,
+                              lives: Number(p.lives ?? 0),
+                              time: Number(p.timerS ?? 0),
+                            })
+                          : t(`station.rules.${tier}`, {
+                              shots: p.maxShots,
+                              pct: p.targetPct,
+                              time: p.timeLimitS,
+                            })}
                   </span>
+                  {/* banque : progression points vers le seuil de palier */}
+                  {banked && unlocked && bp && bp.threshold > 0 && (
+                    <span className="mt-1 block">
+                      <span className="mb-0.5 block font-mono text-[9px] text-pierre-faint">
+                        {t('station.quizPoints', { pts: Math.min(bp.pointsTotal, bp.threshold), threshold: bp.threshold })}
+                      </span>
+                      <span className="block h-1 w-full overflow-hidden rounded-full bg-rail/50">
+                        <span
+                          className="block h-full rounded-full"
+                          style={{ width: `${Math.min(100, Math.round((bp.pointsTotal / bp.threshold) * 100))}%`, background: style.text.includes('laiton') ? '#c9a227' : 'currentColor' }}
+                        />
+                      </span>
+                    </span>
+                  )}
                 </span>
 
                 <span className="flex-none text-xs">
