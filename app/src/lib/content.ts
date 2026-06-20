@@ -7,6 +7,7 @@ import type { DifficultyTier, GameArchetype } from '@arcadia/games';
 import type { LocalizedText } from '../i18n';
 import ligne1 from '@content/lines/ligne-1.json';
 import bastille from '@content/stations/bastille.json';
+import louvreRivoli from '@content/stations/louvre-rivoli.json';
 import networkData from '@content/network.json';
 
 export interface LineContent {
@@ -70,6 +71,7 @@ export function getLineContent(code: string): LineContent | null {
 
 const STATION_CONTENT: Record<string, StationContent> = {
   bastille: bastille as unknown as StationContent,
+  'louvre-rivoli': louvreRivoli as unknown as StationContent,
 };
 
 export function getStationContent(slug: string): StationContent | null {

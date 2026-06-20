@@ -52,6 +52,12 @@ export function ResultView({
   const tierIdx = TIER_ORDER.indexOf(result.tier);
   const nextTier = tierIdx >= 0 && tierIdx < TIER_ORDER.length - 1 ? TIER_ORDER[tierIdx + 1] : null;
 
+  // L'habillage « Bastille tombée » est propre à la démolition ; les autres
+  // archétypes (quiz…) prennent une bannière générique.
+  const isDemolition = station.game.archetype === 'demolition';
+  const victoryText = isDemolition ? t('result.victory') : t('result.victoryGeneric');
+  const defeatText = isDemolition ? t('result.defeat') : t('result.defeatGeneric');
+
   function openArchive() {
     localStorage.setItem(archiveSeenKey, '1');
     setArchiveOpen(true);
@@ -68,7 +74,7 @@ export function ResultView({
             result.success ? 'animate-glow text-laiton' : 'text-pierre-dim'
           }`}
         >
-          {result.success ? t('result.victory') : t('result.defeat')}
+          {result.success ? victoryText : defeatText}
         </h1>
         {/* défaite jamais « morte » : on encourage le rejeu (cf. Candy Crush / Royal Match) */}
         {!result.success && (

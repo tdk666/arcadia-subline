@@ -7,7 +7,7 @@ import {
 import { pickText, useI18n } from '../i18n';
 import { backend } from '../lib/backend';
 import { getStationContent, type StationContent } from '../lib/content';
-import { previewDemolitionScore } from '../lib/scoring';
+import { previewDemolitionScore, previewQuizScore } from '../lib/scoring';
 import { track } from '../lib/analytics';
 import { tap } from '../lib/feedback';
 import { useArcadia, type LastResult } from '../store';
@@ -67,13 +67,24 @@ export function GameScreen() {
 
   const quest = content.quests[difficulty];
   const brief = content.briefs[difficulty];
+  const archetype = content.game.archetype;
+  const isQuiz = archetype === 'quiz';
   const params = quest.params as Record<string, number>;
 
   async function onFinish(gameResult: GameResult) {
     const c = content as StationContent;
-    // p_answers : { "<quest_step_id>": télémétrie } — le serveur note, jamais nous
-    const stepId = stepIdForQuest(c, difficulty);
-    const answers = { [stepId]: gameResult.answers };
+    // p_answers — la forme dépend de l'archétype, mais le SERVEUR note, jamais nous :
+    //  · quiz       : { "<step_id>": "<choiceId>", … } (1 question = 1 step) → tel quel
+    //  · démolition : { "<step_id>": télémétrie } (terrain mono-étape) → enveloppé
+    const answers = isQuiz
+      ? (gameResult.answers as Record<string, unknown>)
+      : { [stepIdForQuest(c, difficulty)]: gameResult.answers };
+
+    // Aperçu local SANS autorité (démo + panne + invité), miroir de fn_submit_attempt
+    const preview = (best = 0) =>
+      isQuiz
+        ? previewQuizScore(quest.params, difficulty, gameResult.answers, gameResult.durationMs, best)
+        : previewDemolitionScore(quest.params, difficulty, gameResult.answers, gameResult.durationMs, best);
 
     setPhase('submitting');
     let r: LastResult;
@@ -84,19 +95,13 @@ export function GameScreen() {
       } catch (e) {
         console.warn('submitAttempt:', e);
         // panne réseau/serveur : aperçu local + mise en file (rejouée plus tard)
-        r = {
-          ...previewDemolitionScore(quest.params, difficulty, gameResult.answers, gameResult.durationMs),
-          slug: c.slug, tier: difficulty, localOnly: true,
-        };
+        r = { ...preview(), slug: c.slug, tier: difficulty, localOnly: true };
         if (r.success) queuePending({ questId: quest.questId, slug: c.slug, tier: difficulty, answers, durationMs: gameResult.durationMs });
       }
     } else {
       // invité (mode Supabase) : aperçu local, la tentative gagnante est mise en
       // file et soumise via fn_submit_attempt dès la création du compte
-      r = {
-        ...previewDemolitionScore(quest.params, difficulty, gameResult.answers, gameResult.durationMs),
-        slug: c.slug, tier: difficulty, localOnly: true,
-      };
+      r = { ...preview(), slug: c.slug, tier: difficulty, localOnly: true };
       if (r.success) queuePending({ questId: quest.questId, slug: c.slug, tier: difficulty, answers, durationMs: gameResult.durationMs });
     }
     recordResult(r);
@@ -138,15 +143,30 @@ export function GameScreen() {
 
           <div className="animate-slide-up w-full rounded-2xl border border-rail bg-plomb/80 px-5 py-4 text-left" style={{ animationDelay: '0.12s' }}>
             <p className="font-mono text-[10px] uppercase tracking-widest text-pierre-faint">{t('brief.objective')}</p>
-            <p className="mt-1.5 text-sm font-semibold text-pierre">
-              ⚜ {t('brief.objectiveText', { targets: 3 })}
-              {params.targetPct > 0 && <><br />💥 {t('brief.objectiveExtra', { pct: params.targetPct })}</>}
-              {params.timeLimitS > 0 && <><br />⏱ {t('brief.objectiveTime', { time: params.timeLimitS })}</>}
-              <br />🪨 {t('brief.objectiveAmmo', { n: params.maxShots })}
-            </p>
-            <p className="mt-2 border-t border-rail pt-2 font-mono text-[10px] leading-relaxed text-pierre-faint">
-              {t('brief.howto')}
-            </p>
+            {isQuiz ? (
+              <>
+                <p className="mt-1.5 text-sm font-semibold text-pierre">
+                  ⚜ {t('brief.quizObjective', { n: ((quest.params.questions as unknown[]) ?? []).length })}
+                  <br />❤️ {t('brief.quizLives', { n: Number(params.lives ?? 3) })}
+                  {Number(params.timerS ?? 0) > 0 && <><br />⏱ {t('brief.quizTimer', { time: Number(params.timerS) })}</>}
+                </p>
+                <p className="mt-2 border-t border-rail pt-2 font-mono text-[10px] leading-relaxed text-pierre-faint">
+                  {t('brief.quizHowto')}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="mt-1.5 text-sm font-semibold text-pierre">
+                  ⚜ {t('brief.objectiveText', { targets: 3 })}
+                  {params.targetPct > 0 && <><br />💥 {t('brief.objectiveExtra', { pct: params.targetPct })}</>}
+                  {params.timeLimitS > 0 && <><br />⏱ {t('brief.objectiveTime', { time: params.timeLimitS })}</>}
+                  <br />🪨 {t('brief.objectiveAmmo', { n: params.maxShots })}
+                </p>
+                <p className="mt-2 border-t border-rail pt-2 font-mono text-[10px] leading-relaxed text-pierre-faint">
+                  {t('brief.howto')}
+                </p>
+              </>
+            )}
           </div>
 
           <button
@@ -165,7 +185,7 @@ export function GameScreen() {
             className="animate-pop w-full max-w-xs rounded-2xl py-4 font-display text-lg font-extrabold text-encre shadow-[0_5px_0_rgba(0,0,0,0.22),0_0_30px_rgba(242,194,0,0.35)] ring-1 ring-inset ring-white/40 transition-[transform,box-shadow] duration-75 active:translate-y-[3px] active:shadow-[0_2px_0_rgba(0,0,0,0.22),0_0_20px_rgba(242,194,0,0.3)]"
             style={{ background: TIER_COLOR[difficulty], animationDelay: '0.25s' }}
           >
-            ⚔ {t('brief.cta')}
+            {isQuiz ? '🎓' : '⚔'} {t(isQuiz ? 'brief.quizCta' : 'brief.cta')}
           </button>
           <button
             type="button"

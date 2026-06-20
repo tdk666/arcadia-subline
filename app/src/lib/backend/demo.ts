@@ -7,7 +7,7 @@
  */
 import type { DifficultyTier, GameAnswers } from '@arcadia/games';
 import { getStationContent, LINE } from '../content';
-import { previewDemolitionScore } from '../scoring';
+import { previewDemolitionScore, previewQuizScore } from '../scoring';
 import type {
   ArcadiaBackend, AttemptResult, BackendUser, CheckInResult, LeaderboardEntry, StationProgress,
 } from './types';
@@ -86,10 +86,13 @@ export class DemoBackend implements ArcadiaBackend {
     );
     const tier = (Object.entries(station?.quests ?? {}).find(([, q]) => q.questId === questId)?.[0] ?? 'bronze') as DifficultyTier;
     const params = station?.quests[tier]?.params ?? {};
-    const tel = (Object.values(answers)[0] ?? {}) as GameAnswers;
 
     const best = this.state.bestScores[questId] ?? 0;
-    const result = previewDemolitionScore(params, tier, tel, durationMs, best);
+    // Quiz : p_answers est déjà keyé par step → noté tel quel. Démolition :
+    // p_answers = { "<step_id>": télémétrie } → on déballe la télémétrie.
+    const result = station?.game.archetype === 'quiz'
+      ? previewQuizScore(params, tier, answers as GameAnswers, durationMs, best)
+      : previewDemolitionScore(params, tier, (Object.values(answers)[0] ?? {}) as GameAnswers, durationMs, best);
     const { score, success, xpGained, mastery, flagged } = result;
 
     if (!flagged) {

@@ -92,6 +92,11 @@ export const en: Dict = {
       silver: '{shots} cannonballs · reinforced walls · {pct}% to destroy',
       gold: '{shots} cannonballs · iron plates · {pct}% · {time}s timer',
     },
+    quizRules: {
+      bronze: '{q} questions · {lives} lives · no timer',
+      silver: '{q} questions · {lives} lives · {time}s/question',
+      gold: '{q} questions · {lives} life · {time}s/question',
+    },
   },
   brief: {
     objective: 'Objective',
@@ -101,6 +106,11 @@ export const en: Dict = {
     objectiveAmmo: 'with {n} cobblestones total',
     howto: 'Pull the cobblestone back, aim, release. Topple the standards (a collapsing wall takes them down too).',
     cta: 'Storm the fortress!',
+    quizObjective: 'Answer all {n} questions with no mistakes',
+    quizLives: 'You have {n} life(s) — a wrong answer costs one',
+    quizTimer: '{time}s per question',
+    quizHowto: 'Tap the right answer before the timer runs out. The correct choice lights up green.',
+    quizCta: 'Enter the museum',
   },
   checkin: {
     title: 'Are you there?',
@@ -125,7 +135,7 @@ export const en: Dict = {
   result: {
     victory: 'The Bastille has fallen!', defeat: 'The fortress holds…',
     defeatHint: 'So close — one more assault and it falls.',
-    victoryGeneric: 'Victory!',
+    victoryGeneric: 'Victory!', defeatGeneric: 'Not master yet…',
     score: 'Score', xp: 'XP', mastery: 'Mastery',
     bestScore: 'No improvement on your best score — XP rewards the margin.',
     flagged: 'Attempt flagged by the server (abnormal duration or telemetry).',

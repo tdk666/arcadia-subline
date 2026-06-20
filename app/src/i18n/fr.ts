@@ -90,6 +90,11 @@ export const fr = {
       silver: '{shots} boulets · murs renforcés · {pct} % à détruire',
       gold: '{shots} boulets · plaques de fer · {pct} % · {time} s chrono',
     },
+    quizRules: {
+      bronze: '{q} questions · {lives} vies · sans chrono',
+      silver: '{q} questions · {lives} vies · {time} s/question',
+      gold: '{q} questions · {lives} vie · {time} s/question',
+    },
   },
   brief: {
     objective: 'Objectif',
@@ -99,6 +104,11 @@ export const fr = {
     objectiveAmmo: 'avec {n} pavés en tout',
     howto: 'Tire le pavé vers l’arrière, vise, relâche. Fais tomber les étendards (un mur qui s’effondre les emporte aussi).',
     cta: 'À l’assaut !',
+    quizObjective: 'Réponds aux {n} questions sans faute',
+    quizLives: 'Tu as {n} vie(s) — une erreur en coûte une',
+    quizTimer: '{time} s par question',
+    quizHowto: 'Touche la bonne réponse avant la fin du chrono. La bonne réponse s’allume en vert.',
+    quizCta: 'Entrer au musée',
   },
   checkin: {
     title: 'Tu es sur place ?',
@@ -123,7 +133,7 @@ export const fr = {
   result: {
     victory: 'La Bastille est tombée !', defeat: 'La forteresse tient bon…',
     defeatHint: 'Si près — encore un assaut et elle cède.',
-    victoryGeneric: 'Victoire !',
+    victoryGeneric: 'Victoire !', defeatGeneric: 'Pas encore maître…',
     score: 'Score', xp: 'XP', mastery: 'Maîtrise',
     bestScore: 'Pas de progression sur ton meilleur score — l’XP récompense la marge.',
     flagged: 'Tentative signalée par le serveur (durée ou télémétrie anormale).',

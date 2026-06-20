@@ -2,7 +2,53 @@
 
 > But : permettre à **une nouvelle conversation Claude Code** de reprendre le
 > travail sans aucune perte de contexte. Lis ce fichier en entier d'abord.
-> Dernière mise à jour : 15 juin 2026.
+> Dernière mise à jour : 20 juin 2026.
+
+---
+
+## 0bis. Sprint « Preuve du cœur » — ✅ FAIT (20 juin 2026)
+
+Objectif : prouver la **rétention J1** sur la tranche jouable avant d'élargir.
+Trois lots livrés sur `claude/happy-sagan-16ktg4` (PR #3), CI verte.
+
+- **Lot A — Instrumentation réelle.** Table `public.events` (migration
+  **0014**, appliquée) : insert-only RLS pour `anon`+`authenticated`, **aucune
+  policy SELECT/UPDATE/DELETE** (analyse = service_role), index `(name,server_ts)`
+  et `(player_id,server_ts)`. `backend.logEvents(batch)` (Supabase batché non
+  bloquant ; démo no-op). `analytics.ts` : `track()` inchangé côté call-sites +
+  outbox vidé toutes les 10 s et sur `visibilitychange`/`pagehide` ; `anon_id`
+  persistant (`lib/anonId.ts`). Call-sites posés : `first_play`, `session_start`,
+  `brief_view`, `drop_off`, `checkin`, `signup_from_guest`, `daily_reward_claim`,
+  + existants (`game_start/result/quit`, `station_open`). **Requête rétention J1**
+  documentée en commentaire dans `0014_events.sql`.
+- **Lot B — 2ᵉ archétype (quiz) + 2ᵉ station (Louvre-Rivoli).**
+  `games/src/quiz/QuizGame.tsx` : portrait, full DOM, télémétrie-only, juteux
+  (cœurs, série, chrono, révélation verte/rouge), i18n FR/EN, `reducedMotion`.
+  Enregistré `orientation:'portrait'` (lazy-load → chunk `QuizGame` ~5 kB).
+  Contenu `content/stations/louvre-rivoli.json` (« Le Cabinet des Merveilles »,
+  Q1–Q8, paliers durcis **bronze 5q/3 vies/0 s · silver 6q/2 vies/12 s · gold
+  8q/1 vie/8 s**). Migration **0015** (appliquée) : `station_id` **résolu par
+  requête** (jamais fabriqué), `quest_steps` quiz (`payload`=énoncé/choix/points,
+  `answer_key`={"answer":"<id>"}, **PAS** de `kind:'minigame'`) → scorés par
+  `fn_submit_attempt` **sans la modifier**. Parité client↔serveur vérifiée en
+  base : sans-faute = 50/60/80 pts, succès aux 3 paliers.
+- **Lot C — Garde-fous.** Tests : parité scoring quiz (`quiz-scoring.test.ts`),
+  parité corrigé contenu↔answer_key + invariants (`quiz-content.test.ts`), RLS
+  events (`events-rls.test.ts`). Total **32 tests verts**. Mode démo joue le quiz
+  en local (`demo.submitAttempt` branche `previewQuizScore`). i18n FR/EN complété.
+
+### ⚠️ TENSION D'INVARIANT À ARBITRER (fondateur)
+Le quiz a besoin de connaître la **bonne réponse côté client** pour le ressenti
+immédiat (feedback, vies, série). Donc `content/stations/louvre-rivoli.json` (et
+le `payload` des `quest_steps`) **portent le champ `answer`**. L'autorité de
+notation reste **exclusivement** `fn_submit_attempt` via `answer_key` (le score,
+l'XP, la maîtrise et le classement n'en dépendent jamais) — mais le « corrigé »
+est, de fait, **devinable** par un joueur qui inspecte le bundle/contenu.
+C'est acceptable pour un quiz culturel grand public (la triche ne lèse que le
+tricheur), mais à **trancher** si on veut un mode « compétitif blind » : il
+faudrait alors servir les questions **sans** `answer` côté client et faire valider
+chaque réponse par un RPC (latence + refonte du ressenti). Décision laissée au
+fondateur ; rien n'est verrouillé côté serveur.
 
 ---
 
@@ -231,11 +277,12 @@ business model, `app-map`/`app-map-v2` (HTML), zip des migrations.
 
 1. ✅ Instrumenter — 2. ✅ CI + tests — 3. **Supabase réel** (cette passation) —
    4. ✅ Session DA — puis :
-5. **2ᵉ archétype non-physique** (quiz/association) + 2ᵉ station → prouver la
-   plateforme (le contrat `games/src/contract.ts` + `registry.ts` est prêt).
-6. **Line-pack offline** (jouer dans le tunnel) — le vrai pari « jeu du métro ».
-7. **Pipeline de contenu** assisté (génération + curation historienne).
-8. Trancher en session DA : **orientation portrait** du mini-jeu (vs paysage).
+5. ✅ **2ᵉ archétype non-physique (quiz) + 2ᵉ station (Louvre)** — livré sprint
+   « Preuve du cœur » (cf. §0bis). Plateforme prouvée : 2 archétypes, 2 stations.
+6. **Lire la rétention J1** dès qu'il y a des joueurs (requête dans `0014`), puis
+   décider de l'élargissement (3ᵉ archétype / 3ᵉ station / pipeline contenu).
+7. **Line-pack offline** (jouer dans le tunnel) — le vrai pari « jeu du métro ».
+8. **Pipeline de contenu** assisté (génération + curation historienne).
 
 ---
 

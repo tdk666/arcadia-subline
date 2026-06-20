@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { TIER_ORDER, type DifficultyTier, type GameAnswers } from '@arcadia/games';
+import { TIER_ORDER, type DifficultyTier } from '@arcadia/games';
 import { backend, type AttemptResult, type BackendUser } from '../lib/backend';
 import { advanceDaily, INITIAL_DAILY, type DailyState } from '../lib/daily';
 import { cosmetic, DEFAULT_OWNED } from '../lib/cosmetics';
@@ -10,7 +10,9 @@ export interface PendingAttempt {
   questId: string;
   slug: string;
   tier: DifficultyTier;
-  answers: Record<string, GameAnswers>;
+  // p_answers tel que soumis à fn_submit_attempt — la forme dépend de l'archétype
+  // (démolition : { step → télémétrie } ; quiz : { step → choiceId }).
+  answers: Record<string, unknown>;
   durationMs: number;
 }
 

@@ -1,0 +1,382 @@
+{
+  "slug": "louvre-rivoli",
+  "stationId": "4fef6355-d059-4534-b36f-2a6df868fe1a",
+  "lineId": "22222222-2222-4222-8222-222222222222",
+  "name": "Louvre — Rivoli",
+  "game": {
+    "archetype": "quiz",
+    "skin": "louvre",
+    "title": { "fr": "Le Cabinet des Merveilles", "en": "The Cabinet of Wonders" },
+    "tagline": {
+      "fr": "Du donjon de Philippe Auguste au plus grand musée du monde : prouve que tu connais le Louvre.",
+      "en": "From Philippe Auguste’s keep to the world’s largest museum: prove you know the Louvre."
+    }
+  },
+  "quests": {
+    "bronze": {
+      "questId": "44444444-4444-4444-8444-444444444411",
+      "params": {
+        "lives": 3,
+        "timerS": 0,
+        "questions": [
+          {
+            "stepId": "77777777-7777-4777-8777-777777770101",
+            "points": 10,
+            "answer": "a",
+            "question": {
+              "fr": "Quel roi a transformé le Louvre de forteresse médiévale en palais Renaissance ?",
+              "en": "Which king turned the Louvre from a medieval fortress into a Renaissance palace?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "François Iᵉʳ", "en": "François I" } },
+              { "id": "b", "text": { "fr": "Louis XIV", "en": "Louis XIV" } },
+              { "id": "c", "text": { "fr": "Napoléon Iᵉʳ", "en": "Napoleon I" } },
+              { "id": "d", "text": { "fr": "Henri IV", "en": "Henri IV" } }
+            ]
+          },
+          {
+            "stepId": "77777777-7777-4777-8777-777777770102",
+            "points": 10,
+            "answer": "b",
+            "question": {
+              "fr": "Qui a conçu la pyramide de verre du Louvre ?",
+              "en": "Who designed the Louvre’s glass pyramid?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "Gustave Eiffel", "en": "Gustave Eiffel" } },
+              { "id": "b", "text": { "fr": "Ieoh Ming Pei", "en": "Ieoh Ming Pei" } },
+              { "id": "c", "text": { "fr": "Le Corbusier", "en": "Le Corbusier" } },
+              { "id": "d", "text": { "fr": "Jean Nouvel", "en": "Jean Nouvel" } }
+            ]
+          },
+          {
+            "stepId": "77777777-7777-4777-8777-777777770103",
+            "points": 10,
+            "answer": "c",
+            "question": {
+              "fr": "En quelle année la pyramide a-t-elle été inaugurée ?",
+              "en": "In what year was the pyramid inaugurated?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "1968", "en": "1968" } },
+              { "id": "b", "text": { "fr": "1979", "en": "1979" } },
+              { "id": "c", "text": { "fr": "1989", "en": "1989" } },
+              { "id": "d", "text": { "fr": "1999", "en": "1999" } }
+            ]
+          },
+          {
+            "stepId": "77777777-7777-4777-8777-777777770104",
+            "points": 10,
+            "answer": "b",
+            "question": {
+              "fr": "Quelle déesse la « Vénus de Milo » représente-t-elle ?",
+              "en": "Which goddess does the ‘Venus de Milo’ depict?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "Athéna", "en": "Athena" } },
+              { "id": "b", "text": { "fr": "Aphrodite", "en": "Aphrodite" } },
+              { "id": "c", "text": { "fr": "Artémis", "en": "Artemis" } },
+              { "id": "d", "text": { "fr": "Héra", "en": "Hera" } }
+            ]
+          },
+          {
+            "stepId": "77777777-7777-4777-8777-777777770105",
+            "points": 10,
+            "answer": "c",
+            "question": {
+              "fr": "Quel roi quitte le Louvre pour Versailles en 1682, y laissant la cour exsangue ?",
+              "en": "Which king left the Louvre for Versailles in 1682?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "Louis XIII", "en": "Louis XIII" } },
+              { "id": "b", "text": { "fr": "François Iᵉʳ", "en": "François I" } },
+              { "id": "c", "text": { "fr": "Louis XIV", "en": "Louis XIV" } },
+              { "id": "d", "text": { "fr": "Charles V", "en": "Charles V" } }
+            ]
+          }
+        ]
+      }
+    },
+    "silver": {
+      "questId": "44444444-4444-4444-8444-444444444412",
+      "params": {
+        "lives": 2,
+        "timerS": 12,
+        "questions": [
+          {
+            "stepId": "77777777-7777-4777-8777-777777770201",
+            "points": 10,
+            "answer": "a",
+            "question": {
+              "fr": "Quel roi a transformé le Louvre de forteresse médiévale en palais Renaissance ?",
+              "en": "Which king turned the Louvre from a medieval fortress into a Renaissance palace?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "François Iᵉʳ", "en": "François I" } },
+              { "id": "b", "text": { "fr": "Louis XIV", "en": "Louis XIV" } },
+              { "id": "c", "text": { "fr": "Napoléon Iᵉʳ", "en": "Napoleon I" } },
+              { "id": "d", "text": { "fr": "Henri IV", "en": "Henri IV" } }
+            ]
+          },
+          {
+            "stepId": "77777777-7777-4777-8777-777777770202",
+            "points": 10,
+            "answer": "b",
+            "question": {
+              "fr": "Qui a conçu la pyramide de verre du Louvre ?",
+              "en": "Who designed the Louvre’s glass pyramid?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "Gustave Eiffel", "en": "Gustave Eiffel" } },
+              { "id": "b", "text": { "fr": "Ieoh Ming Pei", "en": "Ieoh Ming Pei" } },
+              { "id": "c", "text": { "fr": "Le Corbusier", "en": "Le Corbusier" } },
+              { "id": "d", "text": { "fr": "Jean Nouvel", "en": "Jean Nouvel" } }
+            ]
+          },
+          {
+            "stepId": "77777777-7777-4777-8777-777777770203",
+            "points": 10,
+            "answer": "c",
+            "question": {
+              "fr": "En quelle année la pyramide a-t-elle été inaugurée ?",
+              "en": "In what year was the pyramid inaugurated?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "1968", "en": "1968" } },
+              { "id": "b", "text": { "fr": "1979", "en": "1979" } },
+              { "id": "c", "text": { "fr": "1989", "en": "1989" } },
+              { "id": "d", "text": { "fr": "1999", "en": "1999" } }
+            ]
+          },
+          {
+            "stepId": "77777777-7777-4777-8777-777777770204",
+            "points": 10,
+            "answer": "b",
+            "question": {
+              "fr": "Quelle déesse la « Vénus de Milo » représente-t-elle ?",
+              "en": "Which goddess does the ‘Venus de Milo’ depict?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "Athéna", "en": "Athena" } },
+              { "id": "b", "text": { "fr": "Aphrodite", "en": "Aphrodite" } },
+              { "id": "c", "text": { "fr": "Artémis", "en": "Artemis" } },
+              { "id": "d", "text": { "fr": "Héra", "en": "Hera" } }
+            ]
+          },
+          {
+            "stepId": "77777777-7777-4777-8777-777777770205",
+            "points": 10,
+            "answer": "c",
+            "question": {
+              "fr": "Quel roi quitte le Louvre pour Versailles en 1682, y laissant la cour exsangue ?",
+              "en": "Which king left the Louvre for Versailles in 1682?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "Louis XIII", "en": "Louis XIII" } },
+              { "id": "b", "text": { "fr": "François Iᵉʳ", "en": "François I" } },
+              { "id": "c", "text": { "fr": "Louis XIV", "en": "Louis XIV" } },
+              { "id": "d", "text": { "fr": "Charles V", "en": "Charles V" } }
+            ]
+          },
+          {
+            "stepId": "77777777-7777-4777-8777-777777770206",
+            "points": 10,
+            "answer": "b",
+            "question": {
+              "fr": "En 1793, le Louvre devient… ?",
+              "en": "In 1793, the Louvre became…?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "une caserne", "en": "a barracks" } },
+              { "id": "b", "text": { "fr": "un musée public", "en": "a public museum" } },
+              { "id": "c", "text": { "fr": "une bibliothèque", "en": "a library" } },
+              { "id": "d", "text": { "fr": "un opéra", "en": "an opera house" } }
+            ]
+          }
+        ]
+      }
+    },
+    "gold": {
+      "questId": "44444444-4444-4444-8444-444444444413",
+      "params": {
+        "lives": 1,
+        "timerS": 8,
+        "questions": [
+          {
+            "stepId": "77777777-7777-4777-8777-777777770301",
+            "points": 10,
+            "answer": "a",
+            "question": {
+              "fr": "Quel roi a transformé le Louvre de forteresse médiévale en palais Renaissance ?",
+              "en": "Which king turned the Louvre from a medieval fortress into a Renaissance palace?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "François Iᵉʳ", "en": "François I" } },
+              { "id": "b", "text": { "fr": "Louis XIV", "en": "Louis XIV" } },
+              { "id": "c", "text": { "fr": "Napoléon Iᵉʳ", "en": "Napoleon I" } },
+              { "id": "d", "text": { "fr": "Henri IV", "en": "Henri IV" } }
+            ]
+          },
+          {
+            "stepId": "77777777-7777-4777-8777-777777770302",
+            "points": 10,
+            "answer": "b",
+            "question": {
+              "fr": "Qui a conçu la pyramide de verre du Louvre ?",
+              "en": "Who designed the Louvre’s glass pyramid?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "Gustave Eiffel", "en": "Gustave Eiffel" } },
+              { "id": "b", "text": { "fr": "Ieoh Ming Pei", "en": "Ieoh Ming Pei" } },
+              { "id": "c", "text": { "fr": "Le Corbusier", "en": "Le Corbusier" } },
+              { "id": "d", "text": { "fr": "Jean Nouvel", "en": "Jean Nouvel" } }
+            ]
+          },
+          {
+            "stepId": "77777777-7777-4777-8777-777777770303",
+            "points": 10,
+            "answer": "c",
+            "question": {
+              "fr": "En quelle année la pyramide a-t-elle été inaugurée ?",
+              "en": "In what year was the pyramid inaugurated?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "1968", "en": "1968" } },
+              { "id": "b", "text": { "fr": "1979", "en": "1979" } },
+              { "id": "c", "text": { "fr": "1989", "en": "1989" } },
+              { "id": "d", "text": { "fr": "1999", "en": "1999" } }
+            ]
+          },
+          {
+            "stepId": "77777777-7777-4777-8777-777777770304",
+            "points": 10,
+            "answer": "b",
+            "question": {
+              "fr": "Quelle déesse la « Vénus de Milo » représente-t-elle ?",
+              "en": "Which goddess does the ‘Venus de Milo’ depict?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "Athéna", "en": "Athena" } },
+              { "id": "b", "text": { "fr": "Aphrodite", "en": "Aphrodite" } },
+              { "id": "c", "text": { "fr": "Artémis", "en": "Artemis" } },
+              { "id": "d", "text": { "fr": "Héra", "en": "Hera" } }
+            ]
+          },
+          {
+            "stepId": "77777777-7777-4777-8777-777777770305",
+            "points": 10,
+            "answer": "c",
+            "question": {
+              "fr": "Quel roi quitte le Louvre pour Versailles en 1682, y laissant la cour exsangue ?",
+              "en": "Which king left the Louvre for Versailles in 1682?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "Louis XIII", "en": "Louis XIII" } },
+              { "id": "b", "text": { "fr": "François Iᵉʳ", "en": "François I" } },
+              { "id": "c", "text": { "fr": "Louis XIV", "en": "Louis XIV" } },
+              { "id": "d", "text": { "fr": "Charles V", "en": "Charles V" } }
+            ]
+          },
+          {
+            "stepId": "77777777-7777-4777-8777-777777770306",
+            "points": 10,
+            "answer": "b",
+            "question": {
+              "fr": "En 1793, le Louvre devient… ?",
+              "en": "In 1793, the Louvre became…?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "une caserne", "en": "a barracks" } },
+              { "id": "b", "text": { "fr": "un musée public", "en": "a public museum" } },
+              { "id": "c", "text": { "fr": "une bibliothèque", "en": "a library" } },
+              { "id": "d", "text": { "fr": "un opéra", "en": "an opera house" } }
+            ]
+          },
+          {
+            "stepId": "77777777-7777-4777-8777-777777770307",
+            "points": 10,
+            "answer": "b",
+            "question": {
+              "fr": "« La Liberté guidant le peuple » de Delacroix commémore quelle révolution ?",
+              "en": "Delacroix’s ‘Liberty Leading the People’ commemorates which revolution?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "1789", "en": "1789" } },
+              { "id": "b", "text": { "fr": "1830", "en": "1830" } },
+              { "id": "c", "text": { "fr": "1848", "en": "1848" } },
+              { "id": "d", "text": { "fr": "1871", "en": "1871" } }
+            ]
+          },
+          {
+            "stepId": "77777777-7777-4777-8777-777777770308",
+            "points": 10,
+            "answer": "a",
+            "question": {
+              "fr": "En 1911, un événement rend la Joconde mondialement célèbre. Lequel ?",
+              "en": "In 1911, one event made the Mona Lisa world-famous. Which?"
+            },
+            "choices": [
+              { "id": "a", "text": { "fr": "son vol", "en": "its theft" } },
+              { "id": "b", "text": { "fr": "un incendie", "en": "a fire" } },
+              { "id": "c", "text": { "fr": "sa vente", "en": "its sale" } },
+              { "id": "d", "text": { "fr": "sa restauration", "en": "its restoration" } }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "briefs": {
+    "bronze": {
+      "date": { "fr": "Salle des Antiques", "en": "Hall of Antiquities" },
+      "title": { "fr": "Le donjon sous tes pieds", "en": "The keep beneath your feet" },
+      "body": {
+        "fr": "Sous tes pieds, le donjon médiéval de Philippe Auguste. Cinq questions pour gagner ton billet d’entrée.",
+        "en": "Beneath your feet lies Philippe Auguste’s medieval keep. Five questions to earn your ticket in."
+      }
+    },
+    "silver": {
+      "date": { "fr": "Grande Galerie", "en": "Grand Gallery" },
+      "title": { "fr": "Le chrono qui court", "en": "Against the clock" },
+      "body": {
+        "fr": "Six épreuves, et le chrono qui court : un vrai conservateur ne flotte pas.",
+        "en": "Six trials, and the clock is ticking: a true curator never hesitates."
+      }
+    },
+    "gold": {
+      "date": { "fr": "Salle des États", "en": "Salle des États" },
+      "title": { "fr": "La Joconde en ligne de mire", "en": "The Mona Lisa in your sights" },
+      "body": {
+        "fr": "Huit questions, une seule vie, la Joconde en ligne de mire. Deviens maître du Louvre.",
+        "en": "Eight questions, a single life, the Mona Lisa in your sights. Become master of the Louvre."
+      }
+    }
+  },
+  "archive": {
+    "number": "002",
+    "collection": { "fr": "Mémoires de Paris", "en": "Memories of Paris" },
+    "era": { "fr": "Du Moyen Âge à nos jours", "en": "From the Middle Ages to today" }
+  },
+  "story": {
+    "teaser": {
+      "fr": "Avant d’exposer la Joconde, le Louvre fut un château fort, une prison, une académie et un palais.",
+      "en": "Before it housed the Mona Lisa, the Louvre was a fortress, a prison, an academy and a palace."
+    },
+    "body": {
+      "fr": "Le Louvre naît vers 1190 comme forteresse de Philippe Auguste pour garder Paris par l’ouest. François Iᵉʳ le mue en palais Renaissance et y attire les arts ; Louis XIV le délaisse pour Versailles en 1682. La Révolution le rouvre au peuple : le 10 août 1793, le « Muséum central des arts » expose les collections royales devenues nationales. La pyramide de I. M. Pei (1989) en fait l’entrée la plus célèbre du monde. La station Louvre-Rivoli, elle, fut l’une des premières stations « musée » du métro, ornée de copies d’œuvres dès 1968.",
+      "en": "The Louvre began around 1190 as Philippe Auguste’s fortress guarding Paris from the west. François I turned it into a Renaissance palace and a magnet for the arts; Louis XIV abandoned it for Versailles in 1682. The Revolution opened it to the people: on 10 August 1793 the ‘Muséum central des arts’ displayed the royal—now national—collections. I. M. Pei’s pyramid (1989) made its entrance the most famous in the world. Louvre-Rivoli station itself was one of the métro’s first ‘museum’ stations, set with replica artworks from 1968."
+    },
+    "facts": {
+      "fr": [
+        "Né vers 1190 comme forteresse de Philippe Auguste",
+        "Musée public depuis le 10 août 1793",
+        "Pyramide de I. M. Pei inaugurée en 1989"
+      ],
+      "en": [
+        "Born around 1190 as Philippe Auguste’s fortress",
+        "A public museum since 10 August 1793",
+        "I. M. Pei’s pyramid opened in 1989"
+      ]
+    }
+  }
+}

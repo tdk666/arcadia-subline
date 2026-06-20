@@ -194,11 +194,17 @@ export function StationScreen() {
                   <span className="mt-0.5 block text-[10px] leading-tight text-pierre-faint">
                     {!unlocked
                       ? t('station.tierLocked')
-                      : t(`station.rules.${tier}`, {
-                          shots: p.maxShots,
-                          pct: p.targetPct,
-                          time: p.timeLimitS,
-                        })}
+                      : content.game.archetype === 'quiz'
+                        ? t(`station.quizRules.${tier}`, {
+                            q: ((p.questions as unknown as unknown[]) ?? []).length,
+                            lives: Number(p.lives ?? 0),
+                            time: Number(p.timerS ?? 0),
+                          })
+                        : t(`station.rules.${tier}`, {
+                            shots: p.maxShots,
+                            pct: p.targetPct,
+                            time: p.timeLimitS,
+                          })}
                   </span>
                 </span>
 

@@ -6,11 +6,53 @@
  *     file et REJOUÉE via fn_submit_attempt à la création du compte — seul le
  *     résultat serveur fait foi et alimente classement/XP/mastery.
  */
-import type { DifficultyTier, GameAnswers } from '@arcadia/games';
+import type { DifficultyTier, GameAnswers, QuizQuestion } from '@arcadia/games';
 import type { AttemptResult } from './backend/types';
 
 export const TIER_MULT: Record<DifficultyTier, number> = { bronze: 1.0, silver: 1.5, gold: 2.0 };
 export const TIER_MASTERY: Record<DifficultyTier, number> = { bronze: 40, silver: 80, gold: 100 };
+
+/**
+ * Miroir SANS autorité de la branche quiz de fn_submit_attempt (migration 0012) :
+ *   v_points par étape (def. 10), succès si TOUTES correctes, anti-triche durée
+ *   (300 ms × nombre d'étapes), mastery imposée par palier.
+ * Usage : mode démo + aperçu invité. Le serveur reste seul juge en mode réel.
+ * answers : { "<quest_step_id>": "<choiceId>" } — exactement p_answers.
+ */
+export function previewQuizScore(
+  params: Record<string, unknown>,
+  tier: DifficultyTier,
+  answers: GameAnswers,
+  durationMs: number,
+  bestPrev = 0,
+): AttemptResult {
+  const questions = (params.questions as QuizQuestion[] | undefined) ?? [];
+  const total = questions.length;
+
+  let correct = 0;
+  let score = 0;
+  for (const q of questions) {
+    const given = answers[q.stepId];
+    if (given !== undefined && given === q.answer) {
+      correct += 1;
+      score += q.points ?? 10;
+    }
+  }
+
+  // Anti-triche durée globale : seuil serveur par défaut = 300 ms par étape.
+  const flagged = total > 0 && durationMs < 300 * total;
+  const success = !flagged && total > 0 && correct === total;
+  if (flagged) score = 0;
+
+  return {
+    attemptId: null,
+    score,
+    success,
+    xpGained: Math.max(0, score - bestPrev),
+    mastery: success ? TIER_MASTERY[tier] : 0,
+    flagged,
+  };
+}
 
 export function previewDemolitionScore(
   params: Record<string, unknown>,
