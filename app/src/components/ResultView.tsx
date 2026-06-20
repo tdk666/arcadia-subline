@@ -63,6 +63,20 @@ export function ResultView({
     setArchiveOpen(true);
   }
 
+  // Banque V2 : la progression se lit en POINTS vers un seuil, pas en « maîtrise »
+  // (jargon nu jugé ambigu au playtest). On affiche un état positif et clair.
+  const isBanked = result.pointsThreshold != null && result.pointsThreshold > 0 && result.pointsTotal != null;
+  const progressed = isBanked && !result.success && !result.flagged && result.score > 0;
+  const remaining = isBanked ? Math.max(0, (result.pointsThreshold as number) - (result.pointsTotal as number)) : 0;
+  const pctToThreshold = isBanked
+    ? Math.min(100, Math.round(((result.pointsTotal as number) / (result.pointsThreshold as number)) * 100))
+    : 0;
+
+  const headline = isBanked
+    ? (result.success ? t('result.tierCleared') : progressed ? t('result.progress') : t('result.tryAgain'))
+    : (result.success ? victoryText : defeatText);
+  const positive = result.success || progressed;
+
   return (
     <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 overflow-y-auto bg-craie/95 px-6 py-8 text-center">
       <div className="animate-pop">
@@ -71,54 +85,72 @@ export function ResultView({
         </p>
         <h1
           className={`mt-1 font-display text-4xl font-extrabold tracking-tight ${
-            result.success ? 'animate-glow text-laiton' : 'text-pierre-dim'
+            positive ? 'animate-glow text-laiton' : 'text-pierre-dim'
           }`}
         >
-          {result.success ? victoryText : defeatText}
+          {headline}
         </h1>
-        {/* défaite jamais « morte » : on encourage le rejeu (cf. Candy Crush / Royal Match) */}
-        {!result.success && (
-          <p className="mt-2 text-sm text-pierre-dim">{t('result.defeatHint')}</p>
+        {isBanked ? (
+          <p className="mt-2 text-sm text-pierre-dim">
+            {result.success
+              ? t('result.tierClearedHint')
+              : progressed
+                ? t('result.progressHint', { n: remaining })
+                : t('result.tryAgainHint')}
+          </p>
+        ) : (
+          !result.success && <p className="mt-2 text-sm text-pierre-dim">{t('result.defeatHint')}</p>
         )}
       </div>
 
       <div className="animate-slide-up flex w-full max-w-xs flex-col gap-2.5">
-        <div className="rounded-2xl border border-rail bg-plomb px-5 py-4">
-          <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.score')}</p>
-          <p className="font-display text-5xl font-extrabold text-ambre">
-            <CountUp value={result.score} />
-          </p>
-        </div>
-        <div className="flex gap-2.5">
-          <div className="flex-1 rounded-2xl border border-rail bg-plomb px-4 py-3">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.xp')}</p>
-            <p className="font-display text-2xl font-extrabold text-[#6b7a1a]">
-              +<CountUp value={result.xpGained} />
-            </p>
-          </div>
-          <div className="flex-1 rounded-2xl border border-rail bg-plomb px-4 py-3">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.mastery')}</p>
-            <p className="font-display text-2xl font-extrabold text-vermillon">
-              <CountUp value={result.mastery} />
-            </p>
-          </div>
-        </div>
-        {/* banque V2 : progression cumulée vers le seuil de palier */}
-        {result.pointsThreshold != null && result.pointsThreshold > 0 && result.pointsTotal != null && (
-          <div className="rounded-2xl border border-rail bg-plomb px-4 py-3">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">
-              {t('station.quizPoints', { pts: Math.min(result.pointsTotal, result.pointsThreshold), threshold: result.pointsThreshold })}
-            </p>
-            <span className="mt-1.5 block h-1.5 w-full overflow-hidden rounded-full bg-rail/50">
-              <span
-                className="block h-full rounded-full bg-laiton"
-                style={{ width: `${Math.min(100, Math.round((result.pointsTotal / result.pointsThreshold) * 100))}%` }}
-              />
-            </span>
-          </div>
-        )}
-        {result.success && result.xpGained === 0 && !result.flagged && result.pointsThreshold == null && (
-          <p className="text-xs text-pierre-faint">{t('result.bestScore')}</p>
+        {isBanked ? (
+          <>
+            {/* points gagnés cette manche — la récompense lisible, sans jargon */}
+            <div className="rounded-2xl border border-rail bg-plomb px-5 py-4">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.pointsWon')}</p>
+              <p className="font-display text-5xl font-extrabold" style={{ color: positive ? '#3f6b4d' : '#5d5446' }}>
+                +<CountUp value={result.score} />
+              </p>
+            </div>
+            {/* progression vers le palier */}
+            <div className="rounded-2xl border border-rail bg-plomb px-4 py-3">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">
+                {result.success
+                  ? t('result.tierUnlocked')
+                  : t('station.quizPoints', { pts: Math.min(result.pointsTotal as number, result.pointsThreshold as number), threshold: result.pointsThreshold as number })}
+              </p>
+              <span className="mt-1.5 block h-2 w-full overflow-hidden rounded-full bg-rail/50">
+                <span className="block h-full rounded-full bg-laiton" style={{ width: `${pctToThreshold}%` }} />
+              </span>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="rounded-2xl border border-rail bg-plomb px-5 py-4">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.score')}</p>
+              <p className="font-display text-5xl font-extrabold text-ambre">
+                <CountUp value={result.score} />
+              </p>
+            </div>
+            <div className="flex gap-2.5">
+              <div className="flex-1 rounded-2xl border border-rail bg-plomb px-4 py-3">
+                <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.xp')}</p>
+                <p className="font-display text-2xl font-extrabold text-[#6b7a1a]">
+                  +<CountUp value={result.xpGained} />
+                </p>
+              </div>
+              <div className="flex-1 rounded-2xl border border-rail bg-plomb px-4 py-3">
+                <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.mastery')}</p>
+                <p className="font-display text-2xl font-extrabold text-vermillon">
+                  <CountUp value={result.mastery} />
+                </p>
+              </div>
+            </div>
+            {result.success && result.xpGained === 0 && !result.flagged && (
+              <p className="text-xs text-pierre-faint">{t('result.bestScore')}</p>
+            )}
+          </>
         )}
         {result.flagged && <p className="text-xs text-vermillon">⚠ {t('result.flagged')}</p>}
         {result.localOnly && (

@@ -96,6 +96,10 @@ export function LineMapScreen() {
             <p className="font-mono text-[9px] uppercase tracking-widest text-pierre-faint">{t('map.progress')}</p>
           </div>
         </header>
+        {/* micro-rappel : tue le malentendu géoloc n°1 du playtest */}
+        <p className="mt-2 rounded-lg bg-email/10 px-3 py-1.5 text-center font-mono text-[11px] text-email">
+          👆 {t('map.tapHint')}
+        </p>
       </div>
 
       {/* ── LE PLATEAU défilable ── */}

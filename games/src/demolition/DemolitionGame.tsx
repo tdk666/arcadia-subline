@@ -116,6 +116,8 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
   const urgent = hud?.timeLeftS != null && (hud.timeLeftS ?? 99) <= 10;
   const debug = typeof location !== 'undefined' && new URLSearchParams(location.search).has('debug');
   const maxShots = Number((ctx.params as Record<string, number>).maxShots ?? 5);
+  const targetPct = Number((ctx.params as Record<string, number>).targetPct ?? 0);
+  const targetReached = targetPct > 0 && (hud?.destructionPct ?? 0) >= targetPct;
 
   return (
     <div
@@ -227,19 +229,33 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
             )}
           </div>
 
-          {/* ── Barre de destruction (sous la plaque) ── */}
+          {/* ── Barre de destruction + CIBLE live (suivre l'objectif, plus de « au pif ») ── */}
           <div className="pointer-events-none absolute left-3 top-[68px] w-[210px]">
             <div
-              className="h-2.5 rounded-md p-[2px]"
-              style={{ background: 'rgba(10,8,5,0.6)', boxShadow: 'inset 0 0 0 1.5px #c9a227' }}
+              className="relative h-2.5 rounded-md p-[2px]"
+              style={{ background: 'rgba(10,8,5,0.6)', boxShadow: `inset 0 0 0 1.5px ${targetReached ? '#5ec27a' : '#c9a227'}` }}
             >
               <div
                 className="h-full rounded-[3px] transition-[width] duration-300"
-                style={{ width: `${hud.destructionPct}%`, background: 'linear-gradient(90deg,#e3c45a,#c9a227)' }}
+                style={{
+                  width: `${hud.destructionPct}%`,
+                  background: targetReached ? 'linear-gradient(90deg,#6fce8a,#3f9b5d)' : 'linear-gradient(90deg,#e3c45a,#c9a227)',
+                }}
               />
+              {/* repère de cible : le joueur voit OÙ il doit arriver */}
+              {targetPct > 0 && (
+                <span
+                  className="absolute top-[-2px] bottom-[-2px] w-[2px] rounded-full"
+                  style={{ left: `calc(${targetPct}% )`, background: '#fff', boxShadow: '0 0 0 1px rgba(0,0,0,0.4)' }}
+                />
+              )}
             </div>
-            <div className="mt-1 text-[8px] font-semibold uppercase tracking-[0.2em] text-[#e7dcc4]/85">
-              Destruction — {hud.destructionPct}%
+            <div className="mt-1 text-[8px] font-semibold uppercase tracking-[0.2em]" style={{ color: targetReached ? '#9ff0b4' : 'rgba(231,220,196,0.85)' }}>
+              {targetPct > 0
+                ? (targetReached
+                    ? `✓ Forteresse — objectif ${targetPct}% atteint`
+                    : `Forteresse — ${hud.destructionPct}% / ${targetPct}%`)
+                : `Destruction — ${hud.destructionPct}%`}
             </div>
           </div>
         </>

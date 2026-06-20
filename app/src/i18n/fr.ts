@@ -46,21 +46,21 @@ export const fr = {
   },
   onboarding: {
     s1: {
-      kicker: 'Ligne 6 — au-dessus de la Seine',
-      title: 'Lève les yeux.',
-      body: 'Chaque jour, la rame passe devant la tour Eiffel. Et chaque jour, tout le monde regarde son écran. Pas toi. Plus maintenant.',
+      kicker: 'Le métro de Paris',
+      title: 'Paris est un terrain de jeu.',
+      body: 'Chaque station du métro cache une histoire. Arcadia transforme le réseau en plateau de jeu culturel — tu conquiers Paris, station par station.',
     },
     s2: {
-      kicker: 'Sous tes pieds',
-      title: 'Paris est ton plateau.',
-      body: '302 stations, 16 lignes, deux mille ans d’Histoire. Le plus grand terrain de jeu du monde dormait sous la ville.',
+      kicker: 'Comment on joue',
+      title: 'Touche une station, joue.',
+      body: 'Tu choisis une station sur la carte et tu lances son mini-jeu. Pas besoin d’y être : tu joues en cliquant, de n’importe où — ton canapé, ton bureau, le métro.',
     },
     s3: {
       kicker: 'Ta mission',
       title: 'Conquiers ta ligne.',
-      body: 'Chaque station porte un nom, chaque nom une histoire, chaque histoire un défi. Gagne-les. Deviens Maître de tes stations.',
+      body: 'Gagne les défis, débloque l’histoire de chaque lieu, grimpe au classement. Ta première conquête t’attend sur la carte de la Ligne 1.',
     },
-    cta: 'Commencer la conquête',
+    cta: 'Voir la carte',
   },
   demo: {
     banner: 'Mode démo — scores simulés localement',
@@ -75,6 +75,7 @@ export const fr = {
     challengeAvailable: 'Défi disponible',
     heroKicker: 'Défi du jour',
     heroCta: 'À l’assaut',
+    tapHint: 'Touche une station pour jouer — pas besoin d’y être.',
   },
   station: {
     states: { locked: 'À conquérir', discovered: 'Découverte', visited: 'Visitée', mastered: 'Maîtrisée' },
@@ -136,6 +137,15 @@ export const fr = {
     victory: 'La Bastille est tombée !', defeat: 'La forteresse tient bon…',
     defeatHint: 'Si près — encore un assaut et elle cède.',
     victoryGeneric: 'Victoire !', defeatGeneric: 'Pas encore maître…',
+    // banque V2 : feedback positif et lisible (sans jargon « maîtrise »)
+    tierCleared: 'Palier débloqué !',
+    tierClearedHint: 'Bravo — la suite de la station t’attend.',
+    progress: 'Bonne progression !',
+    progressHint: 'Plus que {n} pts pour débloquer le palier.',
+    tryAgain: 'Continue comme ça !',
+    tryAgainHint: 'Rejoue pour gagner des points et débloquer le palier.',
+    pointsWon: 'Points gagnés',
+    tierUnlocked: 'Palier débloqué ✓',
     score: 'Score', xp: 'XP', mastery: 'Maîtrise',
     bestScore: 'Pas de progression sur ton meilleur score — l’XP récompense la marge.',
     flagged: 'Tentative signalée par le serveur (durée ou télémétrie anormale).',

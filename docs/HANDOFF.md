@@ -6,6 +6,61 @@
 
 ---
 
+## 0quater. Sprint « Première Minute » — onboarding + lisibilité (20 juin 2026)
+
+Né du 1er playtest humain (Agathe, WEB, 13 min). Sprint PUREMENT client/UX — zéro
+changement de scoring/RLS/migration. Fichiers touchés :
+`components/AppLayout.tsx`, `components/Onboarding.tsx` (copy via i18n),
+`screens/LineMapScreen.tsx`, `games/src/quiz/QuizGame.tsx`,
+`games/src/demolition/DemolitionGame.tsx`, `components/ResultView.tsx`,
+`screens/GameScreen.tsx` (brief Bastille), `i18n/{fr,en}.ts`.
+
+### Nouveau parcours de PREMIÈRE RUN (web), étape par étape
+1. Intro 3 tableaux resserrés (skippable) répondant à **C'est quoi** (le métro de
+   Paris = plateau de jeu culturel) + **Comment je joue** (« touche une station
+   sur la carte… pas besoin d'y être : tu joues en cliquant, de n'importe où » →
+   ambiguïté géoloc tranchée noir sur blanc). CTA = « Voir la carte ».
+2. On atterrit sur **LA CARTE** (`/line/M1`, plateau Ligne 1) — **jamais** dans un
+   jeu. (Avant : `AppLayout` forçait `/play/bastille/bronze`. Corrigé.)
+3. La carte met déjà en avant la 1re conquête via son « phare » : c'est
+   **Louvre-Rivoli** (quiz PORTRAIT, index 13 < Bastille 17 → 1er playable non
+   fini). Micro-rappel géoloc sur la carte (« 👆 touche une station… »).
+4. Bastille (démolition PAYSAGE) reste accessible en tapant sa station, mais n'est
+   plus le premier contact imposé → la friction d'orientation disparaît à la 1re run.
+
+### Lisibilité
+- **Quiz** repassé sur le **thème clair craie** (texte encre `#2a2118` sur fond
+  `#f6f1e6`, contraste AA) — fini le « illisible sur du bleu ». Feedback couleur
+  **redondant et non ambigu** : bonne réponse = VERT + ✓ + « Bonne réponse ! »,
+  mauvaise = ROUGE + ✕. (Corrige l'inversion perçue.)
+- **Résultat** : pour la banque, plus de « maîtrise 0 » nu. Affiche un état clair
+  (Palier débloqué ! / Bonne progression ! / Continue), « +X pts » et une barre
+  points→seuil. Le SCORING ne bouge pas, seul son AFFICHAGE.
+- **Bastille (§5, option B retenue)** : jauge de destruction live enrichie d'un
+  **repère de cible** (+ passage au vert quand atteinte) → on suit l'objectif au
+  lieu de jouer « au pif ». Objectif principal (3 étendards) affiché en gros avant
+  l'assaut, conditions en secondaire.
+
+### ⚠️ Points à arbitrer / vérifier (board)
+- **Option A préférée pour Bastille NON faite** : faire des étendards la SEULE
+  condition exigerait de passer `min_destruction_pct` à 0 (silver/gold) dans
+  `answer_key` = **changement de config de scoring** → réservé au board + une
+  migration (et Supabase MCP est down, cf. ci-dessous). J'ai livré l'option B
+  (jauge live) qui est 100 % client. À trancher.
+- **Incohérence cible % préexistante** : `content/stations/bastille.json` affiche
+  targetPct 30/40 (silver/gold) alors que `answer_key` serveur exige 35/50. La
+  jauge utilise la valeur du contenu. Non corrigé (toucherait au scoring/preview) →
+  à aligner par le board (mettre le contenu à 35/50, ou l'answer_key à 30/40).
+- **Supabase MCP NON connecté cette session** : je n'ai PAS pu vérifier que
+  0016/0017 sont réellement appliqués (le brief l'affirme). Comme au sprint
+  précédent je n'avais pas pu les appliquer non plus, **à confirmer** côté board /
+  reconnexion. Ce sprint étant client-only, il n'en dépend pas.
+- Tilt 52° de la carte (désorientant pour la joueuse) : **non touché** (décision DA
+  réservée au board, cf. brief §6). Affordance possible : indicateur Nord / plan
+  de situation — à valider, pas tranché.
+
+---
+
 ## 0ter. Sprint « Moteur V2 » — banque tiérée + seuils + images (20 juin 2026)
 
 Passage du quiz « N questions fixes » au modèle **banque large → tirage → seuil

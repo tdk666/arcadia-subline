@@ -187,11 +187,14 @@ export function GameScreen() {
               </>
             ) : (
               <>
-                <p className="mt-1.5 text-sm font-semibold text-pierre">
+                {/* objectif PRINCIPAL en gros (les étendards), conditions en secondaire */}
+                <p className="mt-1.5 text-lg font-extrabold leading-snug text-pierre">
                   ⚜ {t('brief.objectiveText', { targets: 3 })}
-                  {params.targetPct > 0 && <><br />💥 {t('brief.objectiveExtra', { pct: params.targetPct })}</>}
-                  {params.timeLimitS > 0 && <><br />⏱ {t('brief.objectiveTime', { time: params.timeLimitS })}</>}
-                  <br />🪨 {t('brief.objectiveAmmo', { n: params.maxShots })}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-pierre-dim">
+                  {params.targetPct > 0 && <>💥 {t('brief.objectiveExtra', { pct: params.targetPct })} · </>}
+                  {params.timeLimitS > 0 && <>⏱ {t('brief.objectiveTime', { time: params.timeLimitS })} · </>}
+                  🪨 {t('brief.objectiveAmmo', { n: params.maxShots })}
                 </p>
                 <p className="mt-2 border-t border-rail pt-2 font-mono text-[10px] leading-relaxed text-pierre-faint">
                   {t('brief.howto')}

@@ -5,11 +5,15 @@ import { useI18n } from '../i18n';
 import { StatusBar } from './StatusBar';
 import { DailyReward } from './DailyReward';
 import { Onboarding, ONBOARDING_KEY } from './Onboarding';
-import { isPlayable } from '../lib/content';
 import { IconNetwork, IconCollection, IconLeague, IconProfile } from './icons';
 
-/** Station du tout premier défi guidé (FTUE « apprendre en jouant »). */
-const FIRST_GAME = '/play/bastille/bronze';
+/**
+ * Après l'intro on atterrit sur LA CARTE (plateau Ligne 1), jamais directement
+ * dans un jeu. La carte met déjà en avant la 1re conquête (Louvre-Rivoli, quiz
+ * portrait) via son « phare ». Bastille (boss landscape) devient un choix, plus
+ * un premier contact imposé. (Playtest Agathe, 20/06.)
+ */
+const FIRST_MAP = '/line/M1';
 
 function Tab({ to, label, icon }: { to: string; label: string; icon: ReactNode }) {
   return (
@@ -65,8 +69,9 @@ export function AppLayout() {
           onDone={() => setShowOnboarding(false)}
           onStart={() => {
             setShowOnboarding(false);
-            // apprendre en jouant : on enchaîne direct sur le 1er défi guidé
-            if (isPlayable('bastille')) navigate(FIRST_GAME);
+            // on atterrit sur la carte vivante (Louvre-Rivoli mis en avant), jamais
+            // jeté de force dans le boss Bastille (paysage) — cf. playtest.
+            navigate(FIRST_MAP);
           }}
         />
       )}
