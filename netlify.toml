@@ -2,9 +2,18 @@
 [build]
   command = "corepack enable && pnpm install --frozen-lockfile && pnpm build"
   publish = "app/dist"
+  # DISCIPLINE DE DÉPLOIEMENT (DEC-004) : on SAUTE le build si le commit ne touche
+  # QUE de la doc (.md, brain/, docs/, .obsidian/). `git diff --quiet` renvoie 0
+  # quand AUCUN fichier applicatif n'a changé → Netlify annule le build (exit 0 =
+  # ignore). Si HEAD^ n'existe pas (clone superficiel), la commande échoue (≠0) →
+  # le build se fait quand même (fail-open : jamais de prod manquée par erreur).
+  ignore = "git diff --quiet HEAD^ HEAD -- ':!*.md' ':!brain/**' ':!docs/**' ':!.obsidian/**'"
 
 [build.environment]
   NODE_VERSION = "22"
+  # pnpm : Netlify détecte pnpm (champ packageManager + pnpm-lock.yaml) et met le
+  # store en cache entre builds automatiquement (image de build par défaut) —
+  # aucun réglage toml requis. `--frozen-lockfile` garantit un install reproductible.
 
 # SPA : toutes les routes vers index.html (react-router)
 [[redirects]]

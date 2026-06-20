@@ -29,6 +29,9 @@
 
 ## BLOQUEURS / À VÉRIFIER
 
+- **Confirmer la branche de prod Netlify = `main` (Théophile)** — sinon la
+  discipline DEC-004 (prod = main only) ne tient pas : le deploy prod courant est
+  bâti depuis la branche de travail, pas `main`.
 - **DETTE DB (DEC-003)** : registre `supabase_migrations` désync — 0016/0017
   appliqués à la main (SQL Editor), non enregistrés. Objets OK en prod, mais un
   `db reset` ne les rejouerait pas. À réconcilier au prochain sprint touchant la DB
