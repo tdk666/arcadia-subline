@@ -122,16 +122,45 @@ export class DemolitionSfx {
     this.tone(180, 0.8, 0.25, { type: 'sawtooth', slideTo: 480 });
   }
 
-  /** Fanfare de victoire : arpège triomphal + feux d'artifice. */
+  /** Victoire : LA MARSEILLAISE synthétisée + tambour de marche + feux d'artifice.
+   *  Le payoff culturel du 14 juillet — un Américain de 24 ans reconnaît l'hymne. */
   victory() {
-    const notes = [523.25, 659.25, 783.99, 1046.5]; // do mi sol do
-    notes.forEach((f, i) => {
-      this.tone(f, 0.5, 0.34, { type: 'square', delay: i * 0.13 });
-      this.tone(f / 2, 0.5, 0.22, { type: 'triangle', delay: i * 0.13 });
-    });
-    this.tone(1046.5, 1.1, 0.3, { type: 'square', delay: 0.55 });
-    // crépitement de feux d'artifice
-    for (let i = 0; i < 6; i++) this.noise(0.12, 3000 + Math.random() * 2000, 0.18, 'highpass');
+    this.marseillaise();
+    // crépitement de feux d'artifice tricolores qui ponctue l'hymne
+    for (let i = 0; i < 8; i++) this.noise(0.12, 3000 + Math.random() * 2000, 0.16, 'highpass');
+  }
+
+  /** Première phrase de La Marseillaise — « Allons enfants de la Patrie / le jour
+   *  de gloire est arrivé » (sol majeur, rythme de marche pointé, lever ré→sol).
+   *  Lead carré brillant + octave grave (triangle) pour le corps, tambour martial. */
+  private marseillaise() {
+    if (!this.ready) return;
+    const D5 = 587.33, G5 = 783.99, A5 = 880.0, B5 = 987.77, C6 = 1046.5, D6 = 1174.66;
+    const beat = 0.36; // ≈ 83 BPM, allant martial
+    // [fréquence (0 = silence), durée en temps]
+    const seq: [number, number][] = [
+      [D5, 0.5], [D5, 0.5],                  // Al- lons
+      [G5, 0.75], [G5, 0.25], [G5, 0.5],     // en- fants  de
+      [B5, 0.5], [A5, 1.0],                  // la  pa-trie
+      [0, 0.25],
+      [D5, 0.5], [D5, 0.5],                  // le  jour
+      [D5, 0.75], [B5, 0.25],                // de  gloire
+      [G5, 0.5], [A5, 0.5], [G5, 1.0],       // est a- rri- vé
+      [0, 0.25],
+      [A5, 0.5], [B5, 0.5], [C6, 0.5], [D6, 1.25], // élan final triomphal
+    ];
+    let t = 0;
+    for (const [f, d] of seq) {
+      if (f > 0) {
+        this.tone(f, d * beat * 0.96, 0.30, { type: 'square', delay: t * beat });
+        this.tone(f / 2, d * beat * 0.96, 0.18, { type: 'triangle', delay: t * beat });
+      }
+      t += d;
+    }
+    // tambour de marche sous l'hymne (grosse caisse synthétique sur les temps)
+    for (let b = 0; b < Math.ceil(t); b++) {
+      this.tone(120, 0.16, 0.5, { type: 'sine', slideTo: 44, delay: b * beat });
+    }
   }
 
   /** Défaite : descente sourde, digne (on rejouera). */
@@ -215,6 +244,35 @@ export class DemolitionSfx {
     if (I > 0.8 && (step === 14 || step === 15)) {
       this.tom(at, 220 - (step - 14) * 40, 0.4);
     }
+
+    // FIFRE « ÇA IRA » : le hook descendant « ça i-ra » est présent DÈS LE DÉBUT
+    // (pas seulement quand ça casse) — c'est lui qui pose l'atmosphère révolutionnaire.
+    // Deux « ça ira » par mesure, puis une réponse montante quand l'assaut s'emballe.
+    const G5 = 783.99, A5 = 880.0, B5 = 987.77, D5 = 587.33, D6 = 1174.66;
+    const caIra = [B5, A5, G5];               // « ça — i — ra » (descend vers la tonique)
+    const vol = 0.2 + I * 0.14;
+    if (step <= 2) this.fife(at, caIra[step], vol);
+    else if (step >= 6 && step <= 8) this.fife(at, caIra[step - 6], vol);
+    // « les a-ris-to-crates… » : réponse montante en fin de mesure, dès que ça chauffe
+    else if (I > 0.4) {
+      const up: Record<number, number> = { 11: D5, 13: G5, 15: D6 };
+      if (up[step]) this.fife(at, up[step], 0.14 + I * 0.12);
+    }
+  }
+
+  /** Fifre : note brève et claire (square + octave triangle) sur le bus musique. */
+  private fife(at: number, freq: number, gain: number) {
+    if (!this.ctx || !this.musicBus) return;
+    const o = this.ctx.createOscillator();
+    const o2 = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = 'square'; o.frequency.setValueAtTime(freq, at);
+    o2.type = 'triangle'; o2.frequency.setValueAtTime(freq / 2, at);
+    g.gain.setValueAtTime(0, at);
+    g.gain.linearRampToValueAtTime(gain, at + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, at + 0.16);
+    o.connect(g); o2.connect(g); g.connect(this.musicBus);
+    o.start(at); o2.start(at); o.stop(at + 0.18); o2.stop(at + 0.18);
   }
 
   private kick(at: number, gain: number) {

@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react';
-import { useI18n, type I18nKey, type Locale } from '../i18n';
+import { useNavigate } from 'react-router-dom';
+import { useI18n, type Locale } from '../i18n';
 import { backend } from '../lib/backend';
 import { LINE } from '../lib/content';
+import { rankLabel, rankProgress } from '../lib/rank';
 import { useArcadia } from '../store';
 import { AuthSheet } from '../components/AuthSheet';
-
-/** Titre révolutionnaire selon l'XP — l'identité progresse avec la conquête. */
-function rankLabel(t: (k: I18nKey) => string, xp: number): string {
-  const tier = xp >= 8000 ? 'r5' : xp >= 4000 ? 'r4' : xp >= 2000 ? 'r3' : xp >= 800 ? 'r2' : xp > 0 ? 'r1' : 'r0';
-  return t(`profile.ranks.${tier}` as I18nKey);
-}
+import { Button } from '../components/Button';
+import { IconToken } from '../components/icons';
 
 export function ProfileScreen() {
   const { t, locale, setLocale } = useI18n();
+  const navigate = useNavigate();
   const user = useArcadia((s) => s.user);
   const tiersWon = useArcadia((s) => s.tiersWon);
   const pending = useArcadia((s) => s.pending);
+  const coins = useArcadia((s) => s.coins);
   const [stats, setStats] = useState<{ xpTotal: number; streak: number } | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [installEvt, setInstallEvt] = useState<Event | null>(null);
@@ -39,7 +39,7 @@ export function ProfileScreen() {
       <h1 className="font-display text-2xl font-extrabold tracking-tight">{t('profile.title')}</h1>
 
       {/* carte d'identité du conquérant */}
-      <div className="relative mt-4 overflow-hidden rounded-2xl border border-rail bg-gradient-to-br from-[#241a1e] via-plomb to-plomb p-5">
+      <div className="relative mt-4 overflow-hidden rounded-2xl border border-rail bg-gradient-to-br from-[#eef4fa] via-plomb to-[#f4ecdb] p-5 shadow-[0_6px_18px_rgba(0,0,0,0.06)]">
         <div className="pointer-events-none absolute -right-4 -top-6 text-[80px] opacity-10">◈</div>
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-vermillon">
           {t('profile.rank')} — {rankLabel(t, stats?.xpTotal ?? 0)}
@@ -54,38 +54,55 @@ export function ProfileScreen() {
           <p className="mt-1 font-mono text-[11px] text-ambre">{t('auth.pendingSync')}</p>
         )}
 
+        {/* courbe de progression : XP vers le rang suivant */}
+        {(() => {
+          const { pct, next, remaining } = rankProgress(stats?.xpTotal ?? 0);
+          return (
+            <div className="mt-3">
+              <div className="h-2 overflow-hidden rounded-full bg-craie-2 shadow-[inset_0_0_0_1px_var(--color-rail)]">
+                <div className="h-full rounded-full transition-[width] duration-500"
+                  style={{ width: `${pct}%`, background: 'linear-gradient(90deg,#e3c45a,#c9a227)' }} />
+              </div>
+              <p className="mt-1 font-mono text-[9px] uppercase tracking-wider text-pierre-faint">
+                {next === null
+                  ? t('profile.maxRank')
+                  : t('profile.toNextRank', { n: remaining.toLocaleString(), rank: rankLabel(t, next) })}
+              </p>
+            </div>
+          );
+        })()}
+
         <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-          <div className="rounded-xl bg-encre-2 py-3">
-            <p className="font-display text-xl font-extrabold text-[#b6bd00]">{stats?.xpTotal ?? 0}</p>
+          <div className="rounded-xl bg-craie-2 py-3">
+            <p className="font-display text-xl font-extrabold text-[#6b7a1a]">{stats?.xpTotal ?? 0}</p>
             <p className="font-mono text-[9px] uppercase text-pierre-faint">{t('profile.xp')}</p>
           </div>
-          <div className="rounded-xl bg-encre-2 py-3">
+          <div className="rounded-xl bg-craie-2 py-3">
             <p className="font-display text-xl font-extrabold text-laiton">
               {stats?.streak ?? 0}<span className="text-xs">{t('profile.streakUnit')}</span>
             </p>
             <p className="font-mono text-[9px] uppercase text-pierre-faint">{t('profile.streak')}</p>
           </div>
-          <div className="rounded-xl bg-encre-2 py-3">
+          <div className="rounded-xl bg-craie-2 py-3">
             <p className="font-display text-xl font-extrabold text-vermillon">{conquered}</p>
             <p className="font-mono text-[9px] uppercase text-pierre-faint">{t('profile.stations')}</p>
           </div>
         </div>
 
-        <button
-          type="button"
-          className={`mt-4 w-full rounded-xl py-2.5 font-display text-sm font-bold transition active:scale-[0.98] ${
-            user ? 'border border-rail text-pierre-dim' : 'bg-laiton text-encre'
-          }`}
+        <Button
+          variant={user ? 'secondary' : 'gold'}
+          size="sm"
+          className="mt-4"
           onClick={() => (user ? void backend.signOut() : setAuthOpen(true))}
         >
           {user ? t('auth.signoutCta') : t('auth.signupTitle')}
-        </button>
+        </Button>
       </div>
 
       {/* langue */}
       <div className="mt-4 flex items-center justify-between rounded-2xl border border-rail bg-plomb px-5 py-4">
         <span className="text-sm font-semibold">{t('profile.language')}</span>
-        <div className="flex gap-1 rounded-lg bg-encre-2 p-1">
+        <div className="flex gap-1 rounded-lg bg-craie-2 p-1">
           {(['fr', 'en'] as Locale[]).map((l) => (
             <button
               key={l}
@@ -100,6 +117,20 @@ export function ProfileScreen() {
           ))}
         </div>
       </div>
+
+      {/* boutique */}
+      <button
+        type="button"
+        className="mt-4 flex w-full items-center justify-between rounded-2xl border border-laiton/40 bg-laiton/10 px-5 py-4 text-left active:scale-[0.99]"
+        onClick={() => navigate('/boutique')}
+      >
+        <span className="flex items-center gap-2 text-sm font-semibold text-pierre">
+          <IconToken size={20} className="text-laiton" /> {t('shop.openCta')}
+        </span>
+        <span className="flex items-center gap-1 font-display text-sm font-extrabold tabular-nums text-laiton">
+          {coins.toLocaleString()} <IconToken size={14} />
+        </span>
+      </button>
 
       {/* revoir l'intro */}
       <button

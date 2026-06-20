@@ -8,7 +8,11 @@
     "build": "pnpm --filter @arcadia/app build",
     "preview": "pnpm --filter @arcadia/app preview",
     "typecheck": "pnpm -r typecheck",
+    "test": "pnpm --filter @arcadia/app test",
     "icons": "node app/scripts/gen-icons.mjs"
   },
-  "packageManager": "pnpm@10.33.0"
+  "packageManager": "pnpm@10.33.0",
+  "devDependencies": {
+    "pngjs": "^7.0.0"
+  }
 }

@@ -1,0 +1,111 @@
+-- =============================================================================
+-- ARCADIA SUBLINE — Runbook : construire le réseau MÉTRO (stations + lignes + topo)
+-- depuis l'open data IDFM (ODS), 100 % données réelles.
+--
+-- Pré-requis :
+--   · Edge Function `idfm-gares` déployée (verify_jwt=false).
+--   · Extension pg_net activée :  create extension if not exists pg_net;
+--   · La station Bastille + la Ligne 1 (seed.sql) peuvent préexister (idempotent).
+--
+-- ⚠ pg_net est ASYNCHRONE : chaque net.http_get/post renvoie un request_id ;
+--   la réponse arrive dans net._http_response (poll : select ... where id = <rid>).
+--   Les <RID> ci-dessous sont à remplacer par l'id renvoyé à l'étape précédente.
+--   (Le conteneur Claude Code n'a pas l'egress vers data.iledefrance-mobilites.fr ;
+--    on passe donc TOUT par Supabase : Edge Function + pg_net.)
+-- =============================================================================
+
+-- ---------------------------------------------------------------------------
+-- 1) STATIONS — via l'Edge Function idfm-gares, dataset léger `arrets-lignes`
+--    (filtré métro côté serveur ; évite l'OOM du GTFS-horaires complet, 256 Mo).
+--    Résultat type : 805 incidences (line,stop) → 321 stations distinctes géoloc.
+-- ---------------------------------------------------------------------------
+-- select net.http_post(
+--   url := '<PROJECT_URL>/functions/v1/idfm-gares',
+--   body := jsonb_build_object(
+--     'network_id', '<NETWORK_UUID>',
+--     'dataset', 'arrets-lignes',
+--     'where', 'mode = "Metro"',
+--     'mapping', jsonb_build_object('name','stop_name','lat','stop_lat','lon','stop_lon',
+--        'geo','pointgeo','mode','mode','mode_value','METRO','ext_id','stop_id','line','shortname')),
+--   headers := jsonb_build_object('Content-Type','application/json','apikey','<ANON_KEY>'),
+--   timeout_milliseconds := 150000);
+-- → idfm-gares insère en staging (gtfs_stops_staging) puis appelle
+--   fn_gtfs_match_and_upsert (matching ref > nom+géo > création). Le `raw` de
+--   chaque ligne de staging conserve l'enregistrement arrets-lignes (dont shortname).
+
+-- Backfill géo des stations seedées par nom (geo NULL) depuis le staging :
+update public.stations s
+set geo = st_setsrid(st_makepoint(g.stop_lon, g.stop_lat), 4326)::geography, updated_at = now()
+from public.source_refs sr
+join public.gtfs_stops_staging g
+  on g.stop_id = sr.external_id and g.stop_lat is not null and g.stop_lon is not null
+where sr.station_id = s.id and sr.valid_to is null and s.geo is null;
+
+-- ---------------------------------------------------------------------------
+-- 2) LIGNES + COULEURS OFFICIELLES — dataset `referentiel-des-lignes` (metro)
+--    Récupéré via pg_net :
+--    select net.http_get(url := '<ODS>/referentiel-des-lignes/exports/json?where=' ||
+--       replace('transportmode = "metro"',' ','%20'), timeout_milliseconds := 60000);
+--    Puis (remplacer <RID_LINES> par le request_id renvoyé) :
+-- insert into public.lines (network_id, code, name, color, mode)
+-- select '<NETWORK_UUID>'::uuid,
+--        'M' || (e->>'shortname_line'),
+--        'Ligne ' || replace(e->>'shortname_line','B','bis'),
+--        '#' || (e->>'colourweb_hexa'),
+--        'metro'
+-- from (select content::jsonb as j from net._http_response where id = <RID_LINES>) r,
+--      jsonb_array_elements(r.j) e
+-- where (e->>'shortname_line') not in ('15','18')   -- 15/18 = Grand Paris Express (pas encore ouverts)
+-- on conflict (network_id, code) do update set color = excluded.color;  -- garde le name existant (M1)
+
+-- ---------------------------------------------------------------------------
+-- 3) TOPOLOGIE (line_stations) — ordre par PROJECTION sur le tracé officiel
+--    Dataset `traces-des-lignes...` filtré route_type = "Subway" (16 tracés).
+--    Méthode : la plus longue partie du MultiLineString = chemin représentatif ;
+--    ST_LineLocatePoint(tracé, station) = fraction le long du tracé → ordre.
+--    Validé exact sur la Ligne 1 (reproduit l'ordre seed). Exact pour les lignes
+--    linéaires ; APPROXIMATIF aux embranchements (M7, M10, M13) — l'ordre EXACT
+--    de branche nécessite stop_times GTFS (cf. gtfs-ingest). Termini corrects.
+--    Récupéré via pg_net :
+--    select net.http_get(url := '<ODS>/traces-des-lignes-de-transport-en-commun-idfm/exports/json?'
+--       || 'select=route_short_name%2Cshape&where=' || replace('route_type = "Subway"',' ','%20'),
+--       timeout_milliseconds := 90000);
+--    Puis (remplacer <RID_TRACES>) :
+-- drop table if exists _metro_shapes;
+-- create table _metro_shapes as
+--   select e->>'route_short_name' as short, st_geomfromgeojson((e->'shape'->'geometry')::text) as geom
+--   from (select content::jsonb as j from net._http_response where id = <RID_TRACES>) r,
+--        jsonb_array_elements(r.j) e;
+-- drop table if exists _line_path;
+-- create table _line_path as
+--   select distinct on (ms.short) ms.short, d.geom as g
+--   from _metro_shapes ms, lateral st_dump(ms.geom) d
+--   order by ms.short, st_length(d.geom) desc;
+--
+-- delete from public.line_stations;
+-- with memb as (
+--   select distinct l.id as line_id, (st.raw->>'shortname') as short, s.id as station_id, s.geo
+--   from public.gtfs_stops_staging st
+--   join public.source_refs sr on sr.external_id = st.stop_id and sr.valid_to is null
+--   join public.stations s on s.id = sr.station_id
+--   join public.lines l on l.code = 'M' || (st.raw->>'shortname') and l.network_id = '<NETWORK_UUID>'
+-- ),
+-- ranked as (
+--   select m.line_id, m.station_id,
+--          row_number() over (partition by m.line_id
+--             order by st_linelocatepoint(lp.g, m.geo::geometry), m.station_id) - 1 as position
+--   from memb m join _line_path lp on lp.short = m.short
+-- )
+-- insert into public.line_stations (line_id, station_id, position)
+-- select line_id, station_id, position from ranked;
+-- drop table if exists _metro_shapes; drop table if exists _line_path;
+
+-- ---------------------------------------------------------------------------
+-- 4) CONTRÔLES
+-- ---------------------------------------------------------------------------
+-- select count(*) from public.stations;                 -- ~321, 100% géoloc
+-- select count(*) from public.lines;                    -- 16
+-- select count(*) from public.line_stations;            -- ~405
+-- -- positions contiguës par ligne (doit renvoyer 0 ligne) :
+-- select l.code from public.lines l join public.line_stations ls on ls.line_id=l.id
+--  group by l.id, l.code having max(ls.position) <> count(*)-1 or min(ls.position) <> 0;

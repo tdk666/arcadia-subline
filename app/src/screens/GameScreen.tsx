@@ -2,18 +2,24 @@ import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   getGame, TIER_ORDER,
-  type DifficultyTier, type GameProps, type GameResult,
+  type DifficultyTier, type GameProps, type GameResult, type QuizQuestion,
 } from '@arcadia/games';
 import { pickText, useI18n } from '../i18n';
 import { backend } from '../lib/backend';
-import { getStationContent, type StationContent } from '../lib/content';
-import { previewDemolitionScore } from '../lib/scoring';
+import { getStationContent, isBankedQuiz, tierThreshold, type StationContent } from '../lib/content';
+import { drawBank, previewBankedQuizScore, previewDemolitionScore } from '../lib/scoring';
+import { track } from '../lib/analytics';
+import { tap } from '../lib/feedback';
 import { useArcadia, type LastResult } from '../store';
 import { ResultView } from '../components/ResultView';
 import { OrientationGate } from '../components/OrientationGate';
 
 const TIER_COLOR: Record<DifficultyTier, string> = {
   bronze: '#c08a55', silver: '#b9c0c4', gold: '#e3c463',
+};
+// variantes encrées (texte lisible sur fond clair — la couleur médaille pure est trop pâle)
+const TIER_INK: Record<DifficultyTier, string> = {
+  bronze: '#9c5f30', silver: '#6b7280', gold: '#9c7d18',
 };
 
 export function GameScreen() {
@@ -35,13 +41,36 @@ export function GameScreen() {
   const [runId, setRunId] = useState(0);
   const [result, setResult] = useState<LastResult | null>(null);
   const [quitAsk, setQuitAsk] = useState(false);
+  // Banque V2 : items tirés pour cette manche + progression cumulée (points/réussis)
+  const [drawn, setDrawn] = useState<QuizQuestion[] | null>(null);
+  const [bankProgress, setBankProgress] = useState<{ pointsTotal: number; passed: string[] }>({ pointsTotal: 0, passed: [] });
+
+  const banked = !!content && isBankedQuiz(content);
+  const questId = content?.quests[difficulty]?.questId;
 
   const allowed = !!content && isTierUnlocked(slug, difficulty);
+
+  // Banque : on récupère les items déjà réussis (à exclure du tirage) + le cumul.
+  useEffect(() => {
+    if (!banked || !questId) return;
+    let live = true;
+    void backend.getQuestProgress([questId]).then((list) => {
+      if (!live) return;
+      const p = list.find((x) => x.questId === questId);
+      setBankProgress({ pointsTotal: p?.pointsTotal ?? 0, passed: p?.passedStepIds ?? [] });
+    });
+    return () => { live = false; };
+  }, [banked, questId, runId]);
 
   // redirection HORS rendu (la naviguer pendant le rendu casse React Router)
   useEffect(() => {
     if (!allowed) navigate(`/station/${slug}`, { replace: true });
   }, [allowed, navigate, slug]);
+
+  // funnel : vue du briefing (une par entrée dans le brief)
+  useEffect(() => {
+    if (phase === 'brief') track('brief_view', { slug, tier: difficulty });
+  }, [phase, slug, difficulty]);
 
   const Game = useMemo(() => {
     if (!content) return null;
@@ -56,13 +85,37 @@ export function GameScreen() {
 
   const quest = content.quests[difficulty];
   const brief = content.briefs[difficulty];
+  const archetype = content.game.archetype;
+  const isQuiz = archetype === 'quiz';
   const params = quest.params as Record<string, number>;
+  const bank = (quest.params.questions as QuizQuestion[] | undefined) ?? [];
+
+  // Tirage de la manche : `draw` items au hasard, en excluant ceux déjà réussis.
+  function drawRound(): QuizQuestion[] {
+    const drawN = Number((quest.params as Record<string, unknown>).draw ?? bank.length);
+    return drawBank(bank, drawN, bankProgress.passed);
+  }
+
+  // params passés au moteur : pour la banque, on substitue les items tirés
+  const playParams: Record<string, unknown> = banked && drawn ? { ...quest.params, questions: drawn } : quest.params;
 
   async function onFinish(gameResult: GameResult) {
     const c = content as StationContent;
-    // p_answers : { "<quest_step_id>": télémétrie } — le serveur note, jamais nous
-    const stepId = stepIdForQuest(c, difficulty);
-    const answers = { [stepId]: gameResult.answers };
+    // p_answers — la forme dépend de l'archétype, mais le SERVEUR note, jamais nous :
+    //  · quiz       : { "<stepId slug>": "<choiceId>", … } (1 item = 1 step) → tel quel
+    //  · démolition : { "<step_id uuid>": télémétrie } (terrain mono-étape) → enveloppé
+    const answers = isQuiz
+      ? (gameResult.answers as Record<string, unknown>)
+      : { [stepIdForQuest(c, difficulty)]: gameResult.answers };
+
+    // Aperçu local SANS autorité (démo + panne + invité), miroir de fn_submit_attempt
+    const preview = (best = 0) =>
+      isQuiz
+        ? previewBankedQuizScore(
+            bank, difficulty, gameResult.answers, gameResult.durationMs,
+            tierThreshold(c, difficulty), bankProgress.pointsTotal, bankProgress.passed,
+          )
+        : previewDemolitionScore(quest.params, difficulty, gameResult.answers, gameResult.durationMs, best);
 
     setPhase('submitting');
     let r: LastResult;
@@ -73,24 +126,19 @@ export function GameScreen() {
       } catch (e) {
         console.warn('submitAttempt:', e);
         // panne réseau/serveur : aperçu local + mise en file (rejouée plus tard)
-        r = {
-          ...previewDemolitionScore(quest.params, difficulty, gameResult.answers, gameResult.durationMs),
-          slug: c.slug, tier: difficulty, localOnly: true,
-        };
+        r = { ...preview(), slug: c.slug, tier: difficulty, localOnly: true };
         if (r.success) queuePending({ questId: quest.questId, slug: c.slug, tier: difficulty, answers, durationMs: gameResult.durationMs });
       }
     } else {
       // invité (mode Supabase) : aperçu local, la tentative gagnante est mise en
       // file et soumise via fn_submit_attempt dès la création du compte
-      r = {
-        ...previewDemolitionScore(quest.params, difficulty, gameResult.answers, gameResult.durationMs),
-        slug: c.slug, tier: difficulty, localOnly: true,
-      };
+      r = { ...preview(), slug: c.slug, tier: difficulty, localOnly: true };
       if (r.success) queuePending({ questId: quest.questId, slug: c.slug, tier: difficulty, answers, durationMs: gameResult.durationMs });
     }
     recordResult(r);
     setResult(r);
     setPhase('result');
+    track('game_result', { slug, tier: difficulty, success: r.success, flagged: r.flagged, score: r.score });
   }
 
   function replay(nextTier?: DifficultyTier) {
@@ -103,15 +151,17 @@ export function GameScreen() {
   }
 
   return (
-    <div className="fixed inset-0 bg-encre">
+    <div className="fixed inset-0 bg-craie">
       {/* UNE seule rotation pour brief + assaut (même axe paysage, plus de
           bascule au milieu). Le résultat/archive se lit dans n'importe quel sens. */}
       <OrientationGate active={orientation === 'landscape' && phase !== 'result'}>
       {/* ── BRIEFING : le cadre narratif pose l'enjeu avant l'assaut ── */}
+      {/* défilable : sur petit écran le CTA reste toujours atteignable (jamais rogné) */}
       {phase === 'brief' && (
-        <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center gap-6 px-7 text-center">
+        <div className="h-full overflow-y-auto">
+        <div className="mx-auto flex min-h-full max-w-md flex-col items-center justify-center gap-6 px-7 py-8 text-center">
           <div className="animate-slide-up w-full">
-            <p className="font-mono text-[11px] uppercase tracking-[0.25em]" style={{ color: TIER_COLOR[difficulty] }}>
+            <p className="font-mono text-[11px] uppercase tracking-[0.25em]" style={{ color: TIER_INK[difficulty] }}>
               {pickText(brief.date, locale)}
             </p>
             <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-pierre">
@@ -124,28 +174,62 @@ export function GameScreen() {
 
           <div className="animate-slide-up w-full rounded-2xl border border-rail bg-plomb/80 px-5 py-4 text-left" style={{ animationDelay: '0.12s' }}>
             <p className="font-mono text-[10px] uppercase tracking-widest text-pierre-faint">{t('brief.objective')}</p>
-            <p className="mt-1.5 text-sm font-semibold text-pierre">
-              ⚜ {t('brief.objectiveText', { targets: 3 })}
-              {params.targetPct > 0 && <><br />💥 {t('brief.objectiveExtra', { pct: params.targetPct })}</>}
-              {params.timeLimitS > 0 && <><br />⏱ {t('brief.objectiveTime', { time: params.timeLimitS })}</>}
-            </p>
+            {isQuiz ? (
+              <>
+                <p className="mt-1.5 text-sm font-semibold text-pierre">
+                  ⚜ {t('brief.quizObjective', { n: Number((quest.params as Record<string, unknown>).draw ?? bank.length) })}
+                  <br />❤️ {t('brief.quizLives', { n: Number(params.lives ?? 3) })}
+                  {Number(params.timerS ?? 0) > 0 && <><br />⏱ {t('brief.quizTimer', { time: Number(params.timerS) })}</>}
+                </p>
+                <p className="mt-2 border-t border-rail pt-2 font-mono text-[10px] leading-relaxed text-pierre-faint">
+                  {t('brief.quizHowto')}
+                </p>
+              </>
+            ) : (
+              <>
+                {/* objectif PRINCIPAL en gros (les étendards), conditions en secondaire */}
+                <p className="mt-1.5 text-lg font-extrabold leading-snug text-pierre">
+                  ⚜ {t('brief.objectiveText', { targets: 3 })}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-pierre-dim">
+                  {params.targetPct > 0 && <>💥 {t('brief.objectiveExtra', { pct: params.targetPct })} · </>}
+                  {params.timeLimitS > 0 && <>⏱ {t('brief.objectiveTime', { time: params.timeLimitS })} · </>}
+                  🪨 {t('brief.objectiveAmmo', { n: params.maxShots })}
+                </p>
+                <p className="mt-2 border-t border-rail pt-2 font-mono text-[10px] leading-relaxed text-pierre-faint">
+                  {t('brief.howto')}
+                </p>
+              </>
+            )}
           </div>
 
           <button
             type="button"
-            onClick={() => setPhase('play')}
-            className="animate-pop w-full max-w-xs rounded-2xl py-4 font-display text-lg font-extrabold text-encre shadow-[0_0_30px_rgba(242,194,0,0.35)] transition active:scale-[0.97]"
+            onClick={() => {
+              tap();
+              try {
+                if (!localStorage.getItem('arcadia.firstplay.v1')) {
+                  localStorage.setItem('arcadia.firstplay.v1', '1');
+                  track('first_play', { slug, tier: difficulty });
+                }
+              } catch { /* noop */ }
+              track('game_start', { slug, tier: difficulty });
+              if (banked) setDrawn(drawRound()); // tirage frais à chaque manche
+              setPhase('play');
+            }}
+            className="animate-pop w-full max-w-xs rounded-2xl py-4 font-display text-lg font-extrabold text-encre shadow-[0_5px_0_rgba(0,0,0,0.22),0_0_30px_rgba(242,194,0,0.35)] ring-1 ring-inset ring-white/40 transition-[transform,box-shadow] duration-75 active:translate-y-[3px] active:shadow-[0_2px_0_rgba(0,0,0,0.22),0_0_20px_rgba(242,194,0,0.3)]"
             style={{ background: TIER_COLOR[difficulty], animationDelay: '0.25s' }}
           >
-            ⚔ {t('brief.cta')}
+            {isQuiz ? '🎓' : '⚔'} {t(isQuiz ? 'brief.quizCta' : 'brief.cta')}
           </button>
           <button
             type="button"
-            onClick={() => navigate(`/station/${slug}`)}
+            onClick={() => { track('drop_off', { slug, tier: difficulty }); navigate(`/station/${slug}`); }}
             className="font-mono text-xs text-pierre-faint active:text-pierre-dim"
           >
             ← {t('common.back')}
           </button>
+        </div>
         </div>
       )}
 
@@ -166,7 +250,7 @@ export function GameScreen() {
               stationSlug: content.slug,
               stationName: content.name,
               difficulty,
-              params: quest.params,
+              params: playParams,
               locale,
               reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
             }}
@@ -199,7 +283,7 @@ export function GameScreen() {
               <button
                 type="button"
                 className="flex-1 rounded-xl border border-rail py-2.5 text-sm text-pierre-dim active:bg-plomb-hi"
-                onClick={() => navigate(`/station/${slug}`)}
+                onClick={() => { track('game_quit', { slug, tier: difficulty }); navigate(`/station/${slug}`); }}
               >
                 {t('game.quitConfirm')}
               </button>

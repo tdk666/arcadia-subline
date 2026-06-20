@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useI18n } from '../i18n';
 import { backend, type LeaderboardEntry } from '../lib/backend';
 import { LINE } from '../lib/content';
+import { Mascotte } from '../components/Mascotte';
 import { useArcadia } from '../store';
 
 export function LeaderboardScreen() {
@@ -38,7 +39,10 @@ export function LeaderboardScreen() {
         <p className="mt-6 text-center font-mono text-sm text-pierre-faint">{t('common.loading')}</p>
       )}
       {entries !== null && entries.length === 0 && (
-        <p className="mt-6 text-center text-sm text-pierre-dim">{t('leaderboard.empty')}</p>
+        <div className="mt-8 flex flex-col items-center text-center">
+          <Mascotte size={140} className="animate-pop" />
+          <p className="mt-2 text-sm text-pierre-dim">{t('leaderboard.empty')}</p>
+        </div>
       )}
 
       {/* rivalité vivante : la cible juste au-dessus de toi */}

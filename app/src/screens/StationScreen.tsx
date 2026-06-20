@@ -3,10 +3,12 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { TIER_ORDER, type DifficultyTier } from '@arcadia/games';
 import { pickText, useI18n } from '../i18n';
 import { backend } from '../lib/backend';
-import { getStationContent } from '../lib/content';
+import { getStationContent, isBankedQuiz, tierThreshold } from '../lib/content';
 import { presenceProviders } from '../lib/presence';
 import { useArcadia } from '../store';
 import { AuthSheet } from '../components/AuthSheet';
+import { track } from '../lib/analytics';
+import { tap } from '../lib/feedback';
 
 const EMPTY_TIERS: DifficultyTier[] = [];
 
@@ -43,7 +45,13 @@ export function StationScreen() {
   const [cooldownMsg, setCooldownMsg] = useState<string | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [serverState, setServerState] = useState<'discovered' | 'visited' | 'mastered' | null>(null);
+  // Banque V2 : points cumulés + déblocage par palier (clé = tier)
+  const [bankProg, setBankProg] = useState<Record<string, { pointsTotal: number; threshold: number; unlocked: boolean }>>({});
+
+  useEffect(() => { track('station_open', { slug }); }, [slug]);
   const [storyOpen, setStoryOpen] = useState(false);
+
+  const banked = !!content && isBankedQuiz(content);
 
   const refresh = useCallback(async () => {
     if (!content) return;
@@ -53,6 +61,22 @@ export function StationScreen() {
     ]);
     setCheckInUntil(ci?.expiresAt ?? null);
     setServerState(prog?.state ?? null);
+
+    if (isBankedQuiz(content)) {
+      const ids = TIER_ORDER.map((tr) => content.quests[tr].questId);
+      const list = await backend.getQuestProgress(ids);
+      const byTier: Record<string, { pointsTotal: number; threshold: number; unlocked: boolean }> = {};
+      TIER_ORDER.forEach((tr) => {
+        const e = list.find((x) => x.questId === content.quests[tr].questId);
+        byTier[tr] = {
+          pointsTotal: e?.pointsTotal ?? 0,
+          threshold: e?.pointsThreshold ?? tierThreshold(content, tr),
+          // serveur authoritatif si dispo ; sinon bronze libre, suivants par cumul local
+          unlocked: e?.unlocked ?? (tr === 'bronze'),
+        };
+      });
+      setBankProg(byTier);
+    }
   }, [content]);
 
   useEffect(() => { void refresh(); }, [refresh, user]);
@@ -70,6 +94,7 @@ export function StationScreen() {
   const isMastered = serverState === 'mastered';
 
   async function doCheckIn() {
+    tap();
     if (!user) { setAuthOpen(true); return; }
     setCheckInBusy(true);
     setCooldownMsg(null);
@@ -77,6 +102,7 @@ export function StationScreen() {
     const provider = presenceProviders[0];
     const res = await provider.checkIn(content!.stationId);
     setCheckInBusy(false);
+    track('checkin', { slug, result: res.ok ? 'ok' : (res.error ?? 'error') });
     if (res.ok) {
       setCheckInUntil(res.expiresAt ?? null);
       void refresh();
@@ -115,7 +141,7 @@ export function StationScreen() {
         <span
           className={`rounded-full px-3 py-1 font-mono text-[11px] font-bold ${
             isMastered
-              ? 'bg-guimard/20 text-[#6cae86]'
+              ? 'bg-guimard/20 text-[#3f6b4d]'
               : serverState === 'visited' || checkInUntil
                 ? 'bg-ambre/15 text-ambre'
                 : tiersWon.length
@@ -133,7 +159,7 @@ export function StationScreen() {
         </span>
       </div>
       {isMastered && (
-        <p className="animate-pop mt-2 text-center font-mono text-xs text-[#6cae86]">
+        <p className="animate-pop mt-2 text-center font-mono text-xs text-[#3f6b4d]">
           ★ {t('station.master.earned')}
         </p>
       )}
@@ -143,8 +169,11 @@ export function StationScreen() {
         <h2 className="font-display text-lg font-bold">{pickText(content.game.title, locale)}</h2>
         <div className="mt-3 flex flex-col gap-2.5">
           {TIER_ORDER.map((tier) => {
-            const unlocked = isTierUnlocked(slug, tier);
-            const won = tiersWon.includes(tier);
+            const bp = bankProg[tier];
+            const unlocked = banked ? (bp?.unlocked ?? isTierUnlocked(slug, tier)) : isTierUnlocked(slug, tier);
+            const won = banked
+              ? !!bp && bp.threshold > 0 && bp.pointsTotal >= bp.threshold
+              : tiersWon.includes(tier);
             const p = content.quests[tier].params as Record<string, number>;
             const style = TIER_STYLE[tier];
             return (
@@ -152,7 +181,7 @@ export function StationScreen() {
                 key={tier}
                 type="button"
                 disabled={!unlocked}
-                onClick={() => navigate(`/play/${slug}/${tier}`)}
+                onClick={() => { tap(); navigate(`/play/${slug}/${tier}`); }}
                 className={`flex items-center gap-3.5 rounded-xl border bg-plomb px-3.5 py-3 text-left transition active:scale-[0.985] disabled:opacity-45 ${style.ring} ${
                   unlocked ? 'active:bg-plomb-hi' : ''
                 }`}
@@ -188,12 +217,38 @@ export function StationScreen() {
                   <span className="mt-0.5 block text-[10px] leading-tight text-pierre-faint">
                     {!unlocked
                       ? t('station.tierLocked')
-                      : t(`station.rules.${tier}`, {
-                          shots: p.maxShots,
-                          pct: p.targetPct,
-                          time: p.timeLimitS,
-                        })}
+                      : banked
+                        ? t('station.quizRules.banked', {
+                            draw: Number((p as Record<string, unknown>).draw ?? 0),
+                            lives: Number(p.lives ?? 0),
+                            time: Number(p.timerS ?? 0),
+                          })
+                        : content.game.archetype === 'quiz'
+                          ? t(`station.quizRules.${tier}`, {
+                              q: ((p.questions as unknown as unknown[]) ?? []).length,
+                              lives: Number(p.lives ?? 0),
+                              time: Number(p.timerS ?? 0),
+                            })
+                          : t(`station.rules.${tier}`, {
+                              shots: p.maxShots,
+                              pct: p.targetPct,
+                              time: p.timeLimitS,
+                            })}
                   </span>
+                  {/* banque : progression points vers le seuil de palier */}
+                  {banked && unlocked && bp && bp.threshold > 0 && (
+                    <span className="mt-1 block">
+                      <span className="mb-0.5 block font-mono text-[9px] text-pierre-faint">
+                        {t('station.quizPoints', { pts: Math.min(bp.pointsTotal, bp.threshold), threshold: bp.threshold })}
+                      </span>
+                      <span className="block h-1 w-full overflow-hidden rounded-full bg-rail/50">
+                        <span
+                          className="block h-full rounded-full"
+                          style={{ width: `${Math.min(100, Math.round((bp.pointsTotal / bp.threshold) * 100))}%`, background: style.text.includes('laiton') ? '#c9a227' : 'currentColor' }}
+                        />
+                      </span>
+                    </span>
+                  )}
                 </span>
 
                 <span className="flex-none text-xs">
@@ -212,7 +267,7 @@ export function StationScreen() {
       </section>
 
       {/* check-in — SUR-COUCHE optionnelle, jamais bloquante */}
-      <section className="mt-5 rounded-xl border border-dashed border-rail bg-encre-2 p-4">
+      <section className="mt-5 rounded-xl border border-dashed border-rail bg-craie-2 p-4">
         <div className="flex items-start justify-between gap-2">
           <div>
             <h3 className="font-display text-sm font-bold">{t('checkin.title')}</h3>
@@ -223,7 +278,7 @@ export function StationScreen() {
           </span>
         </div>
         {checkInUntil ? (
-          <p className="animate-pop mt-3 font-mono text-sm text-[#6cae86]">
+          <p className="animate-pop mt-3 font-mono text-sm text-[#3f6b4d]">
             ✓ {t('checkin.done')} · {t('checkin.activeUntil')}{' '}
             {new Date(checkInUntil).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
           </p>
@@ -237,14 +292,14 @@ export function StationScreen() {
             {checkInBusy ? t('common.loading') : t('checkin.cta', { station: content.name })}
           </button>
         )}
-        {cooldownMsg && <p className="mt-2 text-xs text-orange-300">{cooldownMsg}</p>}
+        {cooldownMsg && <p className="mt-2 text-xs text-vermillon">{cooldownMsg}</p>}
         {!user && <p className="mt-2 text-xs text-pierre-faint">{t('checkin.needAccount')}</p>}
         <p className="mt-2 font-mono text-[10px] text-pierre-faint/70">{t('checkin.future')}</p>
       </section>
 
       {/* fiche savoir — l'âme culturelle, jamais imposée */}
       <section className="mt-5 rounded-xl border border-guimard/40 bg-guimard/5 p-4">
-        <h3 className="font-display text-sm font-bold text-[#6cae86]">{t('station.story.title')}</h3>
+        <h3 className="font-display text-sm font-bold text-[#3f6b4d]">{t('station.story.title')}</h3>
         <p className="mt-1.5 text-sm italic text-pierre-dim">{pickText(content.story.teaser, locale)}</p>
         {storyUnlocked ? (
           <>
@@ -254,7 +309,7 @@ export function StationScreen() {
                 <ul className="mt-3 flex flex-col gap-1.5">
                   {(content.story.facts[locale] ?? content.story.facts.fr).map((f) => (
                     <li key={f} className="flex gap-2 text-xs text-pierre-dim">
-                      <span className="text-[#6cae86]">⚜</span>{f}
+                      <span className="text-[#3f6b4d]">⚜</span>{f}
                     </li>
                   ))}
                 </ul>
@@ -262,7 +317,7 @@ export function StationScreen() {
             )}
             <button
               type="button"
-              className="mt-2 font-mono text-xs text-[#6cae86] underline-offset-2 active:underline"
+              className="mt-2 font-mono text-xs text-[#3f6b4d] underline-offset-2 active:underline"
               onClick={() => setStoryOpen(!storyOpen)}
             >
               {storyOpen ? '▴' : '▾'} {t('station.story.title')}

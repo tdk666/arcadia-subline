@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TIER_ORDER, type DifficultyTier } from '@arcadia/games';
-import { pickText, useI18n } from '../i18n';
+import { useI18n } from '../i18n';
 import { backend } from '../lib/backend';
 import type { StationContent } from '../lib/content';
 import { useArcadia, type LastResult } from '../store';
+import { tap } from '../lib/feedback';
 import { AuthSheet } from './AuthSheet';
+import { ArchiveCard } from './ArchiveCard';
+import { Button } from './Button';
 
 /** Compteur animé (le "juice" du score). */
 function CountUp({ value }: { value: number }) {
@@ -24,70 +27,6 @@ function CountUp({ value }: { value: number }) {
     return () => cancelAnimationFrame(raf);
   }, [value]);
   return <>{shown}</>;
-}
-
-/* ── LE PAYOFF CULTUREL : l'archive comme objet de collection ───────── */
-
-function ArchiveCard({ station, onClose }: { station: StationContent; onClose: () => void }) {
-  const { t, locale } = useI18n();
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 px-5" onClick={onClose}>
-      <div
-        className="animate-stamp relative max-h-[82vh] w-full max-w-sm overflow-y-auto rounded-2xl border-2 border-guimard/70 bg-[#11181380] bg-plomb p-6"
-        style={{ background: 'linear-gradient(165deg, #14211a 0%, #1e2a20 45%)' }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* balayage lumineux de révélation */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
-          <div className="animate-shine absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-        </div>
-
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#6cae86]">
-              {pickText(station.archive.collection, locale)}
-            </p>
-            <p className="mt-0.5 font-mono text-[10px] text-pierre-faint">
-              {t('archive.number', { n: station.archive.number })} · {pickText(station.archive.era, locale)}
-            </p>
-          </div>
-          {/* sceau */}
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#6cae86]/70 font-display text-xl text-[#6cae86]">
-            ⚜
-          </div>
-        </div>
-
-        <h2 className="mt-4 font-display text-2xl font-extrabold tracking-tight text-pierre">
-          {station.name}
-        </h2>
-        <p className="mt-1 text-sm italic text-[#6cae86]">{pickText(station.story.teaser, locale)}</p>
-
-        <p className="mt-4 text-sm leading-relaxed text-pierre-dim">
-          {pickText(station.story.body, locale)}
-        </p>
-
-        <ul className="mt-4 flex flex-col gap-2">
-          {(station.story.facts[locale] ?? station.story.facts.fr).map((f, i) => (
-            <li
-              key={f}
-              className="animate-slide-up flex items-center gap-2.5 rounded-lg border border-guimard/30 bg-guimard/10 px-3 py-2 text-xs text-pierre"
-              style={{ animationDelay: `${0.5 + i * 0.15}s` }}
-            >
-              <span className="text-[#6cae86]">◈</span>{f}
-            </li>
-          ))}
-        </ul>
-
-        <button
-          type="button"
-          onClick={onClose}
-          className="mt-5 w-full rounded-xl bg-guimard py-3 font-display font-bold text-white active:scale-[0.98]"
-        >
-          {t('archive.keep')}
-        </button>
-      </div>
-    </div>
-  );
 }
 
 /* ── Écran de résultat ──────────────────────────────────────────────── */
@@ -113,51 +52,107 @@ export function ResultView({
   const tierIdx = TIER_ORDER.indexOf(result.tier);
   const nextTier = tierIdx >= 0 && tierIdx < TIER_ORDER.length - 1 ? TIER_ORDER[tierIdx + 1] : null;
 
+  // L'habillage « Bastille tombée » est propre à la démolition ; les autres
+  // archétypes (quiz…) prennent une bannière générique.
+  const isDemolition = station.game.archetype === 'demolition';
+  const victoryText = isDemolition ? t('result.victory') : t('result.victoryGeneric');
+  const defeatText = isDemolition ? t('result.defeat') : t('result.defeatGeneric');
+
   function openArchive() {
     localStorage.setItem(archiveSeenKey, '1');
     setArchiveOpen(true);
   }
 
+  // Banque V2 : la progression se lit en POINTS vers un seuil, pas en « maîtrise »
+  // (jargon nu jugé ambigu au playtest). On affiche un état positif et clair.
+  const isBanked = result.pointsThreshold != null && result.pointsThreshold > 0 && result.pointsTotal != null;
+  const progressed = isBanked && !result.success && !result.flagged && result.score > 0;
+  const remaining = isBanked ? Math.max(0, (result.pointsThreshold as number) - (result.pointsTotal as number)) : 0;
+  const pctToThreshold = isBanked
+    ? Math.min(100, Math.round(((result.pointsTotal as number) / (result.pointsThreshold as number)) * 100))
+    : 0;
+
+  const headline = isBanked
+    ? (result.success ? t('result.tierCleared') : progressed ? t('result.progress') : t('result.tryAgain'))
+    : (result.success ? victoryText : defeatText);
+  const positive = result.success || progressed;
+
   return (
-    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 overflow-y-auto bg-encre/95 px-6 py-8 text-center">
+    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 overflow-y-auto bg-craie/95 px-6 py-8 text-center">
       <div className="animate-pop">
         <p className="font-mono text-xs uppercase tracking-widest text-pierre-faint">
           {station.name} · {t(`station.tiers.${result.tier}`)}
         </p>
         <h1
           className={`mt-1 font-display text-4xl font-extrabold tracking-tight ${
-            result.success ? 'animate-glow text-laiton' : 'text-pierre-dim'
+            positive ? 'animate-glow text-laiton' : 'text-pierre-dim'
           }`}
         >
-          {result.success ? t('result.victory') : t('result.defeat')}
+          {headline}
         </h1>
+        {isBanked ? (
+          <p className="mt-2 text-sm text-pierre-dim">
+            {result.success
+              ? t('result.tierClearedHint')
+              : progressed
+                ? t('result.progressHint', { n: remaining })
+                : t('result.tryAgainHint')}
+          </p>
+        ) : (
+          !result.success && <p className="mt-2 text-sm text-pierre-dim">{t('result.defeatHint')}</p>
+        )}
       </div>
 
       <div className="animate-slide-up flex w-full max-w-xs flex-col gap-2.5">
-        <div className="rounded-2xl border border-rail bg-plomb px-5 py-4">
-          <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.score')}</p>
-          <p className="font-display text-5xl font-extrabold text-ambre">
-            <CountUp value={result.score} />
-          </p>
-        </div>
-        <div className="flex gap-2.5">
-          <div className="flex-1 rounded-2xl border border-rail bg-plomb px-4 py-3">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.xp')}</p>
-            <p className="font-display text-2xl font-extrabold text-[#b6bd00]">
-              +<CountUp value={result.xpGained} />
-            </p>
-          </div>
-          <div className="flex-1 rounded-2xl border border-rail bg-plomb px-4 py-3">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.mastery')}</p>
-            <p className="font-display text-2xl font-extrabold text-vermillon">
-              <CountUp value={result.mastery} />
-            </p>
-          </div>
-        </div>
-        {result.success && result.xpGained === 0 && !result.flagged && (
-          <p className="text-xs text-pierre-faint">{t('result.bestScore')}</p>
+        {isBanked ? (
+          <>
+            {/* points gagnés cette manche — la récompense lisible, sans jargon */}
+            <div className="rounded-2xl border border-rail bg-plomb px-5 py-4">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.pointsWon')}</p>
+              <p className="font-display text-5xl font-extrabold" style={{ color: positive ? '#3f6b4d' : '#5d5446' }}>
+                +<CountUp value={result.score} />
+              </p>
+            </div>
+            {/* progression vers le palier */}
+            <div className="rounded-2xl border border-rail bg-plomb px-4 py-3">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">
+                {result.success
+                  ? t('result.tierUnlocked')
+                  : t('station.quizPoints', { pts: Math.min(result.pointsTotal as number, result.pointsThreshold as number), threshold: result.pointsThreshold as number })}
+              </p>
+              <span className="mt-1.5 block h-2 w-full overflow-hidden rounded-full bg-rail/50">
+                <span className="block h-full rounded-full bg-laiton" style={{ width: `${pctToThreshold}%` }} />
+              </span>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="rounded-2xl border border-rail bg-plomb px-5 py-4">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.score')}</p>
+              <p className="font-display text-5xl font-extrabold text-ambre">
+                <CountUp value={result.score} />
+              </p>
+            </div>
+            <div className="flex gap-2.5">
+              <div className="flex-1 rounded-2xl border border-rail bg-plomb px-4 py-3">
+                <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.xp')}</p>
+                <p className="font-display text-2xl font-extrabold text-[#6b7a1a]">
+                  +<CountUp value={result.xpGained} />
+                </p>
+              </div>
+              <div className="flex-1 rounded-2xl border border-rail bg-plomb px-4 py-3">
+                <p className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('result.mastery')}</p>
+                <p className="font-display text-2xl font-extrabold text-vermillon">
+                  <CountUp value={result.mastery} />
+                </p>
+              </div>
+            </div>
+            {result.success && result.xpGained === 0 && !result.flagged && (
+              <p className="text-xs text-pierre-faint">{t('result.bestScore')}</p>
+            )}
+          </>
         )}
-        {result.flagged && <p className="text-xs text-orange-300">⚠ {t('result.flagged')}</p>}
+        {result.flagged && <p className="text-xs text-vermillon">⚠ {t('result.flagged')}</p>}
         {result.localOnly && (
           <p className="font-mono text-[11px] text-vermillon">◦ {t('result.localOnly')}</p>
         )}
@@ -171,11 +166,11 @@ export function ResultView({
           className="animate-slide-up flex w-full max-w-xs items-center gap-3 rounded-2xl border-2 border-guimard/60 bg-guimard/10 px-4 py-3 text-left transition active:scale-[0.98]"
           style={{ animationDelay: '0.2s' }}
         >
-          <span className={`flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#6cae86] text-xl ${archiveIsNew ? 'animate-glow' : ''}`}>
+          <span className={`flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#3f6b4d] text-xl ${archiveIsNew ? 'animate-glow' : ''}`}>
             ⚜
           </span>
           <span className="flex-1">
-            <span className="block font-display text-sm font-bold text-[#6cae86]">
+            <span className="block font-display text-sm font-bold text-[#3f6b4d]">
               {archiveIsNew ? `★ ${t('archive.unlocked')}` : t('station.story.title')}
             </span>
             <span className="block font-mono text-[10px] text-pierre-faint">
@@ -190,44 +185,34 @@ export function ResultView({
         <div className="animate-slide-up w-full max-w-xs rounded-2xl border border-laiton/50 bg-laiton/10 p-4" style={{ animationDelay: '0.3s' }}>
           <p className="font-display font-bold text-laiton">★ {t('result.guestSave.title')}</p>
           <p className="mt-1 text-xs text-pierre-dim">{t('result.guestSave.body')}</p>
-          <button
-            type="button"
-            className="mt-3 w-full rounded-xl bg-laiton py-2.5 font-display text-sm font-bold text-encre active:scale-[0.98]"
-            onClick={() => setAuthOpen(true)}
-          >
+          <Button variant="gold" size="sm" className="mt-3" onClick={() => setAuthOpen(true)}>
             {t('result.guestSave.cta')}
-          </button>
+          </Button>
         </div>
       )}
 
       <div className="flex w-full max-w-xs flex-col gap-2">
         {result.success && nextTier ? (
-          <button
-            type="button"
-            className="rounded-xl bg-ambre py-3 font-display font-bold text-encre active:scale-[0.98]"
-            onClick={() => onNextTier(nextTier)}
-          >
+          <Button variant="gold" size="md" onClick={() => onNextTier(nextTier)}>
             ⬆ {t('result.nextTier')} · {t(`station.tiers.${nextTier}`)}
-          </button>
+          </Button>
         ) : (
-          <button
-            type="button"
-            className="rounded-xl bg-ambre py-3 font-display font-bold text-encre active:scale-[0.98]"
-            onClick={onReplay}
-          >
+          <Button variant="gold" size="md" onClick={onReplay}>
             ↻ {t('result.replay')}
-          </button>
+          </Button>
         )}
         <div className="flex gap-2">
           <Link
             to={`/station/${result.slug}`}
-            className="flex-1 rounded-xl border border-rail py-2.5 text-sm text-pierre-dim active:bg-plomb-hi"
+            onClick={() => tap()}
+            className="flex-1 rounded-xl border border-rail py-2.5 text-center text-sm text-pierre-dim active:bg-plomb-hi"
           >
             {t('result.toStation')}
           </Link>
           <Link
             to="/leaderboard"
-            className="flex-1 rounded-xl border border-rail py-2.5 text-sm text-pierre-dim active:bg-plomb-hi"
+            onClick={() => tap()}
+            className="flex-1 rounded-xl border border-rail py-2.5 text-center text-sm text-pierre-dim active:bg-plomb-hi"
           >
             ♛ {t('result.toLeaderboard')}
           </Link>

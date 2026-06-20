@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { backend } from '../lib/backend';
+import { track } from '../lib/analytics';
 import { useI18n } from '../i18n';
+import { Button } from './Button';
 
 /**
  * Fiche d'auth en bas d'écran — appelée au "point de conversion" (après la
@@ -14,6 +16,7 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
   const [displayName, setDisplayName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmSent, setConfirmSent] = useState(false);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -25,7 +28,11 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
         : await backend.signIn(email, password);
     setBusy(false);
     if (res.error) setError(res.error);
-    else onClose();
+    else {
+      if (mode === 'signup') track('signup_from_guest');
+      if ('needsConfirm' in res && res.needsConfirm) setConfirmSent(true);
+      else onClose();
+    }
   }
 
   return (
@@ -37,12 +44,24 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
         <h2 className="font-display text-xl font-extrabold tracking-tight">
           {mode === 'signup' ? t('auth.signupTitle') : t('auth.loginTitle')}
         </h2>
-        {intro && <p className="mt-1 text-sm text-pierre-dim">{intro}</p>}
+        {intro && !confirmSent && <p className="mt-1 text-sm text-pierre-dim">{intro}</p>}
 
+        {confirmSent ? (
+          <div className="mt-4 text-center">
+            <p className="text-sm text-pierre">✉ {t('auth.confirmSent', { email })}</p>
+            <button
+              type="button"
+              className="mt-4 w-full rounded-xl border border-rail py-2.5 text-sm text-pierre-dim active:bg-plomb-hi"
+              onClick={onClose}
+            >
+              {t('common.continue')}
+            </button>
+          </div>
+        ) : (
         <form onSubmit={submit} className="mt-4 flex flex-col gap-3">
           {mode === 'signup' && (
             <input
-              className="rounded-xl border border-rail bg-encre-2 px-4 py-3 text-sm outline-none focus:border-ambre"
+              className="rounded-xl border border-rail bg-craie-2 px-4 py-3 text-sm outline-none focus:border-ambre"
               placeholder={t('auth.displayName')}
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
@@ -50,7 +69,7 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
             />
           )}
           <input
-            className="rounded-xl border border-rail bg-encre-2 px-4 py-3 text-sm outline-none focus:border-ambre"
+            className="rounded-xl border border-rail bg-craie-2 px-4 py-3 text-sm outline-none focus:border-ambre"
             type="email"
             required
             autoComplete="email"
@@ -59,7 +78,7 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
             onChange={(e) => setEmail(e.target.value)}
           />
           <input
-            className="rounded-xl border border-rail bg-encre-2 px-4 py-3 text-sm outline-none focus:border-ambre"
+            className="rounded-xl border border-rail bg-craie-2 px-4 py-3 text-sm outline-none focus:border-ambre"
             type="password"
             required
             minLength={8}
@@ -68,23 +87,23 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {error && <p className="text-xs text-red-400">{t('auth.errors.generic')} ({error})</p>}
-          <button
-            type="submit"
-            disabled={busy}
-            className="rounded-xl bg-laiton py-3 font-display font-bold text-encre transition active:scale-[0.98] disabled:opacity-50"
-          >
+          {/* message générique only : on n'expose pas le code d'erreur brut à l'utilisateur */}
+          {error && <p className="text-xs text-vermillon" title={error}>{t('auth.errors.generic')}</p>}
+          <Button type="submit" variant="gold" size="md" disabled={busy}>
             {busy ? t('common.loading') : mode === 'signup' ? t('auth.signup') : t('auth.login')}
-          </button>
+          </Button>
         </form>
+        )}
 
-        <button
-          type="button"
-          className="mt-3 w-full text-center text-xs text-pierre-dim underline-offset-2 active:underline"
-          onClick={() => setMode(mode === 'signup' ? 'login' : 'signup')}
-        >
-          {mode === 'signup' ? t('auth.toLogin') : t('auth.toSignup')}
-        </button>
+        {!confirmSent && (
+          <button
+            type="button"
+            className="mt-3 w-full text-center text-xs text-pierre-dim underline-offset-2 active:underline"
+            onClick={() => setMode(mode === 'signup' ? 'login' : 'signup')}
+          >
+            {mode === 'signup' ? t('auth.toLogin') : t('auth.toSignup')}
+          </button>
+        )}
       </div>
     </div>
   );

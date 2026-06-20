@@ -55,8 +55,17 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hud, setHud] = useState<HudState | null>(null);
   const [muted, setMuted] = useState(false);
+  // ouverture cinématique : « 14 juillet 1789 » s'imprime, la foule gronde, les
+  // torches montent — avant que la main rende le contrôle (sautée en reduced-motion).
+  const [intro, setIntro] = useState(!ctx.reducedMotion);
   const startRef = useRef(0);
   const sfx = useMemo(() => new DemolitionSfx(), []);
+
+  useEffect(() => {
+    if (!intro) return;
+    const id = setTimeout(() => setIntro(false), 2500);
+    return () => clearTimeout(id);
+  }, [intro]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -69,6 +78,7 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
       params,
       tier: ctx.difficulty,
       reducedMotion: ctx.reducedMotion,
+      lang: ctx.locale.startsWith('en') ? 'en' : 'fr',
       sfx,
       haptic: (pattern) => { try { navigator.vibrate?.(pattern); } catch { /* non supporté */ } },
       onHud: setHud,
@@ -105,6 +115,9 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
 
   const urgent = hud?.timeLeftS != null && (hud.timeLeftS ?? 99) <= 10;
   const debug = typeof location !== 'undefined' && new URLSearchParams(location.search).has('debug');
+  const maxShots = Number((ctx.params as Record<string, number>).maxShots ?? 5);
+  const targetPct = Number((ctx.params as Record<string, number>).targetPct ?? 0);
+  const targetReached = targetPct > 0 && (hud?.destructionPct ?? 0) >= targetPct;
 
   return (
     <div
@@ -113,6 +126,34 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
       onPointerDown={unlockAudio}
     >
       <canvas ref={canvasRef} className="h-full w-full touch-none" style={{ touchAction: 'none' }} />
+
+      {/* ── OUVERTURE CINÉMATIQUE (bloque le tir le temps de poser l'enjeu) ── */}
+      {intro && (
+        <button
+          type="button"
+          onClick={() => setIntro(false)}
+          className="animate-intro-cine absolute inset-0 z-40 flex flex-col items-center justify-center overflow-hidden"
+          aria-label={ctx.locale.startsWith('en') ? 'Skip intro' : "Passer l'intro"}
+        >
+          {/* voile sombre + lueur d'incendie qui monte du faubourg */}
+          <span className="absolute inset-0" style={{ background: 'radial-gradient(120% 90% at 50% 120%, rgba(224,150,74,0.42) 0%, rgba(21,17,12,0.72) 46%, rgba(10,8,5,0.92) 100%)' }} />
+          <span className="relative px-8 text-center">
+            <span className="block font-mono text-[11px] uppercase tracking-[0.4em]" style={{ color: '#e0964a' }}>
+              {ctx.locale.startsWith('en') ? 'The people march on' : 'Le peuple marche sur'}
+            </span>
+            <span className="animate-stamp mt-2 block font-display text-[clamp(2rem,9vw,4rem)] font-extrabold leading-none tracking-tight text-[#f4eeda]"
+              style={{ textShadow: '0 2px 24px rgba(224,150,74,0.5)' }}>
+              14 JUILLET 1789
+            </span>
+            <span className="animate-slide-up mt-3 block font-display text-xl font-bold tracking-[0.3em] uppercase" style={{ color: '#e3c463', animationDelay: '0.3s' }}>
+              {ctx.stationName}
+            </span>
+          </span>
+          <span className="absolute bottom-5 font-mono text-[10px] uppercase tracking-[0.25em] text-[#cdbfa0]">
+            {ctx.locale.startsWith('en') ? 'tap to begin' : 'touche pour commencer'}
+          </span>
+        </button>
+      )}
 
       {/* overlay debug (?debug=1) — diagnostic input à distance */}
       {debug && hud && (
@@ -153,13 +194,16 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
         <>
           {/* ── Cluster d'indicateurs (droite) ── */}
           <div className="pointer-events-none absolute right-3 top-[max(env(safe-area-inset-top),0.6rem)] flex items-center gap-2">
-            {/* pavés restants */}
+            {/* pavés restants : rangée qui se vide (lecture instantanée façon Angry Birds) */}
             <div
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5"
+              className="flex items-center gap-1 rounded-lg px-2 py-1.5"
               style={{ background: 'rgba(15,11,7,0.74)', boxShadow: 'inset 0 0 0 1.5px #c9a227' }}
             >
-              <PaveIcon />
-              <span className="text-[17px] font-extrabold leading-none text-pierre">{Math.max(hud.shotsLeft, 0)}</span>
+              {Array.from({ length: maxShots }).map((_, i) => (
+                <span key={i} style={{ opacity: i < Math.max(hud.shotsLeft, 0) ? 1 : 0.22, transition: 'opacity 0.25s' }}>
+                  <PaveIcon size={15} />
+                </span>
+              ))}
             </div>
             {/* étendards */}
             <div
@@ -185,19 +229,33 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
             )}
           </div>
 
-          {/* ── Barre de destruction (sous la plaque) ── */}
+          {/* ── Barre de destruction + CIBLE live (suivre l'objectif, plus de « au pif ») ── */}
           <div className="pointer-events-none absolute left-3 top-[68px] w-[210px]">
             <div
-              className="h-2.5 rounded-md p-[2px]"
-              style={{ background: 'rgba(10,8,5,0.6)', boxShadow: 'inset 0 0 0 1.5px #c9a227' }}
+              className="relative h-2.5 rounded-md p-[2px]"
+              style={{ background: 'rgba(10,8,5,0.6)', boxShadow: `inset 0 0 0 1.5px ${targetReached ? '#5ec27a' : '#c9a227'}` }}
             >
               <div
                 className="h-full rounded-[3px] transition-[width] duration-300"
-                style={{ width: `${hud.destructionPct}%`, background: 'linear-gradient(90deg,#e3c45a,#c9a227)' }}
+                style={{
+                  width: `${hud.destructionPct}%`,
+                  background: targetReached ? 'linear-gradient(90deg,#6fce8a,#3f9b5d)' : 'linear-gradient(90deg,#e3c45a,#c9a227)',
+                }}
               />
+              {/* repère de cible : le joueur voit OÙ il doit arriver */}
+              {targetPct > 0 && (
+                <span
+                  className="absolute top-[-2px] bottom-[-2px] w-[2px] rounded-full"
+                  style={{ left: `calc(${targetPct}% )`, background: '#fff', boxShadow: '0 0 0 1px rgba(0,0,0,0.4)' }}
+                />
+              )}
             </div>
-            <div className="mt-1 text-[8px] font-semibold uppercase tracking-[0.2em] text-pierre/85">
-              Destruction — {hud.destructionPct}%
+            <div className="mt-1 text-[8px] font-semibold uppercase tracking-[0.2em]" style={{ color: targetReached ? '#9ff0b4' : 'rgba(231,220,196,0.85)' }}>
+              {targetPct > 0
+                ? (targetReached
+                    ? `✓ Forteresse — objectif ${targetPct}% atteint`
+                    : `Forteresse — ${hud.destructionPct}% / ${targetPct}%`)
+                : `Destruction — ${hud.destructionPct}%`}
             </div>
           </div>
         </>
@@ -226,7 +284,7 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
         <button
           type="button"
           onClick={onQuit}
-          className="rounded-lg px-3.5 py-2 text-xs font-semibold text-pierre-dim active:scale-95"
+          className="rounded-lg px-3.5 py-2 text-xs font-semibold text-[#cdbfa0] active:scale-95"
           style={{ background: 'rgba(15,11,7,0.74)', boxShadow: 'inset 0 0 0 1.5px #3a2f1e' }}
         >
           ✕
@@ -234,7 +292,7 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
         <button
           type="button"
           onClick={() => { const m = !muted; setMuted(m); sfx.setMuted(m); }}
-          className="rounded-lg px-3.5 py-2 text-xs font-semibold text-pierre-dim active:scale-95"
+          className="rounded-lg px-3.5 py-2 text-xs font-semibold text-[#cdbfa0] active:scale-95"
           style={{ background: 'rgba(15,11,7,0.74)', boxShadow: 'inset 0 0 0 1.5px #3a2f1e' }}
         >
           {muted ? '🔇' : '🔊'}

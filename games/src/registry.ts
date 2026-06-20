@@ -29,3 +29,9 @@ registerGame({
   orientation: 'landscape', // terrain 960×600 — paysage = visée jouable
   load: () => import('./demolition/DemolitionGame'),
 });
+
+registerGame({
+  archetype: 'quiz',
+  orientation: 'portrait', // une question pleine largeur, pouce sur les choix
+  load: () => import('./quiz/QuizGame'),
+});

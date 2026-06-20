@@ -6,10 +6,12 @@
  */
 import { useState } from 'react';
 import { useI18n } from '../i18n';
+import { Button } from './Button';
+import { Mascotte } from './Mascotte';
 
 export const ONBOARDING_KEY = 'arcadia.onboarded.v1';
 
-/* ── Tableaux SVG (zéro asset, DA néon) ─────────────────────────────── */
+/* ── Tableaux SVG (zéro asset, DA « Paris Souterrain ») ─────────────── */
 
 function SceneEiffel() {
   return (
@@ -22,7 +24,7 @@ function SceneEiffel() {
         </linearGradient>
       </defs>
       <rect width="320" height="240" fill="url(#ob-sky)" />
-      {/* tour Eiffel en traits néon */}
+      {/* tour Eiffel en traits de laiton (or chaud — pas de néon) */}
       <g stroke="#f2c200" strokeWidth="2" fill="none" opacity="0.9">
         <path d="M160 30 L138 150 M160 30 L182 150" />
         <path d="M146 95 Q160 102 174 95" />
@@ -80,9 +82,9 @@ function SceneBastille() {
       {/* plaque émaillée */}
       <rect x="60" y="58" width="200" height="56" rx="8" fill="#0a5a9e" stroke="#e7dcc4" strokeWidth="3" />
       <text x="160" y="94" textAnchor="middle" fill="#fff" fontSize="26" fontWeight="800"
-        fontFamily="system-ui" letterSpacing="3">BASTILLE</text>
+        fontFamily="'Work Sans', system-ui, sans-serif" letterSpacing="3">BASTILLE</text>
       {/* trois médailles de palier */}
-      {[{ x: 110, c: '#e0945a' }, { x: 160, c: '#c9d2dc' }, { x: 210, c: '#f2c200' }].map((m, i) => (
+      {[{ x: 110, c: '#e0964a' }, { x: 160, c: '#c9d2dc' }, { x: 210, c: '#f2c200' }].map((m, i) => (
         <g key={i} className="ob-station" style={{ animationDelay: `${0.5 + i * 0.25}s` }}>
           <circle cx={m.x} cy="160" r="20" fill="#241f18" stroke={m.c} strokeWidth="3" />
           <text x={m.x} y="167" textAnchor="middle" fill={m.c} fontSize="18">★</text>
@@ -98,19 +100,28 @@ function SceneBastille() {
 
 const SCENES = [SceneEiffel, SceneNetwork, SceneBastille];
 
-export function Onboarding({ onDone }: { onDone: () => void }) {
+export function Onboarding({ onDone, onStart }: { onDone: () => void; onStart?: () => void }) {
   const { t } = useI18n();
   const [step, setStep] = useState(0);
   const Scene = SCENES[step];
   const key = (`s${step + 1}`) as 's1' | 's2' | 's3';
 
-  function finish() {
+  function mark() {
     localStorage.setItem(ONBOARDING_KEY, '1');
+  }
+  // « Passer » : on ferme, on reste sur la carte.
+  function finish() {
+    mark();
     onDone();
+  }
+  // CTA final : apprendre EN JOUANT → on enchaîne sur la 1re partie guidée.
+  function start() {
+    mark();
+    (onStart ?? onDone)();
   }
 
   return (
-    <div className="fixed inset-0 z-[60] mx-auto flex max-w-md flex-col bg-encre">
+    <div className="fixed inset-0 z-[60] mx-auto flex max-w-md flex-col bg-craie">
       <button
         type="button"
         onClick={finish}
@@ -123,7 +134,10 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
         <Scene />
       </div>
 
-      <div key={`txt-${step}`} className="animate-slide-up flex flex-[2] flex-col px-7 pt-2">
+      <div key={`txt-${step}`} className="animate-slide-up flex min-h-0 flex-[2] flex-col overflow-y-auto px-7 pt-2">
+        {step === SCENES.length - 1 && (
+          <Mascotte size={84} className="animate-pop mb-1 drop-shadow-[0_6px_10px_rgba(0,0,0,0.18)]" />
+        )}
         <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-vermillon">
           {t(`onboarding.${key}.kicker`)}
         </p>
@@ -147,21 +161,13 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
           ))}
         </div>
         {step < SCENES.length - 1 ? (
-          <button
-            type="button"
-            onClick={() => setStep(step + 1)}
-            className="rounded-xl bg-plomb-hi px-6 py-3 font-display font-bold text-pierre active:scale-[0.97]"
-          >
+          <Button variant="secondary" size="md" block={false} onClick={() => setStep(step + 1)}>
             {t('common.continue')} →
-          </button>
+          </Button>
         ) : (
-          <button
-            type="button"
-            onClick={finish}
-            className="animate-glow rounded-xl bg-laiton px-6 py-3 font-display font-bold text-encre active:scale-[0.97]"
-          >
+          <Button variant="gold" size="md" block={false} className="animate-glow" onClick={start}>
             ⚜ {t('onboarding.cta')}
-          </button>
+          </Button>
         )}
       </div>
     </div>

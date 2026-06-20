@@ -1,14 +1,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { TIER_ORDER, type DifficultyTier, type GameAnswers } from '@arcadia/games';
+import { TIER_ORDER, type DifficultyTier } from '@arcadia/games';
 import { backend, type AttemptResult, type BackendUser } from '../lib/backend';
+import { advanceDaily, INITIAL_DAILY, type DailyState } from '../lib/daily';
+import { cosmetic, DEFAULT_OWNED } from '../lib/cosmetics';
 
 /** Tentative gagnée en invité, à rejouer côté serveur après création du compte. */
 export interface PendingAttempt {
   questId: string;
   slug: string;
   tier: DifficultyTier;
-  answers: Record<string, GameAnswers>;
+  // p_answers tel que soumis à fn_submit_attempt — la forme dépend de l'archétype
+  // (démolition : { step → télémétrie } ; quiz : { step → choiceId }).
+  answers: Record<string, unknown>;
   durationMs: number;
 }
 
@@ -30,9 +34,22 @@ interface ArcadiaState {
   localBest: Record<string, number>; // questId → meilleur score vu
   pending: PendingAttempt[];
   lastResult: LastResult | null;
+  /** Couche d'habitude quotidienne (streak / objectif du jour). */
+  daily: DailyState;
+  /** Jetons — monnaie gagnée en jouant. */
+  coins: number;
+  /** Cosmétiques possédés + équipés (boutique). */
+  owned: string[];
+  equippedAura: string;
 
   recordResult: (r: LastResult) => void;
   queuePending: (p: PendingAttempt) => void;
+  /** Consomme la récompense de série après l'avoir célébrée. */
+  clearDailyReward: () => void;
+  /** Achète un cosmétique si assez de jetons (et l'équipe). Renvoie le succès. */
+  buyCosmetic: (id: string) => boolean;
+  /** Équipe un cosmétique déjà possédé. */
+  equipCosmetic: (id: string) => void;
   /** Rejoue les tentatives invitées via fn_submit_attempt (post-signup). */
   flushPending: () => Promise<void>;
   highestTierWon: (slug: string) => DifficultyTier | null;
@@ -54,6 +71,10 @@ export const useArcadia = create<ArcadiaState>()(
       localBest: {},
       pending: [],
       lastResult: null,
+      daily: INITIAL_DAILY,
+      coins: 0,
+      owned: DEFAULT_OWNED,
+      equippedAura: 'aura-email',
 
       recordResult: (r) => {
         set((s) => {
@@ -64,9 +85,27 @@ export const useArcadia = create<ArcadiaState>()(
             next.tiersWon = { ...s.tiersWon, [r.slug]: TIER_ORDER.filter((t) => won.has(t)) };
             next.mastery = { ...s.mastery, [r.slug]: Math.max(s.mastery[r.slug] ?? 0, r.mastery) };
             next.storyUnlocked = { ...s.storyUnlocked, [r.slug]: true };
+            // une victoire propre fait avancer l'objectif du jour / la série
+            next.daily = advanceDaily(s.daily);
+            // jetons gagnés selon le palier (récompense immédiate + substrat boutique)
+            next.coins = s.coins + ({ bronze: 10, silver: 20, gold: 30 } as const)[r.tier];
           }
           return next;
         });
+      },
+
+      clearDailyReward: () => set((s) => ({ daily: { ...s.daily, rewardPending: false } })),
+
+      buyCosmetic: (id) => {
+        const c = cosmetic(id);
+        const s = get();
+        if (!c || s.owned.includes(id) || s.coins < c.cost) return false;
+        set({ coins: s.coins - c.cost, owned: [...s.owned, id], equippedAura: id });
+        return true;
+      },
+      equipCosmetic: (id) => {
+        const s = get();
+        if (s.owned.includes(id)) set({ equippedAura: id });
       },
 
       queuePending: (p) => {
@@ -116,6 +155,10 @@ export const useArcadia = create<ArcadiaState>()(
         storyUnlocked: s.storyUnlocked,
         localBest: s.localBest,
         pending: s.pending,
+        daily: s.daily,
+        coins: s.coins,
+        owned: s.owned,
+        equippedAura: s.equippedAura,
       }),
     },
   ),
