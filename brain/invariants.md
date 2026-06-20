@@ -1,0 +1,50 @@
+# 🔒 Invariants — décisions VERROUILLÉES (ne jamais régresser)
+
+Toute violation = régression. On ne les rouvre qu'avec une entrée explicite dans
+`decision-log.md`.
+
+## Sécurité du score (zone rouge)
+
+- `fn_submit_attempt` est **l'unique porte d'entrée du score**. Aucun calcul de
+  score côté client, jamais (le client ne fait que de l'aperçu sans autorité).
+- `answer_key` est **serveur-only**, jamais exposé au client (RLS + vue
+  `quest_steps_public` qui exclut `answer_key`).
+- Toute fonction touchant au score est `security definer` + `set search_path =
+  public, pg_temp` verrouillé.
+- RLS **owner-scoped** : un joueur ne lit/écrit que ses propres lignes. Les tables
+  de progression ne s'écrivent que depuis `fn_submit_attempt` (security definer).
+- **Anti-farming par marge** : seule la marge au-delà du meilleur score (ou les
+  items de banque non encore réussis) rapporte de l'XP.
+- **Gating des paliers côté serveur** : silver/gold exigent le palier précédent
+  (succès demolition, ou seuil de points atteint en banque v2). Le client ne peut
+  pas forcer un palier verrouillé.
+- **Check-in actif requis** pour les quêtes `exploration` (les quêtes `knowledge`
+  restent jouables sans présence — async-first).
+
+## Source de vérité des données de jeu
+
+- **Le seed SQL (`supabase/seed.sql` + `migrations/**`) est la source de vérité des
+  paramètres de jeu. `content/*.json` en est le MIROIR.** En cas d'écart, le JSON
+  s'aligne sur le seed (cf. DEC-001), jamais l'inverse sans migration.
+
+## Produit / stratégie
+
+- **Rétention = revenu.** Pas de scale (volume de stations, Manus, breadth) avant
+  d'avoir lu la rétention J+1 sur la tranche jouable.
+- **Drive = vitrine / sas de contenu, jamais l'état de vérité.** L'état vit dans
+  `/brain` (git).
+
+## Direction artistique / UX (ne pas trancher seul)
+
+- Carte : **tilt 52°** conservé (désorientation signalée au playtest = décision DA
+  réservée au board ; affordance possible, retrait non).
+- Orientation : **portrait par défaut** ; Bastille (démolition) en **paysage**,
+  positionné comme « boss » qu'on choisit, pas premier contact imposé.
+- DA « Paris Souterrain » (craie / papier chaud, plaques émaillées) conservée.
+
+## Snapshot de la zone interdite du sprint « Cerveau Augmenté » (2026-06-20)
+
+INTERDIT ce sprint : `supabase/migrations/**`, `supabase/seed.sql`,
+`app/src/lib/scoring*`, toute logique score/RLS, toute nouvelle migration, merge
+de PR #3, ajout de station. (Conservé ici comme rappel ; les invariants ci-dessus
+sont permanents.)

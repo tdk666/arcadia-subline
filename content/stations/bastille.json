@@ -15,15 +15,15 @@
   "quests": {
     "bronze": {
       "questId": "44444444-4444-4444-8444-444444444401",
-      "params": { "maxShots": 6, "hpMultiplier": 1, "targetPct": 0, "timeLimitS": 0, "reinforced": false }
+      "params": { "maxShots": 5, "hpMultiplier": 1.0, "targetPct": 0, "timeLimitS": 0, "reinforced": false }
     },
     "silver": {
       "questId": "44444444-4444-4444-8444-444444444402",
-      "params": { "maxShots": 4, "hpMultiplier": 1.35, "targetPct": 30, "timeLimitS": 0, "reinforced": false }
+      "params": { "maxShots": 4, "hpMultiplier": 1.45, "targetPct": 35, "timeLimitS": 0, "reinforced": false }
     },
     "gold": {
       "questId": "44444444-4444-4444-8444-444444444403",
-      "params": { "maxShots": 4, "hpMultiplier": 1.6, "targetPct": 40, "timeLimitS": 80, "reinforced": true }
+      "params": { "maxShots": 3, "hpMultiplier": 1.8, "targetPct": 50, "timeLimitS": 75, "reinforced": true }
     }
   },
   "briefs": {
