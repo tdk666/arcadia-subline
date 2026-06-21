@@ -11,7 +11,6 @@
  */
 import { useEffect, useState } from 'react';
 import { useRive, useStateMachineInput } from '@rive-app/react-canvas';
-import { Mascotte } from '../Mascotte';
 
 export type MarcState =
   | 'idle' | 'entree' | 'salut' | 'pointe' | 'acquiesce' | 'reconforte' | 'celebre';
@@ -66,17 +65,28 @@ export function MarcGuide({
 
   const cls = state === 'idle' ? 'marc-idle' : `marc-${state}`;
 
+  // Niveau 2 (si pas de marc.riv) : POSE-SWAP — une image par état si elle existe
+  // (/mascotte/marc-<state>.webp), sinon repli sur le poinçonneur. Drop-in : il
+  // suffit de déposer marc-idle.webp, marc-salut.webp… (optimisés ≤ ~150 Ko).
+  const [poseSrc, setPoseSrc] = useState(`/mascotte/marc-${state}.webp`);
+  useEffect(() => { setPoseSrc(`/mascotte/marc-${state}.webp`); }, [state]);
+
   return (
     <div className={`relative ${className}`} style={{ width: size, height: size }}>
       {/* Rive — invisible tant qu'il n'a pas chargé (drop-in) */}
       <div className="absolute inset-0" style={{ opacity: riveOk ? 1 : 0 }} aria-hidden={!riveOk}>
         <RiveComponent style={{ width: '100%', height: '100%' }} />
       </div>
-      {/* Doublure animée (poinçonneur) — key force le replay de la pose à chaque état */}
+      {/* Doublure : pose par état (marc-<state>.webp) → repli poinçonneur.png */}
       {!riveOk && (
-        <div key={state} className={cls} style={{ width: '100%', height: '100%', transformOrigin: '50% 80%' }}>
-          <Mascotte size={size} className="h-full w-full drop-shadow-[0_10px_22px_rgba(0,0,0,0.28)]" />
-        </div>
+        <img
+          key={state}
+          src={poseSrc}
+          onError={() => { if (!poseSrc.endsWith('poinconneur.png')) setPoseSrc('/mascotte/poinconneur.png'); }}
+          alt=""
+          className={`${cls} h-full w-full object-contain drop-shadow-[0_10px_22px_rgba(0,0,0,0.28)]`}
+          style={{ transformOrigin: '50% 80%' }}
+        />
       )}
     </div>
   );
