@@ -18,7 +18,11 @@
 
 ## EN COURS
 
-- Rien d'ouvert en code après le merge. Surveillance prod post-déploiement.
+- **FTUE « L'Émergence »** (DEC-005) sur `claude/ftue-emergence` : cinématique
+  d'accueil premium construite sur la **doublure Marc** (drop-in Rive). Reste : que
+  Théophile produise `marc.riv` via l'agent Rive (prompt : `brain/marc-rive-agent-prompt.md`)
+  → dépôt dans `app/public/mascotte/` = bascule auto. + planche de réf Marc (image).
+- PR #4 (discipline déploiement Netlify, DEC-004) : ouverte, non mergée.
 
 ## PROCHAIN GESTE
 

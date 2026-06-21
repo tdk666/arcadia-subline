@@ -1,11 +1,14 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useEffect, useState, type ReactNode } from 'react';
+import { Suspense, lazy, useEffect, useState, type ReactNode } from 'react';
 import { backend } from '../lib/backend';
 import { useI18n } from '../i18n';
 import { StatusBar } from './StatusBar';
 import { DailyReward } from './DailyReward';
-import { Onboarding, ONBOARDING_KEY } from './Onboarding';
+import { ONBOARDING_KEY } from './Onboarding';
 import { IconNetwork, IconCollection, IconLeague, IconProfile } from './icons';
+
+// FTUE « L'Émergence » : code-splittée (le runtime Rive ne charge qu'à la 1re run)
+const Emergence = lazy(() => import('./ftue/Emergence').then((m) => ({ default: m.Emergence })));
 
 /**
  * Après l'intro on atterrit sur LA CARTE (plateau Ligne 1), jamais directement
@@ -65,15 +68,17 @@ export function AppLayout() {
       </nav>
       <DailyReward />
       {showOnboarding && (
-        <Onboarding
-          onDone={() => setShowOnboarding(false)}
-          onStart={() => {
-            setShowOnboarding(false);
-            // on atterrit sur la carte vivante (Louvre-Rivoli mis en avant), jamais
-            // jeté de force dans le boss Bastille (paysage) — cf. playtest.
-            navigate(FIRST_MAP);
-          }}
-        />
+        <Suspense fallback={<div className="fixed inset-0 z-[60]" style={{ background: '#111115' }} />}>
+          <Emergence
+            onDone={() => setShowOnboarding(false)}
+            onStart={() => {
+              setShowOnboarding(false);
+              // on atterrit sur la carte vivante (Louvre-Rivoli mis en avant), jamais
+              // jeté de force dans le boss Bastille (paysage) — cf. playtest.
+              navigate(FIRST_MAP);
+            }}
+          />
+        </Suspense>
       )}
     </div>
   );

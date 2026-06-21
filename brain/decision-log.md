@@ -71,3 +71,32 @@ réconcilier le registre. Garde-fou : le seed 0017 ne doit PAS **dupliquer** les
 migration passe par le mécanisme enregistré, fini le SQL Editor non tracé.**
 
 **Statut.** Ouvert.
+
+---
+
+## DEC-005 — FTUE « L'Émergence » : cinématique d'accueil + Marc = Rive (doublure drop-in)
+
+**Cause.** 1er playtest humain (Agathe) : accueil pas premium, concept mal compris.
+Board : viser **la meilleure cinématique d'accueil possible** (niveau studio primé),
+avec un **Marc vivant**. Reco outillage : **Rive** (2D vectoriel interactif), pas le
+vieux `marc.glb` 3D (lourd, moins expressif).
+
+**Décision.**
+- L'intro devient **« L'Émergence »** — séquence-titre jouable (5 actes) qui enacte
+  le mythe Ligne 6 ET la **dualité de DA** : Châssis SOMBRE (#111115) → Couche Ville
+  CLAIRE (#f6f1e6). Tunnel → émergence → beat de quiz → reveal Malraux → conquête
+  (tricolore, ici SEULEMENT) → épilogue guest-first.
+- **Marc = Rive** via un **CONTRAT D'INPUTS figé** (`entree, salut, pointe, acquiesce,
+  reconforte, celebre`, bool `parle`, number `humeur`). `<MarcGuide>` joue une
+  **doublure animée** (poinçonneur PNG + pose CSS/état) tant que `marc.riv` est
+  absent ; dès dépôt dans `app/public/mascotte/marc.riv`, **bascule Rive en drop-in**
+  sans changer l'API. Le code n'attend pas l'animateur.
+- **Long-pole = animation du `.riv`** (humain / freelance, via l'agent Rive de
+  l'éditeur). Prompt « god-tier » versionné : `brain/marc-rive-agent-prompt.md`.
+- Garde-fous FTUE : **zéro score serveur** (points = décor local), portrait,
+  guest-first, tricolore = écran conquête only, reduced-motion = repli, skippable → carte.
+- Dette DA mineure : wordmark en **Outfit ExtraBold** (placeholder) — la Bible veut
+  **Space Grotesk Black** ; police à charger dans un sprint DA dédié.
+
+**Statut.** Appliqué (cinématique sur doublure, code-splittée, CI verte). En attente
+de `marc.riv` (drop-in) + planche de réf Marc (génération image, MCP image down ce tour).

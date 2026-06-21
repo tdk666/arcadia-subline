@@ -201,9 +201,47 @@ body {
 }
 .animate-rotate-hint { animation: rotate-hint 2.6s ease-in-out infinite; transform-origin: center; }
 
+/* ── CHÂSSIS SOMBRE (marque mère) — Acte 0 de l'intro + futurs menus profonds ── */
+:root {
+  --color-acier: #111115;      /* Acier Obscur — fond marque (jamais noir pur) */
+  --color-acier-2: #1b1b22;    /* surface sombre dérivée */
+  --color-acier-hi: #26262f;   /* surface sombre au-dessus */
+}
+
+/* ── FTUE « L'Émergence » : cinématique d'accueil ── */
+@keyframes ftue-flood { 0% { clip-path: inset(0 100% 0 0); } 100% { clip-path: inset(0 0 0 0); } }
+.ftue-flood { animation: ftue-flood 0.9s cubic-bezier(0.7, 0, 0.2, 1) both; }
+@keyframes ftue-headlight { 0% { transform: scale(0.4); opacity: 0.2; } 100% { transform: scale(1); opacity: 1; } }
+.ftue-headlight { animation: ftue-headlight 2.2s cubic-bezier(0.4, 0, 0.2, 1) both; }
+@keyframes ftue-tricolore {
+  0% { transform: translateY(-12%) scaleY(0.2); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(110%) scaleY(1); opacity: 0; }
+}
+.ftue-tricolore { animation: ftue-tricolore 1.5s cubic-bezier(0.3, 0.7, 0.3, 1) both; }
+
+/* ── Doublure Marc (poses animées tant que marc.riv est absent) ── */
+@keyframes marc-idle { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4px) rotate(-0.5deg); } }
+@keyframes marc-entree { 0% { transform: translateY(18px) scale(0.92); opacity: 0; filter: brightness(0.5); } 100% { transform: translateY(0) scale(1); opacity: 1; filter: brightness(1); } }
+@keyframes marc-salut { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-6deg); } 60% { transform: rotate(4deg); } }
+@keyframes marc-pointe { 0% { transform: translateX(0); } 100% { transform: translateX(8px) rotate(2deg); } }
+@keyframes marc-acquiesce { 0%,100% { transform: translateY(0); } 35% { transform: translateY(-7px); } 70% { transform: translateY(2px); } }
+@keyframes marc-reconforte { 0%,100% { transform: rotate(0); } 50% { transform: rotate(-2deg) translateY(-2px); } }
+@keyframes marc-celebre { 0%,100% { transform: translateY(0) scale(1); } 30% { transform: translateY(-16px) scale(1.06); } 55% { transform: translateY(0) scale(1); } 75% { transform: translateY(-7px); } }
+.marc-idle { animation: marc-idle 3s ease-in-out infinite; }
+.marc-entree { animation: marc-entree 0.7s cubic-bezier(0.34,1.56,0.64,1) both; }
+.marc-salut { animation: marc-salut 0.9s ease-in-out both; }
+.marc-pointe { animation: marc-pointe 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+.marc-acquiesce { animation: marc-acquiesce 0.7s ease-in-out both; }
+.marc-reconforte { animation: marc-reconforte 1s ease-in-out both; }
+.marc-celebre { animation: marc-celebre 0.9s cubic-bezier(0.34,1.56,0.64,1) both; }
+
 @media (prefers-reduced-motion: reduce) {
   .animate-pop, .animate-slide-up, .animate-glow, .animate-ob-scene,
   .ob-line, .ob-station, .ob-train, .animate-stamp, .animate-shine,
   .animate-map-bob, .animate-map-pulse, .animate-seine,
-  .animate-line-pulse, .arcadia-avatar::after, .animate-rotate-hint { animation: none; }
+  .animate-line-pulse, .arcadia-avatar::after, .animate-rotate-hint,
+  .ftue-flood, .ftue-headlight, .ftue-tricolore,
+  .marc-idle, .marc-entree, .marc-salut, .marc-pointe,
+  .marc-acquiesce, .marc-reconforte, .marc-celebre { animation: none; }
 }
