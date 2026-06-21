@@ -13,13 +13,14 @@ import { useI18n } from '../../i18n';
 import { tap, haptic } from '../../lib/feedback';
 import { track } from '../../lib/analytics';
 import { Button } from '../Button';
-import { ONBOARDING_KEY } from '../Onboarding';
+import { ONBOARDING_KEY } from '../../lib/ftue';
 import { MarcGuide, type MarcState } from './MarcGuide';
 
 type Act = 'tunnel' | 'emergence' | 'quiz' | 'reveal' | 'conquest' | 'epilogue';
 
-const ACIER = '#111115';
-const CRAIE = '#f6f1e6';
+// DA : source unique = tokens @theme (app/src/index.css). Pas de hex de marque en dur.
+const ACIER = 'var(--color-acier)';
+const CRAIE = 'var(--color-craie)';
 
 export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: () => void }) {
   const { t } = useI18n();
@@ -79,7 +80,7 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
   return (
     <div
       className="fixed inset-0 z-[60] mx-auto flex max-w-md flex-col overflow-hidden"
-      style={{ background: dark ? ACIER : CRAIE, transition: 'background 0.6s ease', color: dark ? '#f4eeda' : '#2a2118' }}
+      style={{ background: dark ? ACIER : CRAIE, transition: 'background 0.6s ease', color: dark ? 'var(--color-craie)' : 'var(--color-pierre)' }}
     >
       {/* bascule sombre→clair : voile clair qui balaie l'écran à l'émergence */}
       {act === 'emergence' && (
@@ -91,7 +92,7 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
         type="button"
         onClick={skip}
         className="absolute right-4 top-[max(env(safe-area-inset-top),1rem)] z-30 rounded-full px-3.5 py-1.5 font-mono text-xs backdrop-blur active:scale-95"
-        style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)', color: dark ? 'rgba(244,238,218,0.7)' : '#6f6450' }}
+        style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)', color: dark ? 'rgba(244,238,218,0.7)' : 'var(--color-pierre-faint)' }}
       >
         {t('ftue.skip')} ›
       </button>
@@ -117,10 +118,10 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
                 </g>
               </svg>
             </div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.3em]" style={{ color: '#e0964a' }}>{t('ftue.tunnelKicker')}</p>
+            <p className="font-mono text-[11px] uppercase tracking-[0.3em]" style={{ color: 'var(--color-ambre)' }}>{t('ftue.tunnelKicker')}</p>
             {/* wordmark — héros (placeholder Space Grotesk : Outfit ExtraBold serré) */}
-            <h1 className="mt-2 font-display text-[clamp(2rem,9vw,3.2rem)] font-extrabold uppercase leading-[0.95] tracking-[-0.02em]" style={{ color: '#f4eeda' }}>
-              Arcadia<br /><span style={{ color: '#e3c463' }}>SubLine</span>
+            <h1 className="mt-2 font-display text-[clamp(2rem,9vw,3.2rem)] font-extrabold uppercase leading-[0.95] tracking-[-0.02em]" style={{ color: 'var(--color-craie)' }}>
+              Arcadia<br /><span style={{ color: 'var(--color-laiton-clair)' }}>SubLine</span>
             </h1>
             <p className="mt-3 text-sm" style={{ color: 'rgba(244,238,218,0.7)' }}>{t('ftue.tunnelSub')}</p>
           </>
@@ -130,10 +131,10 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
         {act === 'emergence' && (
           <>
             {/* plaque émaillée qui se tamponne */}
-            <div className="animate-stamp rounded-xl px-7 py-4" style={{ background: '#0a5a9e', boxShadow: 'inset 0 0 0 3px rgba(255,255,255,0.9), 0 10px 26px rgba(0,0,0,0.25)' }}>
+            <div className="animate-stamp rounded-xl px-7 py-4" style={{ background: 'var(--color-email)', boxShadow: 'inset 0 0 0 3px rgba(255,255,255,0.9), 0 10px 26px rgba(0,0,0,0.25)' }}>
               <span className="font-display text-2xl font-extrabold uppercase tracking-wide text-white">Louvre — Rivoli</span>
             </div>
-            <p className="animate-slide-up mt-6 max-w-xs text-[15px] leading-relaxed" style={{ color: '#5d5446', animationDelay: '0.2s' }}>
+            <p className="animate-slide-up mt-6 max-w-xs text-[15px] leading-relaxed" style={{ color: 'var(--color-pierre-dim)', animationDelay: '0.2s' }}>
               {t('ftue.emergence')}
             </p>
           </>
@@ -158,9 +159,9 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
               className="mx-auto flex w-full max-w-xs items-center gap-3 rounded-2xl border-2 px-4 py-3 text-left active:scale-[0.98]"
               style={{ borderColor: 'rgba(63,107,77,0.5)', background: 'rgba(63,107,77,0.08)' }}
             >
-              <span className="animate-glow flex h-11 w-11 flex-none items-center justify-center rounded-full border-2 text-xl" style={{ borderColor: '#3f6b4d', color: '#3f6b4d' }}>⚜</span>
+              <span className="animate-glow flex h-11 w-11 flex-none items-center justify-center rounded-full border-2 text-xl" style={{ borderColor: 'var(--color-guimard)', color: 'var(--color-guimard)' }}>⚜</span>
               <span className="flex-1">
-                <span className="block font-display text-sm font-bold" style={{ color: '#3f6b4d' }}>{t('ftue.archive')}</span>
+                <span className="block font-display text-sm font-bold" style={{ color: 'var(--color-guimard)' }}>{t('ftue.archive')}</span>
                 <span className="block font-mono text-[10px] text-pierre-faint">{t('ftue.archiveNum')}</span>
               </span>
             </button>
@@ -175,12 +176,12 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
           <>
             {/* gerbe tricolore (uniquement cet écran) */}
             <div className="pointer-events-none absolute inset-0 z-0 flex justify-center gap-2 overflow-hidden">
-              {['#0a5a9e', '#ffffff', '#bb2e2a'].map((c, i) => (
+              {['var(--color-email)', '#ffffff', 'var(--color-vermillon)'].map((c, i) => (
                 <span key={c} className="ftue-tricolore mt-[-20%] h-[140%] w-7 rounded-full" style={{ background: c, opacity: 0.85, animationDelay: `${i * 0.12}s` }} />
               ))}
             </div>
             <div className="relative z-10">
-              <span className="animate-pop inline-flex h-16 w-16 items-center justify-center rounded-full text-3xl" style={{ background: '#f2c200', boxShadow: '0 8px 24px rgba(242,194,0,0.45)' }}>★</span>
+              <span className="animate-pop inline-flex h-16 w-16 items-center justify-center rounded-full text-3xl" style={{ background: 'var(--color-laiton-clair)', boxShadow: '0 8px 24px rgba(242,194,0,0.45)' }}>★</span>
               <h2 className="animate-slide-up mt-4 font-display text-3xl font-extrabold text-pierre">{t('ftue.conquest')}</h2>
               <p className="mt-1 text-sm text-pierre-dim">{t('ftue.conquestSub')}</p>
             </div>
@@ -208,10 +209,10 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
             {([['a', t('ftue.a1'), true], ['b', t('ftue.a2'), false], ['c', t('ftue.a3'), false]] as const).map(([id, label, correct]) => {
               const isPicked = picked === id;
               const reveal = picked !== null;
-              let bg = 'var(--color-plomb)', border = 'var(--color-rail)', fg = '#2a2118';
-              if (reveal && correct) { bg = '#3f6b4d'; border = '#3f6b4d'; fg = '#fff'; }
-              else if (reveal && isPicked && !correct) { bg = '#bb2e2a'; border = '#bb2e2a'; fg = '#fff'; }
-              else if (reveal) { fg = '#5d5446'; }
+              let bg = 'var(--color-plomb)', border = 'var(--color-rail)', fg = 'var(--color-pierre)';
+              if (reveal && correct) { bg = 'var(--color-guimard)'; border = 'var(--color-guimard)'; fg = '#fff'; }
+              else if (reveal && isPicked && !correct) { bg = 'var(--color-vermillon)'; border = 'var(--color-vermillon)'; fg = '#fff'; }
+              else if (reveal) { fg = 'var(--color-pierre-dim)'; }
               return (
                 <button
                   key={id} type="button" disabled={reveal}

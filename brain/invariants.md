@@ -34,6 +34,20 @@ Toute violation = régression. On ne les rouvre qu'avec une entrée explicite da
 - **Drive = vitrine / sas de contenu, jamais l'état de vérité.** L'état vit dans
   `/brain` (git).
 
+## Source de vérité du code (une seule par sujet)
+
+- **DA = un seul endroit : le bloc `@theme` de `app/src/index.css`** (couleurs de
+  marque + Acier sombre + typos). Les composants référencent les **tokens**
+  (classes Tailwind `bg-email`/`text-pierre`… ou `var(--color-*)` en style inline).
+  **Aucun hex de marque en dur** dans le TSX. Exception tolérée : couleurs
+  d'illustration one-off (dégradés/ombres SVG d'un dessin précis) — pas des
+  couleurs de marque.
+- **FTUE = un seul composant : `components/ftue/Emergence.tsx`** (clé partagée
+  `lib/ftue.ts → ONBOARDING_KEY`). L'ancien `Onboarding.tsx` est supprimé.
+- **Marc (mascotte 2D) = Rive** via `components/ftue/MarcGuide.tsx` + contrat
+  d'inputs (`brain/marc-rive-agent-prompt.md`). Le `marc.glb`/`avatar3d.ts` est
+  l'**avatar 3D du joueur sur la carte** (rôle distinct), pas la mascotte.
+
 ## Direction artistique / UX (ne pas trancher seul)
 
 - Carte : **tilt 52°** conservé (désorientation signalée au playtest = décision DA

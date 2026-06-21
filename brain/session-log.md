@@ -18,11 +18,29 @@
 
 ## EN COURS
 
-- **FTUE « L'Émergence »** (DEC-005) sur `claude/ftue-emergence` : cinématique
-  d'accueil premium construite sur la **doublure Marc** (drop-in Rive). Reste : que
-  Théophile produise `marc.riv` via l'agent Rive (prompt : `brain/marc-rive-agent-prompt.md`)
-  → dépôt dans `app/public/mascotte/` = bascule auto. + planche de réf Marc (image).
+- **FTUE « L'Émergence »** (DEC-005) sur `claude/ftue-emergence` / **PR #5** :
+  cinématique d'accueil premium sur **doublure Marc** (drop-in Rive) + **passe
+  « source de vérité unique »** : tokens DA unifiés dans `index.css @theme`
+  (Acier inclus), FTUE migrée aux tokens, ancien `Onboarding.tsx` supprimé
+  (clé → `lib/ftue.ts`). Reste : `marc.riv` (agent Rive, prompt versionné) +
+  planche de réf Marc.
 - PR #4 (discipline déploiement Netlify, DEC-004) : ouverte, non mergée.
+
+## ASSETS / DETTE (suite « source unique »)
+
+- **6 rendus Marc nano banana** dans Drive `09_MARC` (~6,8 Mo chacun) = **référence
+  pour l'animateur Rive**. PAS intégrés au web (trop lourds ; pas d'optimiseur
+  d'image dispo dans l'env). À optimiser en webp ≤100 Ko pour upgrader la doublure
+  (ou exporter optimisé). La doublure tourne sur `poinconneur.png` (1,6 Mo, déjà là).
+- **Migration hex legacy** : ~200 hex inline restent dans les composants hors-FTUE
+  (beaucoup sont des illustrations SVG légitimes ; certains sont des couleurs de
+  marque à passer en token). Sweep mécanique à faire par lots (faible risque/fichier),
+  hors de ce tour pour ne pas risquer tout le visuel d'un coup. Règle posée dans
+  `invariants.md`.
+- **Couleurs de paliers dupliquées** (TIER_* dans GameScreen/StationScreen/QuizGame/
+  DemolitionGame) : candidat à un module partagé (cross-package app↔games) — suivi.
+- Police **Space Grotesk Black** pour le wordmark (Bible) : non chargée (placeholder
+  Outfit) — sprint DA dédié.
 
 ## PROCHAIN GESTE
 

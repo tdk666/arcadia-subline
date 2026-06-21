@@ -4,7 +4,7 @@ import { backend } from '../lib/backend';
 import { useI18n } from '../i18n';
 import { StatusBar } from './StatusBar';
 import { DailyReward } from './DailyReward';
-import { ONBOARDING_KEY } from './Onboarding';
+import { ONBOARDING_KEY } from '../lib/ftue';
 import { IconNetwork, IconCollection, IconLeague, IconProfile } from './icons';
 
 // FTUE « L'Émergence » : code-splittée (le runtime Rive ne charge qu'à la 1re run)
@@ -68,7 +68,7 @@ export function AppLayout() {
       </nav>
       <DailyReward />
       {showOnboarding && (
-        <Suspense fallback={<div className="fixed inset-0 z-[60]" style={{ background: '#111115' }} />}>
+        <Suspense fallback={<div className="fixed inset-0 z-[60]" style={{ background: 'var(--color-acier)' }} />}>
           <Emergence
             onDone={() => setShowOnboarding(false)}
             onStart={() => {

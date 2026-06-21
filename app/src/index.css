@@ -31,6 +31,11 @@
   --color-vermillon: #bb2e2a;    /* vermillon — cibles, danger, rivalité */
   --color-zinc: #8a96a0;         /* zinc des toits */
 
+  /* CHÂSSIS SOMBRE (marque mère) — Acte 0 de l'intro + futurs menus profonds */
+  --color-acier: #111115;        /* Acier Obscur — fond marque (jamais noir pur) */
+  --color-acier-2: #1b1b22;      /* surface sombre dérivée */
+  --color-acier-hi: #26262f;     /* surface sombre au-dessus */
+
   --font-display: 'Outfit', system-ui, sans-serif;
   --font-ui: 'Work Sans', system-ui, sans-serif;
   /* « mono » repensé : Work Sans en capitales espacées, pas de Space Mono */
@@ -200,13 +205,6 @@ body {
   82%, 100% { transform: rotate(90deg); }
 }
 .animate-rotate-hint { animation: rotate-hint 2.6s ease-in-out infinite; transform-origin: center; }
-
-/* ── CHÂSSIS SOMBRE (marque mère) — Acte 0 de l'intro + futurs menus profonds ── */
-:root {
-  --color-acier: #111115;      /* Acier Obscur — fond marque (jamais noir pur) */
-  --color-acier-2: #1b1b22;    /* surface sombre dérivée */
-  --color-acier-hi: #26262f;   /* surface sombre au-dessus */
-}
 
 /* ── FTUE « L'Émergence » : cinématique d'accueil ── */
 @keyframes ftue-flood { 0% { clip-path: inset(0 100% 0 0); } 100% { clip-path: inset(0 0 0 0); } }
