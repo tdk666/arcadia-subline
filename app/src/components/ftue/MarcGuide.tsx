@@ -1,10 +1,13 @@
 /**
  * MARC — guide animé de la FTUE « L'Émergence ».
- * DROP-IN RIVE : si /mascotte/marc.riv existe, on pilote la state machine « Marc »
- * via le CONTRAT D'INPUTS (entree/salut/pointe/acquiesce/reconforte/celebre + parle).
- * Tant que le .riv est absent, on rend une DOUBLURE animée (le poinçonneur PNG +
- * une pose CSS par état) : la cinématique tourne AVANT l'arrivée du .riv, puis le
- * .riv se branche sans changer cette API. Cf. brain/marc-rive-agent-prompt.md.
+ * DROP-IN RIVE : si /mascotte/marc.riv existe, on pilote « Marc » via le CONTRAT
+ * D'INPUTS (entree/salut/pointe/acquiesce/reconforte/celebre + parle).
+ *
+ * Rive migre des « state machine inputs » (legacy) vers le « data binding /
+ * view models ». On supporte LES DEUX : le code déclenche d'abord l'input de
+ * state machine s'il existe, sinon la propriété de view model (même nom). Ainsi
+ * le .riv marche qu'il ait été monté à l'ancienne OU en data binding.
+ * Cf. brain/marc-rive-agent-prompt.md.
  */
 import { useEffect, useState } from 'react';
 import { useRive, useStateMachineInput } from '@rive-app/react-canvas';
@@ -22,31 +25,44 @@ export function MarcGuide({
     src: '/mascotte/marc.riv',
     stateMachines: 'Marc',
     autoplay: true,
+    autoBind: true, // lie l'instance de view model par défaut (si Marc est en data binding)
     onLoad: () => setRiveOk(true),
     onLoadError: () => setRiveOk(false),
   });
 
-  // inputs du contrat (null tant que rive non chargé → no-op)
+  // chemin "legacy" : state machine inputs (null si le .riv est en data binding)
   const entree = useStateMachineInput(rive, 'Marc', 'entree');
   const salut = useStateMachineInput(rive, 'Marc', 'salut');
   const pointe = useStateMachineInput(rive, 'Marc', 'pointe');
   const acquiesce = useStateMachineInput(rive, 'Marc', 'acquiesce');
   const reconforte = useStateMachineInput(rive, 'Marc', 'reconforte');
   const celebre = useStateMachineInput(rive, 'Marc', 'celebre');
-  const parle = useStateMachineInput(rive, 'Marc', 'parle');
+  const parleInput = useStateMachineInput(rive, 'Marc', 'parle');
 
+  // déclenche un état : input de state machine OU trigger de view model (selon le .riv)
   useEffect(() => {
     if (!riveOk) return;
-    const triggers: Record<string, { fire?: () => void } | null> = {
+    const sm: Record<string, { fire?: () => void } | null> = {
       entree, salut, pointe, acquiesce, reconforte, celebre,
     };
-    triggers[state]?.fire?.();
-  }, [state, riveOk, entree, salut, pointe, acquiesce, reconforte, celebre]);
+    sm[state]?.fire?.();
+    try {
+      // data binding (Rive récent) : rive.viewModelInstance.trigger("entree").trigger()
+      const vmi = (rive as unknown as { viewModelInstance?: { trigger?: (n: string) => { trigger?: () => void } } })?.viewModelInstance;
+      if (state !== 'idle') vmi?.trigger?.(state)?.trigger?.();
+    } catch { /* pas de view model → ignore */ }
+  }, [state, riveOk, entree, salut, pointe, acquiesce, reconforte, celebre, rive]);
 
+  // « parle » : boolean d'input OU propriété boolean de view model
   useEffect(() => {
-    if (!riveOk || !parle) return;
-    parle.value = speaking;
-  }, [speaking, riveOk, parle]);
+    if (!riveOk) return;
+    if (parleInput) (parleInput as { value: boolean }).value = speaking;
+    try {
+      const vmi = (rive as unknown as { viewModelInstance?: { boolean?: (n: string) => { value: boolean } | null } })?.viewModelInstance;
+      const b = vmi?.boolean?.('parle');
+      if (b) b.value = speaking;
+    } catch { /* pas de view model → ignore */ }
+  }, [speaking, riveOk, parleInput, rive]);
 
   const cls = state === 'idle' ? 'marc-idle' : `marc-${state}`;
 
