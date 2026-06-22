@@ -66,6 +66,8 @@ export const fr = {
     skip: 'Passer',
     tunnelKicker: 'Paris · sous tes pieds',
     tunnelSub: 'Le métro devient ton terrain de jeu.',
+    reversal: 'Ta ligne est un plateau.',
+    continueHint: 'touche pour continuer',
     emergence: 'Touche une station, joue son histoire — d’où tu veux, pas besoin d’y être.',
     qHint: 'Touche la bonne réponse',
     q: 'Pourquoi ce quai ressemble-t-il à un musée ?',

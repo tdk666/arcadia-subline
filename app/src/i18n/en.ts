@@ -68,6 +68,8 @@ export const en: Dict = {
     skip: 'Skip',
     tunnelKicker: 'Paris · beneath your feet',
     tunnelSub: 'The métro becomes your playground.',
+    reversal: 'Your line is a game board.',
+    continueHint: 'tap to continue',
     emergence: 'Tap a station, play its story — from anywhere, no need to be there.',
     qHint: 'Tap the right answer',
     q: 'Why does this platform look like a museum?',

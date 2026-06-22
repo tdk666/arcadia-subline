@@ -18,6 +18,15 @@
 
 ## EN COURS
 
+- **FTUE « L'Émergence » V2 — registre Lion d'Or** (sur PR #5) : refonte vers
+  ÉMERVEILLEMENT CINÉMATIQUE (réf. Sky/Monument Valley) suite retour fondateur
+  (« trop rapide, concept pas assez ressenti, pas assez premium »). Tempo HYBRIDE
+  (chaque temps respire + tap pour précipiter), le RENVERSEMENT tunnel→Paris en
+  plan tenu (~1,8 s, money shot : la ligne se trace, stations éclosent),
+  god-rays/vignette/grain, **sound design en couches** (WebAudio `lib/sfx-ftue.ts`,
+  débloqué au 1er geste, mute), **wordmark Space Grotesk**, Marc détouré (pose-swap).
+  Beats : tunnel(quotidien) → renversement → promesse(touche d'où tu veux) →
+  quiz → reveal(loot Malraux) → conquête(tricolore) → épilogue guest-first.
 - **FTUE « L'Émergence »** (DEC-005) sur `claude/ftue-emergence` / **PR #5** :
   cinématique d'accueil premium sur **doublure Marc** (drop-in Rive) + **passe
   « source de vérité unique »** : tokens DA unifiés dans `index.css @theme`
