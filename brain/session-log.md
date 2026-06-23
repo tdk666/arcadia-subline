@@ -18,6 +18,14 @@
 
 ## EN COURS
 
+- **MINI-JEUX — retours fondateur** (DEC-009, sur PR #5) : **Quiz** = chrono chiffré
+  (⏱ Ns), **musique** ambiante « Cabinet des Merveilles » (`games/src/quiz/audio.ts`),
+  anti-débordement (zone question `min-h-0`+scroll), **tirage biaisé vers les œuvres
+  illustrées** (`drawBank(prefer=isUsableQuizImage)`). **Bastille** = HUD **% chiffré
+  proéminent** + correctif factuel brief argent (invalides = défenseurs). **Drive →
+  brain** : `brain/mini-jeux.md` (8 archétypes, 10 boss, banque/images Louvre + IMAGE_LOG,
+  spec Bastille). 59 tests + typecheck app+games + build verts. ⚑ ouverts : compléter les
+  images `verified` (Atelier), aligner targetPct↔answer_key (sprint scoring).
 - **FLÂNEUR — révélation d'archive sonore** (sur PR #6) : `lib/feedback.ts ▸ reveal()`
   = accord chaud (quinte ouverte Do-Sol-Do, filtré) + haptique, joué à l'ouverture
   de `ArchiveCard` (le pendant sonore du sceau). 57 tests verts.

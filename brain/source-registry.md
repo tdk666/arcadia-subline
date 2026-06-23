@@ -48,7 +48,9 @@ Racine `1BhB7HttCdWGay9RVxAKjc-QInRXBz2O8` :
 - `01_PRODUIT_UX` (vide) · `02_TECH_DATA` · `03_GTM_BRANDING` · `05_FINANCE_LEGAL` ·
   `04_ARCHIVES_2020` (legacy).
 - `06_MINI_JEUX` `1vqOb44...EoxS` — RESERVOIR « un jeu par âme de station » (canon
-  8 archétypes + bosses), APPROFONDISSEMENT louvre/bastille (polish contenu, post-build).
+  8 archétypes + bosses), APPROFONDISSEMENT louvre/bastille (polish contenu, post-build),
+  et sous-dossier **`LOUVRE RIVOLI`** `1FpeRsAFIBzLlSItxOzvli_dPsbHdhLfC` (banque 150
+  `louvre-rivoli.json` + `louvre-rivoli_IMAGE_LOG.md`). **Recopié dans `brain/mini-jeux.md`.**
 - `07_STRESS_TESTS` `1cEhyH...eFsA8` — **playtest Agathe 20/06** (vérité terrain).
 - `08_VISUELS` · `09_MARC` `1i-71p...y6muM` (réfs Marc).
 - Docs racine : BOARD_HANDOFF 2026-06-20, BRIEF_CLAUDE_CODE_SPRINT_PREUVE, État du Projet.

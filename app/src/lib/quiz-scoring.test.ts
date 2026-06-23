@@ -73,6 +73,22 @@ describe('drawBank — tirage qui ne rejoue jamais un item réussi', () => {
     const drawn = drawBank(bank, 8, passed);
     expect(drawn).toHaveLength(8); // rejouabilité plutôt que blocage
   });
+
+  it('biais `prefer` : privilégie les items préférés quand il y en a assez', () => {
+    // marque comme « préférés » les 12 premiers items → un tirage de 8 doit
+    // n'être composé QUE de ceux-là (le joueur voit l'art)
+    const preferIds = new Set(bank.slice(0, 12).map((q) => q.stepId));
+    const drawn = drawBank(bank, 8, [], (q) => preferIds.has(q.stepId));
+    expect(drawn).toHaveLength(8);
+    expect(drawn.every((q) => preferIds.has(q.stepId))).toBe(true);
+  });
+
+  it('biais `prefer` : complète avec les autres si trop peu de préférés', () => {
+    const preferIds = new Set(bank.slice(0, 3).map((q) => q.stepId)); // seulement 3
+    const drawn = drawBank(bank, 8, [], (q) => preferIds.has(q.stepId));
+    expect(drawn).toHaveLength(8); // 3 préférés + 5 autres
+    expect(drawn.filter((q) => preferIds.has(q.stepId))).toHaveLength(3);
+  });
 });
 
 describe('previewBankedQuizScore — succès par SEUIL cumulé', () => {

@@ -229,11 +229,28 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
             )}
           </div>
 
-          {/* ── Barre de destruction + CIBLE live (suivre l'objectif, plus de « au pif ») ── */}
-          <div className="pointer-events-none absolute left-3 top-[68px] w-[210px]">
+          {/* ── Barre de destruction + CIBLE live + % CHIFFRÉ proéminent ── */}
+          <div className="pointer-events-none absolute left-3 top-[64px] w-[230px]">
+            <div className="flex items-end justify-between">
+              <span className="text-[8px] font-bold uppercase tracking-[0.22em]" style={{ color: 'rgba(231,220,196,0.9)' }}>
+                {ctx.locale.startsWith('en') ? 'Fortress' : 'Forteresse'}
+              </span>
+              {/* le grand chiffre live : on SAIT toujours où on en est */}
+              <span
+                className="font-display text-[22px] font-extrabold leading-none tabular-nums"
+                style={{ color: targetReached ? '#9ff0b4' : '#f4eeda', textShadow: '0 1px 6px rgba(0,0,0,0.8)' }}
+              >
+                {hud.destructionPct}%
+                {targetPct > 0 && (
+                  <span className="ml-1 text-[11px] font-bold" style={{ color: targetReached ? '#9ff0b4' : '#cdbfa0' }}>
+                    / {targetPct}%
+                  </span>
+                )}
+              </span>
+            </div>
             <div
-              className="relative h-2.5 rounded-md p-[2px]"
-              style={{ background: 'rgba(10,8,5,0.6)', boxShadow: `inset 0 0 0 1.5px ${targetReached ? '#5ec27a' : '#c9a227'}` }}
+              className="relative mt-1 h-3 rounded-md p-[2px]"
+              style={{ background: 'rgba(10,8,5,0.7)', boxShadow: `inset 0 0 0 1.5px ${targetReached ? '#5ec27a' : '#c9a227'}` }}
             >
               <div
                 className="h-full rounded-[3px] transition-[width] duration-300"
@@ -245,18 +262,16 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
               {/* repère de cible : le joueur voit OÙ il doit arriver */}
               {targetPct > 0 && (
                 <span
-                  className="absolute top-[-2px] bottom-[-2px] w-[2px] rounded-full"
-                  style={{ left: `calc(${targetPct}% )`, background: '#fff', boxShadow: '0 0 0 1px rgba(0,0,0,0.4)' }}
+                  className="absolute top-[-3px] bottom-[-3px] w-[2.5px] rounded-full"
+                  style={{ left: `calc(${targetPct}% )`, background: '#fff', boxShadow: '0 0 0 1px rgba(0,0,0,0.5)' }}
                 />
               )}
             </div>
-            <div className="mt-1 text-[8px] font-semibold uppercase tracking-[0.2em]" style={{ color: targetReached ? '#9ff0b4' : 'rgba(231,220,196,0.85)' }}>
-              {targetPct > 0
-                ? (targetReached
-                    ? `✓ Forteresse — objectif ${targetPct}% atteint`
-                    : `Forteresse — ${hud.destructionPct}% / ${targetPct}%`)
-                : `Destruction — ${hud.destructionPct}%`}
-            </div>
+            {targetReached && (
+              <div className="mt-1 text-[9px] font-bold uppercase tracking-[0.18em]" style={{ color: '#9ff0b4' }}>
+                {ctx.locale.startsWith('en') ? `✓ Target ${targetPct}% reached` : `✓ Objectif ${targetPct}% atteint`}
+              </div>
+            )}
           </div>
         </>
       )}

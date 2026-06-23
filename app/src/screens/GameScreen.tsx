@@ -1,7 +1,7 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
-  getGame, TIER_ORDER,
+  getGame, isUsableQuizImage, TIER_ORDER,
   type DifficultyTier, type GameProps, type GameResult, type QuizQuestion,
 } from '@arcadia/games';
 import { pickText, useI18n } from '../i18n';
@@ -92,7 +92,7 @@ export function GameScreen() {
     if (isBankedQuiz(c)) {
       const p = q.params as Record<string, unknown>;
       const b = (p.questions as QuizQuestion[] | undefined) ?? [];
-      setDrawn(drawBank(b, Number(p.draw ?? b.length), bankProgress.passed));
+      setDrawn(drawBank(b, Number(p.draw ?? b.length), bankProgress.passed, (q) => isUsableQuizImage(q.image)));
     }
     setPhase('play');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -129,7 +129,8 @@ export function GameScreen() {
   // Tirage de la manche : `draw` items au hasard, en excluant ceux déjà réussis.
   function drawRound(): QuizQuestion[] {
     const drawN = Number((quest.params as Record<string, unknown>).draw ?? bank.length);
-    return drawBank(bank, drawN, bankProgress.passed);
+    // privilégie les items à œuvre illustrée → le joueur voit l'art (retour fondateur)
+    return drawBank(bank, drawN, bankProgress.passed, (q) => isUsableQuizImage(q.image));
   }
 
   // params passés au moteur : pour la banque, on substitue les items tirés

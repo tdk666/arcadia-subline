@@ -12,9 +12,10 @@
  * `answer` sert UNIQUEMENT au ressenti local. Image + explication révélées
  * APRÈS la réponse uniquement (jamais avant — décision board).
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GameProps } from '../contract';
 import { isUsableQuizImage, type QuizParams } from './types';
+import { QuizAudio } from './audio';
 
 const TIER_LABEL = { bronze: 'BRONZE', silver: 'ARGENT', gold: 'OR' } as const;
 // teintes encrées lisibles sur fond clair (la couleur médaille pure est trop pâle)
@@ -45,6 +46,12 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
   const [revealed, setRevealed] = useState(false);
   const [streak, setStreak] = useState(0);
   const [timeLeft, setTimeLeft] = useState(params.timerS);
+  const [muted, setMuted] = useState(false);
+
+  // ambiance « Cabinet des Merveilles » — débloquée au 1er geste, libérée au démontage
+  const audio = useMemo(() => new QuizAudio(), []);
+  useEffect(() => () => audio.dispose(), [audio]);
+  const unlockAudio = useCallback(() => { audio.unlock(); audio.setMuted(muted); }, [audio, muted]);
 
   const answersRef = useRef<Record<string, string>>({});
   const startRef = useRef(0);
@@ -120,8 +127,9 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
     <div
       className="relative flex h-full w-full select-none flex-col overflow-hidden"
       style={{ fontFamily: "'Work Sans', system-ui, sans-serif", background: 'var(--color-craie)', color: INK }}
+      onPointerDown={unlockAudio}
     >
-      {/* ── BARRE HAUTE : quitter · progression · vies ── */}
+      {/* ── BARRE HAUTE : quitter · progression · vies · son ── */}
       <div className="flex items-center gap-3 px-4 pt-[max(env(safe-area-inset-top),0.7rem)]">
         <button
           type="button"
@@ -130,6 +138,14 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
           className="flex h-9 w-9 flex-none items-center justify-center rounded-lg border border-rail bg-plomb text-sm font-semibold text-pierre-dim active:scale-95"
         >
           ✕
+        </button>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); const m = !muted; setMuted(m); audio.setMuted(m); }}
+          aria-label={tr('Son', 'Sound')}
+          className="flex h-9 w-9 flex-none items-center justify-center rounded-lg border border-rail bg-plomb text-sm active:scale-95"
+        >
+          {muted ? '🔇' : '🔊'}
         </button>
         <div className="flex flex-1 gap-1.5">
           {questions.map((qq, i) => (
@@ -173,10 +189,17 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
         )}
       </div>
 
-      {/* ── CHRONO (paliers argent/or) ── */}
+      {/* ── CHRONO (paliers argent/or) : compte à rebours CHIFFRÉ + barre ── */}
       {params.timerS > 0 && (
-        <div className="mt-3 px-4">
-          <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: 'var(--color-rail)' }}>
+        <div className="mt-3 flex items-center gap-2.5 px-4">
+          <span
+            className={`flex-none font-mono text-sm font-extrabold tabular-nums ${urgent && !ctx.reducedMotion ? 'animate-pop' : ''}`}
+            style={{ color: urgent ? KO : ink, minWidth: 30 }}
+            aria-label={tr('Temps restant', 'Time left')}
+          >
+            ⏱ {picked === null ? timeLeft : 0}s
+          </span>
+          <div className="h-2 flex-1 overflow-hidden rounded-full" style={{ background: 'var(--color-rail)' }}>
             <div
               className="h-full rounded-full"
               style={{
@@ -189,8 +212,8 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
         </div>
       )}
 
-      {/* ── QUESTION ── */}
-      <div className="flex flex-1 flex-col justify-center px-5 py-4">
+      {/* ── QUESTION (zone flexible/scrollable → les choix ne débordent jamais) ── */}
+      <div className="flex min-h-0 flex-1 flex-col justify-center overflow-y-auto px-5 py-3">
         <p className="font-mono text-[10px] uppercase tracking-[0.25em]" style={{ color: INK_DIM }}>
           {tr('Question', 'Question')} {index + 1}/{questions.length}
         </p>

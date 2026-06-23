@@ -172,3 +172,27 @@ source de vérité.
   rendu ; **suppression du bloc `onboarding.*`** (mort + cadrage « canapé » reversé).
 
 **Statut.** Appliqué (typecheck + 57 tests + build verts). Tout sur PR #6 (empilée sur #5).
+
+---
+
+## DEC-009 — Mini-jeux : retours fondateur (HUD, chrono, musique, images) + miroir Atelier
+
+**Cause.** Test fondateur : Bastille = pas de % / temps « en live » perçus ; Louvre = pas
+d'images d'œuvres, pas de chrono visible, pas de musique, boutons qui débordent. Directive :
+mirrorer tout le Drive mini-jeux dans le brain.
+
+**Décision (frontend, scoring intact).**
+- **Drive → brain** : `brain/mini-jeux.md` recopie l'intel Atelier (8 archétypes, 10 boss,
+  banque/images Louvre + IMAGE_LOG, spec Bastille, exigences UX). Source-registry pointe dessus.
+- **Quiz** : chrono **chiffré** (⏱ Ns) à côté de la barre ; **musique** ambiante
+  « Cabinet des Merveilles » (`games/src/quiz/audio.ts`, WebAudio, mute, dispose) ;
+  **anti-débordement** (zone question `min-h-0`+scroll → les choix restent visibles).
+- **Images** : le contenu a déjà des `verified` mais rares ; le tirage **biaise vers les
+  items illustrés** (`drawBank(prefer=isUsableQuizImage)`, 2 tests) → le joueur voit l'art.
+  (Compléter les URLs verified = TODO Atelier.)
+- **Bastille** : HUD **% chiffré proéminent** (gros chiffre + barre + cible) ; chrono gold
+  inchangé (bronze/silver sans timer = voulu). **Correctif factuel** brief argent : les
+  invalides DÉFENDAIENT (Gardes françaises = assaillants).
+
+**Statut.** Appliqué (typecheck app+games + 59 tests + build verts). ⚑ targetPct↔answer_key
+(sprint scoring) et complétion images verified = ouverts.

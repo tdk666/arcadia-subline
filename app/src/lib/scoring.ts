@@ -37,10 +37,18 @@ export function drawBank(
   bank: readonly QuizQuestion[],
   n: number,
   passed: readonly string[] = [],
+  prefer?: (q: QuizQuestion) => boolean,
 ): QuizQuestion[] {
   const set = new Set(passed);
   let pool = bank.filter((q) => !set.has(q.stepId));
   if (pool.length < n) pool = bank.slice();
+  if (prefer) {
+    // biaise la SÉLECTION vers les items préférés (ex. ceux qui ont une œuvre
+    // illustrée → le joueur voit l'art), mais randomise l'ORDRE de présentation.
+    const a = shuffle(pool.filter(prefer));
+    const b = shuffle(pool.filter((q) => !prefer(q)));
+    return shuffle([...a, ...b].slice(0, n));
+  }
   return shuffle(pool).slice(0, n);
 }
 
