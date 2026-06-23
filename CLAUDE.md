@@ -5,10 +5,11 @@
 ## Le projet en 5 lignes
 
 **Arcadia SubLine** transforme le métro de Paris en plateau de jeu culturel :
-chaque station porte une histoire et un mini-jeu (quiz, démolition…). Tu joues
-en **touchant une station sur la carte — de n'importe où, pas de géoloc requise**.
-Tu gagnes des points, débloques l'histoire du lieu, conquiers ta ligne, grimpes
-au classement. Monorepo pnpm : `app/` (PWA React/TS/Vite/Tailwind/zustand),
+**reconquiers le temps mort de ton trajet**. Chaque station de ta ligne porte une
+histoire et un mini-jeu (quiz, démolition…). Tu joues en **touchant une station
+sur la carte** ; ta présence physique (check-in) est la *magie* en bonus, jamais
+une barrière (le jeu reste jouable async). Tu débloques l'histoire du lieu,
+conquiers ta ligne, grimpes au classement. Monorepo pnpm : `app/` (PWA React/TS/Vite/Tailwind/zustand),
 `games/` (archétypes de jeu), `content/` (JSON éditorial), `supabase/` (SQL).
 
 ## Le cerveau vit dans `/brain/` (source de vérité unique, versionnée git)

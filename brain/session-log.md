@@ -18,6 +18,15 @@
 
 ## EN COURS
 
+- **FTUE « L'Émergence » V3 — audit Epic appliqué** (sur PR #5) : (1) narration
+  recadrée sur la **reconquête du TRAJET** (fidèle au Manifeste : « temps mort du
+  trajet » ; géoloc = bonus, pas « canapé ») — corrigé aussi dans CLAUDE.md +
+  map.tapHint ; (2) **UN SEUL MONDE** : plateau de Paris (Ligne 1 + Seine +
+  plaques émaillées) qui naît au renversement et persiste — quiz/reveal/conquête
+  se jouent DESSUS, caméra tenue (transform), Louvre-Rivoli héros, conquête =
+  station tricolore + territoire qui s'illumine ; (3) **couture** : épilogue =
+  carte large + « Touche Louvre-Rivoli pour commencer » → /line/M1. Reste P1 :
+  brand-block MP59 plus riche, profondeur/lumière, Marc Rive, mix sonore.
 - **FTUE « L'Émergence » V2 — registre Lion d'Or** (sur PR #5) : refonte vers
   ÉMERVEILLEMENT CINÉMATIQUE (réf. Sky/Monument Valley) suite retour fondateur
   (« trop rapide, concept pas assez ressenti, pas assez premium »). Tempo HYBRIDE
