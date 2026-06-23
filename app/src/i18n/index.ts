@@ -4,7 +4,7 @@
  * Arbitrage : i18next pèserait ~15 ko gz pour deux locales statiques — inutile
  * tant que le contenu vit dans /content et les libellés UI ici.
  */
-import { createContext, createElement, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, createElement, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { fr, type Dict } from './fr';
 import { en } from './en';
 
@@ -49,6 +49,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     setLocaleState(l);
     document.documentElement.lang = l;
   }, []);
+
+  // reflète la locale détectée dès le 1er rendu (a11y / SEO : <html lang>)
+  useEffect(() => { document.documentElement.lang = locale; }, [locale]);
 
   const t = useCallback(
     (key: I18nKey, params?: Record<string, string | number>) => {

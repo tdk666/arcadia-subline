@@ -49,24 +49,6 @@ export const en: Dict = {
     body: 'A technical incident interrupted the journey. Your conquests are safe.',
     cta: 'Resume the journey',
   },
-  onboarding: {
-    s1: {
-      kicker: 'The Paris métro',
-      title: 'Paris is a playground.',
-      body: 'Every métro station hides a story. Arcadia turns the network into a cultural game board — you conquer Paris, one station at a time.',
-    },
-    s2: {
-      kicker: 'How you play',
-      title: 'Tap a station, play.',
-      body: 'You pick a station on the map and launch its mini-game. No need to be there: you play by tapping, from anywhere — your couch, your desk, the métro.',
-    },
-    s3: {
-      kicker: 'Your mission',
-      title: 'Conquer your line.',
-      body: 'Win the challenges, unlock each place’s story, climb the ranking. Your first conquest is waiting on the Line 1 map.',
-    },
-    cta: 'See the map',
-  },
   ftue: {
     skip: 'Skip',
     tunnelKicker: 'Your métro, every day',

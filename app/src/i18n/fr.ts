@@ -47,24 +47,6 @@ export const fr = {
     body: 'Un incident technique interrompt le trajet. Tes conquêtes sont en sécurité.',
     cta: 'Reprendre le voyage',
   },
-  onboarding: {
-    s1: {
-      kicker: 'Le métro de Paris',
-      title: 'Paris est un terrain de jeu.',
-      body: 'Chaque station du métro cache une histoire. Arcadia transforme le réseau en plateau de jeu culturel — tu conquiers Paris, station par station.',
-    },
-    s2: {
-      kicker: 'Comment on joue',
-      title: 'Touche une station, joue.',
-      body: 'Tu choisis une station sur la carte et tu lances son mini-jeu. Pas besoin d’y être : tu joues en cliquant, de n’importe où — ton canapé, ton bureau, le métro.',
-    },
-    s3: {
-      kicker: 'Ta mission',
-      title: 'Conquiers ta ligne.',
-      body: 'Gagne les défis, débloque l’histoire de chaque lieu, grimpe au classement. Ta première conquête t’attend sur la carte de la Ligne 1.',
-    },
-    cta: 'Voir la carte',
-  },
   ftue: {
     skip: 'Passer',
     tunnelKicker: 'Ton métro, chaque jour',

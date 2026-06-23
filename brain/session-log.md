@@ -18,6 +18,11 @@
 
 ## EN COURS
 
+- **TOURISTE (partiel) + hygiène i18n** (sur PR #6) : bascule **FR/EN dès le 1er
+  écran** (FTUE) pour ne jamais piéger un touriste ; `<html lang>` posé au 1er rendu ;
+  **suppression du bloc `onboarding.*`** (mort + cadrage « canapé » reversé) → source
+  de vérité unique. 51 tests verts. Reste Touriste : onboarding concierge (locale=en),
+  landmarks `gold`.
 - **DÉFI DU JOUR — rituel quotidien + 1-tap-to-play express** (DEC-007, sur PR #6) :
   réponse directe au board (« définir+enseigner la boucle 30 s + rituel station du
   jour + résultat partageable ») et au playtest Agathe (« trop long »). `lib/challenge.ts`

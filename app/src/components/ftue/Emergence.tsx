@@ -98,7 +98,7 @@ function ParisBoard({ draw, focus, conquered, reduced }: { draw: boolean; focus:
 }
 
 export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: () => void }) {
-  const { t } = useI18n();
+  const { t, locale, setLocale } = useI18n();
   const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const beat = (ms: number) => (reduced ? Math.min(ms, 800) : ms);
   const L = (k: string, p?: Record<string, string | number>) => t(k as Parameters<typeof t>[0], p);
@@ -201,11 +201,21 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
 
       {/* ── BARRE HAUTE ── */}
       <div className="relative z-30 flex items-center justify-between px-4 pt-[max(env(safe-area-inset-top),1rem)]">
-        <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={() => toggleMute()} aria-label="son"
-          className="flex h-9 w-9 items-center justify-center rounded-full text-sm active:scale-95"
-          style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', color: dark ? 'rgba(244,238,218,0.75)' : 'var(--color-pierre-faint)' }}>
-          {muted ? '🔇' : '🔊'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={() => toggleMute()} aria-label="son"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-sm active:scale-95"
+            style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', color: dark ? 'rgba(244,238,218,0.75)' : 'var(--color-pierre-faint)' }}>
+            {muted ? '🔇' : '🔊'}
+          </button>
+          {/* le touriste ne doit JAMAIS être piégé dans une langue : bascule dès l'accueil */}
+          <button type="button" onPointerDown={(e) => e.stopPropagation()}
+            onClick={() => { hapticTap(); setLocale(locale === 'fr' ? 'en' : 'fr'); }}
+            aria-label={locale === 'fr' ? 'Switch to English' : 'Passer en français'}
+            className="flex h-9 items-center justify-center rounded-full px-3 font-mono text-xs font-bold tracking-wider active:scale-95"
+            style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', color: dark ? 'rgba(244,238,218,0.75)' : 'var(--color-pierre-faint)' }}>
+            {locale === 'fr' ? 'EN' : 'FR'}
+          </button>
+        </div>
         <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={() => skip()}
           className="rounded-full px-3.5 py-1.5 font-mono text-xs backdrop-blur active:scale-95"
           style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)', color: dark ? 'rgba(244,238,218,0.7)' : 'var(--color-pierre-faint)' }}>

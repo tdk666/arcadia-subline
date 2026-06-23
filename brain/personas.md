@@ -21,7 +21,7 @@
 | 2 | **Flâneur de 14h30** (slow travel) | L6 aérienne, assis, soleil plein écran | Lisibilité plein soleil, archives sourcées (pas trivia IA) | Métro Clair ✅ · ArchiveCard (stamp/shine) ✅ · contenu fr/en ✅ · **manque** : ambiance sonore reveal, +stations |
 | 3 | **Stratège de 23h45** (tension nocturne) | Au lit, noir, Wi-Fi | Métagame sombre, tabular-nums, vérifier Streak avant minuit | tabular-nums ✅ · count-up ✅ · Boutique/Ligue/Profil ✅ · **manque** : châssis sombre hors-FTUE, succès/badges, saisons |
 | 4 | **Clan de Rame** (guerre de territoire) | L9, clan asynchrone | Domination tribale, frontières, émotes, **zéro chat** | **ABSENT** (modèle solo by design ; gros chantier backend — voir Statut) |
-| 5 | **Touriste Ébahi** (passeport patrimonial) | L1, ne parle pas FR, stressé | Onboarding apaisant, multilingue, archives-souvenir | i18n fr/en + auto `navigator.language` ✅ · **manque** : EN complet, GeoIP, landmarks 3D, onboarding « concierge » localisé |
+| 5 | **Touriste Ébahi** (passeport patrimonial) | L1, ne parle pas FR, stressé | Onboarding apaisant, multilingue, archives-souvenir | i18n fr/en + auto `navigator.language` ✅ · **FAIT (partiel)** : bascule **FR/EN dès l'accueil** (FTUE), `<html lang>` au 1er rendu, purge des clés `onboarding.*` obsolètes (cadrage « canapé » reversé) · **reste** : onboarding « concierge » localisé, landmarks gold, GeoIP |
 | 6 | **Guide Conférencier** (EdTech) | Arts et Métiers, groupe de 15 | Lobbies privés QR, hub narratif synchronisé | **ABSENT** (Phase 2 ; backend realtime — voir Statut) |
 | 7 | **Bande de Collégiens** (stress-test) | Android fissuré, batterie 15 %, spam | 60 FPS, anti ghost-touch, drop tricolore partageable (vanité = acquisition #1) | **FAIT ce tour** : anti-ghost-touch (Button), confettis tricolores + fanfare (victoire), partage natif (Web Share) |
 
@@ -45,10 +45,15 @@
   `progressReady` pour ne pas tirer une manche avant la progression de banque.
 - Instrumentation : `daily_challenge_launch`, `game_start{express}`.
 
+**Livré (lot Touriste, partiel) — persona 5 + hygiène i18n :**
+- `i18n/index.ts` — `<html lang>` posé au 1er rendu (a11y/SEO).
+- `ftue/Emergence.tsx` — bascule **FR/EN dès le 1er écran** (le touriste n'est jamais piégé).
+- `i18n/fr.ts`+`en.ts` — **suppression du bloc `onboarding.*`** (mort + cadrage « canapé »
+  reversé) → une seule source de vérité, plus de piège pour les agents.
+
 **Prochains lots candidats (ordre de leverage, tous frontend) :**
-1. **Touriste** : balayage de traduction EN complet + onboarding « concierge » quand
-   locale = en (masquer l'agressivité Ligue), CTA landmarks en `gold`.
-2. **Stratège** : succès/badges (méta-objectif), anneaux de progression partout.
+1. **Stratège** : succès/badges (méta-objectif), anneaux de progression partout.
+2. **Touriste (suite)** : onboarding « concierge » quand locale = en, CTA landmarks `gold`.
 3. **Flâneur** : nappe sonore douce au reveal d'archive (réutiliser le synthé WebAudio).
 
 **Chantiers lourds (backend / hors scope d'un tour, à arbitrer) :**
