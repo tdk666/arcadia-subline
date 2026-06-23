@@ -18,6 +18,13 @@
 
 ## EN COURS
 
+- **FTUE « L'Émergence » V4 — 100 % au touché + diégétique** (sur PR #5, 5 personas
+  + expert) : suppression de tout auto-advance → **le joueur cause chaque étape**
+  (jamais trop vite). Cohérence écran↔action : on touche le phare → la rame émerge ;
+  on touche **Louvre-Rivoli** (qui pulse) → sa station s'ouvre en quiz (plaque
+  « Louvre — Rivoli ») ; le reveal sort de la station ; la **conquête se PLANTE au
+  toucher** (la plaque passe tricolore + territoire). Affordance « touche pour… »
+  par temps. Plus de symbole hors-sol (étoile retirée).
 - **FTUE « L'Émergence » V3 — audit Epic appliqué** (sur PR #5) : (1) narration
   recadrée sur la **reconquête du TRAJET** (fidèle au Manifeste : « temps mort du
   trajet » ; géoloc = bonus, pas « canapé ») — corrigé aussi dans CLAUDE.md +

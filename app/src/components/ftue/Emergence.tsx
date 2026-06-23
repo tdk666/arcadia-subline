@@ -25,7 +25,6 @@ import { MarcGuide, type MarcState } from './MarcGuide';
 
 type Act = 'tunnel' | 'reversal' | 'promise' | 'quiz' | 'reveal' | 'conquest' | 'epilogue';
 const ORDER: Act[] = ['tunnel', 'reversal', 'promise', 'quiz', 'reveal', 'conquest', 'epilogue'];
-const AUTO: Partial<Record<Act, number>> = { tunnel: 4600, reversal: 3000, promise: 4200, reveal: 5200, conquest: 3600 };
 
 // ── Le plateau de Paris (Ligne 1) — viewBox 400×300, Louvre-Rivoli = héros ──
 const NODES = [
@@ -94,6 +93,7 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
   const [marc, setMarc] = useState<MarcState>('entree');
   const [speaking, setSpeaking] = useState(false);
   const [picked, setPicked] = useState<string | null>(null);
+  const [planted, setPlanted] = useState(false);
   const [muted, setMuted] = useState(false);
   const timers = useRef<number[]>([]);
 
@@ -108,6 +108,7 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
   const go = (a: Act) => setAct(a);
   const next = () => { const i = ORDER.indexOf(act); if (i < ORDER.length - 1) go(ORDER[i + 1]); };
 
+  // 100 % AU TOUCHÉ : aucun temps n'avance seul — le joueur cause chaque étape.
   useEffect(() => {
     clearTimers();
     switch (act) {
@@ -116,15 +117,25 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
       case 'promise': setMarc('pointe'); after(beat(1400), () => setMarc('idle')); break;
       case 'quiz': setMarc('pointe'); after(beat(800), () => setMarc('idle')); break;
       case 'reveal': setMarc('pointe'); break;
-      case 'conquest': setMarc('celebre'); ftueSfx.sparkle(); haptic([40, 60, 90]); break;
+      case 'conquest': setMarc('idle'); setPlanted(false); break;
       case 'epilogue': setMarc('idle'); after(beat(600), () => setMarc('salut')); break;
     }
-    const d = AUTO[act]; if (d) after(beat(d), next);
     return clearTimers;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [act]);
 
-  function onStageTap() { ftueSfx.unlock(); if (act === 'quiz' || act === 'epilogue') return; hapticTap(); next(); }
+  function plantFlag() {
+    if (planted) return;
+    hapticTap(); setPlanted(true); ftueSfx.sparkle(); haptic([40, 60, 90]); setMarc('celebre');
+  }
+
+  // un toucher = une étape. Quiz/épilogue : cibles dédiées. Conquête : planter puis continuer.
+  function onStageTap() {
+    ftueSfx.unlock();
+    if (act === 'quiz' || act === 'epilogue') return;
+    if (act === 'conquest') { if (!planted) plantFlag(); else { hapticTap(); next(); } return; }
+    hapticTap(); next();
+  }
 
   function answer(choice: string, correct: boolean) {
     if (picked) return;
@@ -136,8 +147,13 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
 
   const dark = act === 'tunnel';
   const boardVisible = act !== 'tunnel';
-  const focus = act === 'promise' || act === 'quiz' || act === 'reveal';
-  const conquered = act === 'conquest' || act === 'epilogue';
+  const focus = act === 'promise' || act === 'quiz' || act === 'reveal' || (act === 'conquest' && !planted);
+  const conquered = planted || act === 'epilogue';
+  const tapLabel = act === 'tunnel' ? L('ftue.tapEnter')
+    : act === 'promise' ? L('ftue.tapStation')
+    : act === 'conquest' ? (planted ? L('ftue.continueHint') : L('ftue.tapConquer'))
+    : (act === 'reversal' || act === 'reveal') ? L('ftue.continueHint')
+    : '';
 
   return (
     <div
@@ -213,8 +229,10 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
 
         {act === 'quiz' && (
           <div className="ftue-fade mb-1 w-full">
-            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-pierre-faint">{L('ftue.qHint')}</p>
-            <h2 className="mx-auto mt-1.5 max-w-sm font-display text-[clamp(1.2rem,5vw,1.7rem)] font-extrabold leading-tight text-pierre">{L('ftue.q')}</h2>
+            {/* plaque : on joue bien LA station qu'on vient de toucher (cohérence) */}
+            <span className="mx-auto inline-block rounded-[4px] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white" style={{ background: '#0a5a9e', boxShadow: 'inset 0 0 0 1.5px rgba(255,255,255,0.85)' }}>Louvre — Rivoli</span>
+            <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.25em] text-pierre-faint">{L('ftue.qHint')}</p>
+            <h2 className="mx-auto mt-1 max-w-sm font-display text-[clamp(1.15rem,4.8vw,1.6rem)] font-extrabold leading-tight text-pierre">{L('ftue.q')}</h2>
           </div>
         )}
 
@@ -233,15 +251,21 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
 
         {act === 'conquest' && (
           <div className="ftue-fade mb-1 flex flex-col items-center">
-            {!reduced && (
+            {planted && !reduced && (
               <div className="pointer-events-none absolute inset-0 -z-0 flex justify-center gap-2 overflow-hidden">
                 {['#0a5a9e', '#ffffff', '#bb2e2a'].map((c, i) => (
                   <span key={c} className="ftue-tricolore mt-[-30%] h-[150%] w-6 rounded-full" style={{ background: c, opacity: 0.8, animationDelay: `${i * 0.12}s` }} />
                 ))}
               </div>
             )}
-            <h2 className="ftue-rise font-display text-2xl font-extrabold text-pierre">{L('ftue.conquest')}</h2>
-            <p className="mt-1 max-w-xs text-sm text-pierre-dim">{L('ftue.conquestSub')}</p>
+            {planted ? (
+              <>
+                <h2 className="ftue-rise font-display text-2xl font-extrabold text-pierre">{L('ftue.conquest')}</h2>
+                <p className="mt-1 max-w-xs text-sm text-pierre-dim">{L('ftue.conquestSub')}</p>
+              </>
+            ) : (
+              <p className="ftue-rise font-display text-xl font-extrabold text-pierre">{L('ftue.conquestPrompt')}</p>
+            )}
           </div>
         )}
 
@@ -281,7 +305,7 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
         {act === 'epilogue' ? (
           <Button variant="gold" size="md" className="animate-glow" onClick={(e) => { e.stopPropagation(); finish(); }}>⚜ {L('ftue.cta')}</Button>
         ) : act !== 'quiz' ? (
-          <p className="ftue-breathe text-center font-mono text-[11px]" style={{ color: dark ? 'rgba(244,238,218,0.6)' : 'var(--color-pierre-faint)' }}>{L('ftue.continueHint')}</p>
+          <p className="ftue-breathe text-center font-mono text-[11px]" style={{ color: dark ? 'rgba(244,238,218,0.6)' : 'var(--color-pierre-faint)' }}>{tapLabel}</p>
         ) : null}
       </div>
     </div>
