@@ -18,6 +18,16 @@
 
 ## EN COURS
 
+- **PERSONAS verrouillés + « Victory Moment »** (DEC-006) : les 7 personas (Bible DA
+  V3.0, Partie V) sont recopiés dans **`brain/personas.md`** (source de vérité
+  versionnée) avec état code + backlog priorisé. **Premier lot livré** (persona 7
+  « Collégiens » + juice transverse, 100 % frontend) : confettis tricolores
+  (`components/Confetti.tsx`, victoire only, reduced-motion safe), fanfare de
+  victoire (`lib/feedback.ts ▸ victory()`), **partage natif** (`lib/share.ts` +
+  bouton ResultView, Web Share → repli presse-papier, instrumenté, 5 tests), et
+  **verrou anti ghost-touch** sur `Button.tsx` (protège la porte de score des
+  doubles soumissions). 43 tests + typecheck + build verts. Personas 4 (Clan) &
+  6 (Guide) = chantiers backend, hors scope frontend (sprint dédié).
 - **FTUE « L'Émergence » P1 — montée craft (profondeur, lumière, son)** (sur PR #5,
   fidèle au Manifeste « reconquête du trajet ») : (1) **nappe sonore ambiante**
   WebAudio (drone Do/Sol désaccordé + battement lent au filtre, fondus in/out)

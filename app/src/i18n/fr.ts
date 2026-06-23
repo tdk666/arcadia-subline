@@ -175,6 +175,10 @@ export const fr = {
     flagged: 'Tentative signalée par le serveur (durée ou télémétrie anormale).',
     localOnly: 'Partie non sauvegardée',
     replay: 'Rejouer', nextTier: 'Palier suivant', toLeaderboard: 'Voir le classement', toStation: 'Retour station',
+    share: 'Partager ma conquête',
+    shareTitle: 'Arcadia SubLine',
+    shareText: '⚜ J’ai conquis {station} sur Arcadia SubLine — {score} pts. Reconquiers ta ligne du métro de Paris.',
+    shareCopied: 'Copié — colle-le où tu veux ✓',
     guestSave: {
       title: 'Sauve ta conquête !',
       body: 'Crée un compte pour enregistrer ton score, ta maîtrise et grimper au classement de la ligne.',

@@ -5,9 +5,11 @@ import { useI18n } from '../i18n';
 import { backend } from '../lib/backend';
 import type { StationContent } from '../lib/content';
 import { useArcadia, type LastResult } from '../store';
-import { tap } from '../lib/feedback';
+import { tap, victory } from '../lib/feedback';
+import { share } from '../lib/share';
 import { AuthSheet } from './AuthSheet';
 import { ArchiveCard } from './ArchiveCard';
+import { Confetti } from './Confetti';
 import { Button } from './Button';
 
 /** Compteur animé (le "juice" du score). */
@@ -43,6 +45,25 @@ export function ResultView({
   const user = useArcadia((s) => s.user);
   const [authOpen, setAuthOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
+  const [shareMsg, setShareMsg] = useState(false);
+
+  // Le climax : la conquête « explose » (confettis tricolores + fanfare). Une
+  // seule fois, à l'arrivée d'un résultat gagnant (tricolore = victoire only).
+  useEffect(() => {
+    if (result.success) victory();
+  }, [result.success]);
+
+  async function onShare() {
+    tap();
+    const res = await share(
+      {
+        title: t('result.shareTitle'),
+        text: t('result.shareText', { station: station.name, score: result.score }),
+      },
+      'result',
+    );
+    if (res === 'copied') { setShareMsg(true); window.setTimeout(() => setShareMsg(false), 2200); }
+  }
   // point de conversion : APRÈS la victoire, si invité en mode Supabase
   const showGuestSave = result.success && !user && backend.mode === 'supabase';
 
@@ -79,6 +100,7 @@ export function ResultView({
 
   return (
     <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 overflow-y-auto bg-craie/95 px-6 py-8 text-center">
+      {result.success && <Confetti />}
       <div className="animate-pop">
         <p className="font-mono text-xs uppercase tracking-widest text-pierre-faint">
           {station.name} · {t(`station.tiers.${result.tier}`)}
@@ -199,6 +221,13 @@ export function ResultView({
         ) : (
           <Button variant="gold" size="md" onClick={onReplay}>
             ↻ {t('result.replay')}
+          </Button>
+        )}
+        {/* Partage = vecteur d'acquisition organique #1 (vanité du joueur). En
+            « thumb zone », réservé à la victoire (on ne partage pas une défaite). */}
+        {result.success && (
+          <Button variant="secondary" size="md" onClick={onShare}>
+            ↗ {shareMsg ? t('result.shareCopied') : t('result.share')}
           </Button>
         )}
         <div className="flex gap-2">

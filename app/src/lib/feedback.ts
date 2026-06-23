@@ -84,3 +84,42 @@ export function tap(): void {
   haptic(8);
   clack();
 }
+
+/**
+ * FANFARE DE VICTOIRE — un petit arpège majeur ascendant (Do-Mi-Sol-Do) chaud,
+ * synthétisé, façon « level cleared » (Royal Match / Candy Crush). Couplé à une
+ * haptique de célébration. Best-effort, jamais bloquant. Le climax sonore de la
+ * conquête (loi UX #4 : son en couches sur les jalons).
+ */
+export function victory(): void {
+  haptic([28, 50, 28, 70]);
+  const ac = audio();
+  if (!ac) return;
+  try {
+    const now = ac.currentTime;
+    const master = ac.createGain();
+    master.gain.value = 0.0001;
+    master.gain.setValueAtTime(0.0001, now);
+    master.gain.exponentialRampToValueAtTime(0.5, now + 0.02);
+    master.gain.exponentialRampToValueAtTime(0.6, now + 0.4);
+    master.gain.exponentialRampToValueAtTime(0.0001, now + 1.4);
+    master.connect(ac.destination);
+
+    // arpège majeur ascendant + une octave brillante en couronnement
+    [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+      const at = now + i * 0.1;
+      const o = ac.createOscillator();
+      o.type = i === 3 ? 'triangle' : 'sine';
+      o.frequency.value = f;
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0.0001, at);
+      g.gain.exponentialRampToValueAtTime(0.22, at + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, at + 0.7);
+      o.connect(g).connect(master);
+      o.start(at);
+      o.stop(at + 0.75);
+    });
+  } catch {
+    /* noop */
+  }
+}

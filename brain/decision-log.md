@@ -100,3 +100,30 @@ vieux `marc.glb` 3D (lourd, moins expressif).
 
 **Statut.** Appliqué (cinématique sur doublure, code-splittée, CI verte). En attente
 de `marc.riv` (drop-in) + planche de réf Marc (génération image, MCP image down ce tour).
+
+---
+
+## DEC-006 — Personas verrouillés dans le brain + « Victory Moment » (persona Collégiens)
+
+**Cause.** Le fondateur pointe un doc Drive « plein de personas ». Localisé : **Bible
+DA V3.0, Partie V** (7 parcours commuters). Le brain devant être la source de vérité
+versionnée, les personas sont recopiés dans `brain/personas.md` (+ 5 lois UX + état
+code par persona + backlog priorisé).
+
+**Décision.**
+- **`brain/personas.md`** devient la référence UX : toute décision produit se justifie
+  par rapport aux 7 personas + 5 lois UX + audit Inspecteur.
+- **Premier lot livré = « Victory Moment »** (persona 7 « Collégiens » + juice
+  transverse, 100 % frontend, zéro asset/backend) :
+  - `components/Confetti.tsx` : confettis tricolores (GPU pur, reduced-motion safe).
+    **Invariant respecté : tricolore = victoire/conquête only.**
+  - `lib/feedback.ts ▸ victory()` : fanfare (arpège majeur) + haptique.
+  - `lib/share.ts` + bouton ResultView : **Web Share API** (vecteur d'acquisition
+    organique #1 « vanité ») → repli presse-papier → no-op. Instrumenté. 5 tests.
+  - `Button.tsx` : **verrou anti ghost-touch (350 ms)** — le retour sensoriel répond à
+    chaque tap, mais l'action ne part qu'une fois → protège `fn_submit_attempt` des
+    doubles soumissions (règle Royal Match de la Bible).
+- **Personas 4 (Clan) & 6 (Guide)** explicitement **hors scope frontend** : chantiers
+  backend/realtime (zone scoring sacré) à arbitrer en sprint dédié. Modèle solo by design.
+
+**Statut.** Appliqué (typecheck + 43 tests + build verts).

@@ -176,6 +176,10 @@ export const en: Dict = {
     flagged: 'Attempt flagged by the server (abnormal duration or telemetry).',
     localOnly: 'Run not saved',
     replay: 'Replay', nextTier: 'Next tier', toLeaderboard: 'See ranking', toStation: 'Back to station',
+    share: 'Share my conquest',
+    shareTitle: 'Arcadia SubLine',
+    shareText: '⚜ I conquered {station} on Arcadia SubLine — {score} pts. Reclaim your Paris métro line.',
+    shareCopied: 'Copied — paste it anywhere ✓',
     guestSave: {
       title: 'Save your conquest!',
       body: 'Create an account to save your score, your mastery and climb the line ranking.',

@@ -260,6 +260,15 @@ body {
 @keyframes ftue-open { 0% { transform: scale(0.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 .ftue-open { animation: ftue-open 0.6s cubic-bezier(0.34,1.56,0.64,1) both; }
 
+/* ── Confettis tricolores de conquête (victoire only — DA : « l'écran explose »).
+   GPU pur (transform + opacity), trajectoire portée par --dx/--rot/--fall. ── */
+@keyframes confetti-burst {
+  0%   { opacity: 0; transform: translate3d(0, 0, 0) rotate(0deg); }
+  8%   { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--dx), var(--fall), 0) rotate(var(--rot)); }
+}
+.confetti-piece { animation: confetti-burst var(--dur, 1.8s) cubic-bezier(0.2, 0.6, 0.3, 1) var(--delay, 0s) both; will-change: transform, opacity; }
+
 /* ── Doublure Marc (poses animées tant que marc.riv est absent) ── */
 @keyframes marc-idle { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4px) rotate(-0.5deg); } }
 @keyframes marc-entree { 0% { transform: translateY(18px) scale(0.92); opacity: 0; filter: brightness(0.5); } 100% { transform: translateY(0) scale(1); opacity: 1; filter: brightness(1); } }
@@ -284,7 +293,7 @@ body {
   .ftue-flood, .ftue-headlight, .ftue-tricolore,
   .ftue-fade, .ftue-rise, .ftue-godray, .ftue-flood-slow, .ftue-bloom,
   .ftue-plate-drift, .ftue-brand, .ftue-line-draw, .ftue-breathe,
-  .ftue-territory, .ftue-open,
+  .ftue-territory, .ftue-open, .confetti-piece,
   .marc-idle, .marc-entree, .marc-salut, .marc-pointe,
   .marc-acquiesce, .marc-reconforte, .marc-celebre { animation: none; }
 }
