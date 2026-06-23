@@ -127,3 +127,29 @@ code par persona + backlog priorisé).
   backend/realtime (zone scoring sacré) à arbitrer en sprint dédié. Modèle solo by design.
 
 **Statut.** Appliqué (typecheck + 43 tests + build verts).
+
+---
+
+## DEC-007 — Défi du Jour (rituel quotidien + 1-tap-to-play express) + Drive réconcilié
+
+**Cause.** Exploration Drive demandée (« une seule source de vérité »). Personas
+localisés (Bible DA V3.0, DEC-006). En plus : **board** réclame « définir + enseigner
+la boucle 30 s + rituel station du jour + résultat partageable » ; **playtest Agathe**
+juge le parcours « trop long, trop d'objectifs ». Audit P1 #7 + loi UX #2 = 1-tap-to-play.
+
+**Décision.**
+- **Défi du Jour** = le rituel quotidien + porte de la boucle cœur :
+  - `lib/challenge.ts` (pur, 8 tests) : choisit UN défi/jour = prochain palier sensé,
+    rotation déterministe par jour, priorité progression puis rejeu.
+  - `NetworkScreen` : le CTA bas (thumb-zone) devient « Défi du jour » (station + palier
+    + flamme/série) → **1-tap** vers `/play/<slug>/<tier>?x=1`.
+  - `GameScreen` : **mode express** (`?x=1`) saute le briefing **uniquement** si la
+    station est déjà connue (≥ 1 palier gagné) → on enseigne une fois (1er contact =
+    brief), puis 1-tap pour toujours. Gate `progressReady` (ne pas tirer avant la
+    progression de banque). Invariant intact : `fn_submit_attempt` reste l'unique porte.
+- **Réconciliation Drive ↔ brain** (consignée dans `source-registry.md`) : le brain
+  prime ; PR #3 déjà mergée ; géoloc « canapé » reversée → trajet ; DA reste claire
+  (ne pas rebasculer en sombre) ; ⚑ mismatch Bastille targetPct/answer_key à aligner
+  en sprint scoring dédié.
+
+**Statut.** Appliqué (typecheck + 51 tests + build verts). Personas 4/6 toujours backend.

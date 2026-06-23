@@ -18,6 +18,15 @@
 
 ## EN COURS
 
+- **DÉFI DU JOUR — rituel quotidien + 1-tap-to-play express** (DEC-007, sur PR #6) :
+  réponse directe au board (« définir+enseigner la boucle 30 s + rituel station du
+  jour + résultat partageable ») et au playtest Agathe (« trop long »). `lib/challenge.ts`
+  (picker pur, 8 tests) choisit le défi du jour (prochain palier sensé, rotation
+  déterministe) ; le CTA bas de `NetworkScreen` devient « Défi du jour » → **1-tap**
+  vers `/play/<slug>/<tier>?x=1` ; `GameScreen` en **mode express** saute le briefing
+  si la station est déjà connue (enseigne une fois, puis 1-tap). 51 tests + typecheck
+  + build verts. **Drive exploré & réconcilié** dans `source-registry.md` (le brain
+  prime ; DA reste claire ; ⚑ mismatch Bastille targetPct à aligner en sprint scoring).
 - **PERSONAS verrouillés + « Victory Moment »** (DEC-006) : les 7 personas (Bible DA
   V3.0, Partie V) sont recopiés dans **`brain/personas.md`** (source de vérité
   versionnée) avec état code + backlog priorisé. **Premier lot livré** (persona 7

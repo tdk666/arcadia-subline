@@ -17,7 +17,7 @@
 
 | # | Persona | Contexte | Besoin clé | État code |
 |---|---------|----------|-----------|-----------|
-| 1 | **Pendulaire de 8h15** (urgence tactile) | L13 bondée, 1 pouce, réseau Edge, attention 5 % | Sécuriser le Streak en < 60 s, offline-first, climax rapide | Streak/DailyObjective/DailyReward ✅ · PWA SW ✅ · **manque** : jeu jouable offline, 1-tap-to-play (parcours encore long) |
+| 1 | **Pendulaire de 8h15** (urgence tactile) | L13 bondée, 1 pouce, réseau Edge, attention 5 % | Sécuriser le Streak en < 60 s, offline-first, climax rapide | Streak/DailyObjective/DailyReward ✅ · PWA SW ✅ · **FAIT (lot Défi du Jour)** : 1-tap-to-play (carte → défi du jour → express, brief sauté si station connue) · **reste** : jeu/score jouable offline |
 | 2 | **Flâneur de 14h30** (slow travel) | L6 aérienne, assis, soleil plein écran | Lisibilité plein soleil, archives sourcées (pas trivia IA) | Métro Clair ✅ · ArchiveCard (stamp/shine) ✅ · contenu fr/en ✅ · **manque** : ambiance sonore reveal, +stations |
 | 3 | **Stratège de 23h45** (tension nocturne) | Au lit, noir, Wi-Fi | Métagame sombre, tabular-nums, vérifier Streak avant minuit | tabular-nums ✅ · count-up ✅ · Boutique/Ligue/Profil ✅ · **manque** : châssis sombre hors-FTUE, succès/badges, saisons |
 | 4 | **Clan de Rame** (guerre de territoire) | L9, clan asynchrone | Domination tribale, frontières, émotes, **zéro chat** | **ABSENT** (modèle solo by design ; gros chantier backend — voir Statut) |
@@ -33,13 +33,23 @@
 - `lib/share.ts` + bouton « Partager ma conquête » (ResultView) — Web Share API → repli presse-papier, instrumenté (`share`/`share_cancel`/`share_fail`). Tests (5).
 - `Button.tsx` — verrou anti double-déclenchement (350 ms) : protège la porte de score.
 
+**Livré (lot Défi du Jour) — persona 1 « Pendulaire » + rituel quotidien (board) :**
+- `lib/challenge.ts` — picker pur du **défi du jour** (prochain palier sensé, rotation
+  déterministe par jour, priorité progression puis rejeu). 8 tests.
+- `lib/content.ts ▸ playableStations()` — stations jouables de la ligne héros.
+- `screens/NetworkScreen.tsx` — le CTA bas (thumb-zone) devient **« Défi du jour »** :
+  station + palier + flamme/série, **1-tap → /play/<slug>/<tier>?x=1** (express).
+- `screens/GameScreen.tsx` — mode **express** (`?x=1`) : saute le briefing UNIQUEMENT
+  si la station est déjà connue (≥ 1 palier gagné) → enseigne une fois, puis 1-tap
+  pour toujours (réponse directe à Agathe « trop long » + loi UX #2). Gate
+  `progressReady` pour ne pas tirer une manche avant la progression de banque.
+- Instrumentation : `daily_challenge_launch`, `game_start{express}`.
+
 **Prochains lots candidats (ordre de leverage, tous frontend) :**
-1. **Pendulaire** : vrai 1-tap-to-play (fusion palier+lancement, briefing condensé,
-   « partie express » depuis le défi du jour) — audit P1 #7 + loi UX #2.
-2. **Touriste** : balayage de traduction EN complet + onboarding « concierge » quand
+1. **Touriste** : balayage de traduction EN complet + onboarding « concierge » quand
    locale = en (masquer l'agressivité Ligue), CTA landmarks en `gold`.
-3. **Stratège** : succès/badges (méta-objectif), anneaux de progression partout.
-4. **Flâneur** : nappe sonore douce au reveal d'archive (réutiliser le synthé WebAudio).
+2. **Stratège** : succès/badges (méta-objectif), anneaux de progression partout.
+3. **Flâneur** : nappe sonore douce au reveal d'archive (réutiliser le synthé WebAudio).
 
 **Chantiers lourds (backend / hors scope d'un tour, à arbitrer) :**
 - **Clan de Rame (#4)** et **Guide Conférencier (#6)** : nécessitent tables Supabase
