@@ -231,3 +231,24 @@ corrigée : exclut les tables d'extension + avale `insufficient_privilege` → n
 l'alerte dans le dashboard Supabase (Advisors). DEC-003 (registre) reste à réconcilier.
 
 **Statut.** RÉSOLU (faux positif PostGIS). Migration 0018 corrigée & committée.
+
+---
+
+## DEC-011 — Images du quiz Louvre : URLs de page wiki → URLs directes (bug d'affichage)
+
+**Cause.** Retour fondateur répété « on ne voit pas les images des œuvres ». Diagnostic :
+les 37 items `verified` portaient des URLs de **page** Wikimedia (`commons.wikimedia.org/
+wiki/File:…`), or `isUsableQuizImage` exige une URL d'image directe et **rejette tout
+`/wiki/`**. Résultat : 0 image affichable malgré `status:'verified'`, et le biais de
+tirage (DEC-009) sans effet.
+
+**Décision.**
+- Conversion des 37 URLs en **URLs directes** `upload.wikimedia.org/wikipedia/commons/
+  <h>/<hh>/<fichier>` (chemin MD5 canonique de Wikimedia, calculé localement — proxy
+  bloque l'API Commons). Mappings question→image inchangés (remplacement texte brut).
+- **Test anti-régression** (`quiz-content.test.ts`) : toute image `verified` doit
+  satisfaire `isUsableQuizImage` (sinon CI rouge). Aurait attrapé le bug.
+- Reste **TODO Atelier** : compléter les 113 `to_verify` (license + URL directe). Ajouter
+  de nouvelles œuvres = travail Atelier (ne pas inventer la culture / risque 404 d'URL).
+
+**Statut.** Appliqué (typecheck + 60 tests + build verts). 37/37 verified désormais affichables.

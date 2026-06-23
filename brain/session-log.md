@@ -24,6 +24,7 @@
   (pas propriétaire) et inutile à sécuriser → **aucune vulnérabilité réelle**. Migration
   `0018_rls_hardening.sql` corrigée (exclut tables d'extension, avale insufficient_privilege
   → no-op propre, filet futur). Reste : **dismiss** l'alerte dans le dashboard Supabase.
+- **IMAGES LOUVRE corrigées** (DEC-011, sur PR #5) : les 37 images `verified` pointaient des URLs de PAGE wiki (rejetées par `isUsableQuizImage`) → **converties en URLs directes upload.wikimedia.org** (MD5 canonique). Test anti-régression ajouté. 60 tests verts. Reste TODO Atelier : 113 `to_verify`.
 - **MINI-JEUX — retours fondateur** (DEC-009, sur PR #5) : **Quiz** = chrono chiffré
   (⏱ Ns), **musique** ambiante « Cabinet des Merveilles » (`games/src/quiz/audio.ts`),
   anti-débordement (zone question `min-h-0`+scroll), **tirage biaisé vers les œuvres

@@ -23,8 +23,13 @@ B9 Blanche · B10 Télégraphe. **Louvre-Rivoli = exemplar A1 Quiz.**
   `louvre-rivoli_IMAGE_LOG.md` (`1QQqHhOdEQZHcIuH2WmlKjuDQ468YNy0r8fuzLpQotow`).
   **Pas de fichiers image dans le Drive** : URLs Wikimedia Commons dans le JSON.
 - **Repo** : `content/stations/louvre-rivoli.json` porte déjà la banque 150 (bronze 30 /
-  silver 30 / gold 90), images incluses. **Statut images : 9 bronze / 9 silver / 19 gold
-  `verified`** (le reste `to_verify`, sans URL jouable).
+  silver 30 / gold 90), images incluses. **Statut images : 37 `verified`** (5 œuvres
+  réutilisées) / 113 `to_verify`.
+- **⚠️ Bug corrigé (DEC-011)** : les 37 `verified` pointaient des **URLs de PAGE wiki**
+  (`commons.wikimedia.org/wiki/File:…`) → rejetées par `isUsableQuizImage` (garde `/wiki/`)
+  donc **aucune image ne s'affichait**. Converties en **URLs directes**
+  (`upload.wikimedia.org/wikipedia/commons/<h>/<hh>/<fichier>`, MD5 canonique). Test
+  anti-régression : tout `verified` DOIT passer `isUsableQuizImage`.
 - Paliers : bronze `lives 3 · timerS 0 · draw 5` · silver `lives 2 · timerS 12 · draw 6` ·
   gold `lives 1 · timerS 8 · draw 8`. Seuils points 30/36/56. Archive #002.
 - **5 œuvres `verified`** (Wikimedia, réutilisées) : La Joconde, Vénus de Milo, Le Scribe
