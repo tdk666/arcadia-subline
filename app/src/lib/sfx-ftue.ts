@@ -7,6 +7,7 @@
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let muted = false;
+let pad: { stop: () => void } | null = null;
 
 function ensure(): AudioContext | null {
   if (typeof window === 'undefined') return null;
@@ -91,5 +92,50 @@ export const ftueSfx = {
       g.gain.exponentialRampToValueAtTime(0.0001, at + 0.5);
       o.connect(g).connect(master!); o.start(at); o.stop(at + 0.5);
     });
+  },
+
+  /**
+   * Nappe ambiante continue (le « monde » de Paris qui respire sous la scène).
+   * Drone très doux : deux quintes (Do/Sol) légèrement désaccordées + battement
+   * lent au filtre. Démarre fondu, se laisse oublier. Idempotent.
+   */
+  ambientStart() {
+    const c = ensure(); if (!c || !master) return;
+    if (pad) return;
+    const t = c.currentTime;
+    const bus = c.createGain();
+    bus.gain.setValueAtTime(0.0001, t);
+    bus.gain.exponentialRampToValueAtTime(0.06, t + 4); // fondu d'entrée lent
+    const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 700;
+    // battement lent du filtre (respiration)
+    const lfo = c.createOscillator(); lfo.frequency.value = 0.07;
+    const lfoGain = c.createGain(); lfoGain.gain.value = 180;
+    lfo.connect(lfoGain).connect(lp.frequency);
+    const oscs: OscillatorNode[] = [];
+    [{ f: 65.41, type: 'sine' as const }, { f: 98.0, type: 'sine' as const },
+     { f: 196.0, type: 'triangle' as const }, { f: 196.9, type: 'triangle' as const }]
+      .forEach(({ f, type }) => {
+        const o = c.createOscillator(); o.type = type; o.frequency.value = f;
+        const og = c.createGain(); og.gain.value = type === 'sine' ? 0.5 : 0.18;
+        o.connect(og).connect(lp); o.start(t); oscs.push(o);
+      });
+    lp.connect(bus).connect(master);
+    lfo.start(t);
+    pad = {
+      stop: () => {
+        const c2 = ctx; if (!c2) return;
+        const now = c2.currentTime;
+        bus.gain.cancelScheduledValues(now);
+        bus.gain.setValueAtTime(Math.max(bus.gain.value, 0.0001), now);
+        bus.gain.exponentialRampToValueAtTime(0.0001, now + 1.2); // fondu de sortie
+        oscs.forEach((o) => o.stop(now + 1.3));
+        lfo.stop(now + 1.3);
+      },
+    };
+  },
+
+  /** Coupe la nappe ambiante (fondu de sortie). Idempotent. */
+  ambientStop() {
+    if (pad) { pad.stop(); pad = null; }
   },
 };

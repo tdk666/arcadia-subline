@@ -40,6 +40,17 @@ const TERRITORY_PATH = 'M 40 150 C 78 120, 92 118, 108 116 S 160 158, 182 158 S 
 const SEINE_PATH = 'M 0 232 C 90 210, 150 250, 220 224 S 330 206, 400 230';
 const LOUVRE = NODES.find((n) => n.hero)!;
 const CAM: Record<Act, number> = { tunnel: 1, reversal: 1, promise: 1.7, quiz: 1.7, reveal: 1.7, conquest: 1.25, epilogue: 1 };
+// Silhouette lointaine de Paris (horizon, profondeur) : toits + Tour Eiffel,
+// Arc de Triomphe, dômes (Panthéon / Sacré-Cœur). Muet, derrière la ligne.
+const SKYLINE =
+  'M 0 96 L 0 78 L 14 78 L 18 70 L 30 70 L 30 84 L 48 84 L 48 72 L 60 72 L 60 84 ' +
+  'L 78 84 Q 82 58 86 84 L 104 84 L 104 74 L 120 74 L 120 84 ' + // Arc de Triomphe (bloc)
+  'L 150 84 L 156 40 L 162 84 ' + // Tour Eiffel (flèche)
+  'L 188 84 L 188 72 L 206 72 L 206 84 L 224 84 ' +
+  'Q 240 56 256 84 ' + // dôme (Panthéon)
+  'L 280 84 L 280 70 L 296 70 L 296 84 L 320 84 ' +
+  'Q 336 60 352 84 ' + // dôme (Sacré-Cœur)
+  'L 372 84 L 372 76 L 400 76 L 400 96 Z';
 
 function ParisBoard({ draw, focus, conquered, reduced }: { draw: boolean; focus: boolean; conquered: boolean; reduced: boolean }) {
   return (
@@ -49,6 +60,9 @@ function ParisBoard({ draw, focus, conquered, reduced }: { draw: boolean; focus:
         <radialGradient id="halo"><stop offset="0" stopColor="#0a5a9e" stopOpacity="0.22" /><stop offset="1" stopColor="#0a5a9e" stopOpacity="0" /></radialGradient>
       </defs>
       <rect width="400" height="300" fill="url(#sky)" />
+      {/* horizon : silhouette lointaine de Paris (profondeur, brume) */}
+      <path d={SKYLINE} fill="#0a5a9e" opacity="0.07" transform="translate(0 -6)" />
+      <path d={SKYLINE} fill="#0a5a9e" opacity="0.1" />
       {/* la Seine */}
       <path d={`${SEINE_PATH} L 400 300 L 0 300 Z`} fill="#0a5a9e" opacity="0.12" />
       <path d={SEINE_PATH} fill="none" stroke="#7db4e0" strokeWidth="1.4" opacity="0.5" />
@@ -99,12 +113,15 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
 
   const after = useCallback((ms: number, fn: () => void) => { const id = window.setTimeout(fn, ms); timers.current.push(id); return id; }, []);
   const clearTimers = () => { timers.current.forEach(clearTimeout); timers.current = []; };
-  useEffect(() => () => clearTimers(), []);
+  useEffect(() => () => { clearTimers(); ftueSfx.ambientStop(); }, []);
   useEffect(() => { track('ftue_emergence_start'); }, []);
 
+  // Débloque l'audio ET lance la nappe ambiante (idempotent) au 1er geste.
+  const wakeAudio = () => { ftueSfx.unlock(); ftueSfx.ambientStart(); };
+
   const mark = () => { try { localStorage.setItem(ONBOARDING_KEY, '1'); } catch { /* noop */ } };
-  const skip = () => { hapticTap(); track('ftue_skip', { act }); mark(); onDone(); };
-  const finish = () => { hapticTap(); track('ftue_done'); mark(); (onStart ?? onDone)(); };
+  const skip = () => { hapticTap(); track('ftue_skip', { act }); ftueSfx.ambientStop(); mark(); onDone(); };
+  const finish = () => { hapticTap(); track('ftue_done'); ftueSfx.ambientStop(); mark(); (onStart ?? onDone)(); };
   const go = (a: Act) => setAct(a);
   const next = () => { const i = ORDER.indexOf(act); if (i < ORDER.length - 1) go(ORDER[i + 1]); };
 
@@ -131,7 +148,7 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
 
   // un toucher = une étape. Quiz/épilogue : cibles dédiées. Conquête : planter puis continuer.
   function onStageTap() {
-    ftueSfx.unlock();
+    wakeAudio();
     if (act === 'quiz' || act === 'epilogue') return;
     if (act === 'conquest') { if (!planted) plantFlag(); else { hapticTap(); next(); } return; }
     hapticTap(); next();
@@ -139,7 +156,7 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
 
   function answer(choice: string, correct: boolean) {
     if (picked) return;
-    ftueSfx.unlock(); hapticTap(); setPicked(choice);
+    wakeAudio(); hapticTap(); setPicked(choice);
     setMarc(correct ? 'acquiesce' : 'reconforte'); haptic(correct ? [30] : [55, 40, 55]);
     after(beat(1200), () => { go('reveal'); ftueSfx.chime(); setSpeaking(true); after(beat(2600), () => setSpeaking(false)); });
   }
@@ -215,6 +232,13 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
             <h1 className="ftue-brand mt-2 text-[clamp(2rem,9vw,3rem)] font-bold uppercase leading-[0.95]" style={{ fontFamily: 'var(--font-brand)', color: 'var(--color-craie)' }}>
               Arcadia <span style={{ color: 'var(--color-laiton-clair)' }}>SubLine</span>
             </h1>
+            {/* cartouche émaillé PARIS · LIGNE 1 (signature réseau) */}
+            <div className="ftue-fade mt-3 flex items-center gap-2" style={{ animationDelay: '0.5s' }}>
+              <span className="inline-flex items-center gap-1.5 rounded-[3px] px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.22em] text-white"
+                style={{ background: '#0a5a9e', boxShadow: 'inset 0 0 0 1.5px rgba(255,255,255,0.85)' }}>Paris</span>
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-extrabold text-white"
+                style={{ background: '#f2c200', color: '#1a1a1a', boxShadow: 'inset 0 0 0 1.5px rgba(255,255,255,0.6)' }}>1</span>
+            </div>
             <p className="mt-3 max-w-xs text-sm" style={{ color: 'rgba(244,238,218,0.62)' }}>{L('ftue.tunnelSub')}</p>
           </div>
         )}
@@ -279,6 +303,11 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
 
       {/* ── MARC (il guide) ── */}
       <div className="relative z-10 flex flex-none items-end justify-center" style={{ height: 132 }}>
+        {/* key-light chaud : détache Marc du fond, lui donne du volume */}
+        <div className="pointer-events-none absolute bottom-0 left-1/2 h-[150px] w-[260px] -translate-x-1/2"
+          style={{ background: dark
+            ? 'radial-gradient(60% 70% at 50% 80%, rgba(242,194,0,0.22), transparent 70%)'
+            : 'radial-gradient(58% 68% at 50% 82%, rgba(227,196,99,0.34), transparent 70%)' }} />
         <MarcGuide state={marc} speaking={speaking} size={126} />
       </div>
 

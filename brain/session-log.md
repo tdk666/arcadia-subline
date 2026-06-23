@@ -18,6 +18,16 @@
 
 ## EN COURS
 
+- **FTUE « L'Émergence » P1 — montée craft (profondeur, lumière, son)** (sur PR #5,
+  fidèle au Manifeste « reconquête du trajet ») : (1) **nappe sonore ambiante**
+  WebAudio (drone Do/Sol désaccordé + battement lent au filtre, fondus in/out)
+  dans `lib/sfx-ftue.ts` → `ambientStart/ambientStop`, lancée au 1er geste, coupée
+  à skip/finish/unmount + respecte le mute ; (2) **profondeur** : silhouette
+  lointaine de Paris (Tour Eiffel, Arc, dômes) en horizon brumeux derrière la
+  Ligne 1 ; (3) **key-light chaud** derrière Marc (volume, détachement du fond) ;
+  (4) **brand-block enrichi** : cartouche émaillé « PARIS · ① » sous le wordmark
+  (signature réseau). Typecheck + 38 tests + build OK. Reste P1 : Marc animé en
+  Rive (bloqué : `marc.riv` à fournir par le fondateur).
 - **FTUE « L'Émergence » V4 — 100 % au touché + diégétique** (sur PR #5, 5 personas
   + expert) : suppression de tout auto-advance → **le joueur cause chaque étape**
   (jamais trop vite). Cohérence écran↔action : on touche le phare → la rame émerge ;
