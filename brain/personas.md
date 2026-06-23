@@ -19,7 +19,7 @@
 |---|---------|----------|-----------|-----------|
 | 1 | **Pendulaire de 8h15** (urgence tactile) | L13 bondée, 1 pouce, réseau Edge, attention 5 % | Sécuriser le Streak en < 60 s, offline-first, climax rapide | Streak/DailyObjective/DailyReward ✅ · PWA SW ✅ · **FAIT (lot Défi du Jour)** : 1-tap-to-play (carte → défi du jour → express, brief sauté si station connue) · **reste** : jeu/score jouable offline |
 | 2 | **Flâneur de 14h30** (slow travel) | L6 aérienne, assis, soleil plein écran | Lisibilité plein soleil, archives sourcées (pas trivia IA) | Métro Clair ✅ · ArchiveCard (stamp/shine) ✅ · contenu fr/en ✅ · **manque** : ambiance sonore reveal, +stations |
-| 3 | **Stratège de 23h45** (tension nocturne) | Au lit, noir, Wi-Fi | Métagame sombre, tabular-nums, vérifier Streak avant minuit | tabular-nums ✅ · count-up ✅ · Boutique/Ligue/Profil ✅ · **manque** : châssis sombre hors-FTUE, succès/badges, saisons |
+| 3 | **Stratège de 23h45** (tension nocturne) | Au lit, noir, Wi-Fi | Métagame sombre, tabular-nums, vérifier Streak avant minuit | tabular-nums ✅ · count-up ✅ · Boutique/Ligue/Profil ✅ · **FAIT** : succès/badges (Hauts faits — toast de déblocage + grille Profil) · **reste** : châssis sombre hors-FTUE, saisons |
 | 4 | **Clan de Rame** (guerre de territoire) | L9, clan asynchrone | Domination tribale, frontières, émotes, **zéro chat** | **ABSENT** (modèle solo by design ; gros chantier backend — voir Statut) |
 | 5 | **Touriste Ébahi** (passeport patrimonial) | L1, ne parle pas FR, stressé | Onboarding apaisant, multilingue, archives-souvenir | i18n fr/en + auto `navigator.language` ✅ · **FAIT (partiel)** : bascule **FR/EN dès l'accueil** (FTUE), `<html lang>` au 1er rendu, purge des clés `onboarding.*` obsolètes (cadrage « canapé » reversé) · **reste** : onboarding « concierge » localisé, landmarks gold, GeoIP |
 | 6 | **Guide Conférencier** (EdTech) | Arts et Métiers, groupe de 15 | Lobbies privés QR, hub narratif synchronisé | **ABSENT** (Phase 2 ; backend realtime — voir Statut) |
@@ -51,10 +51,17 @@
 - `i18n/fr.ts`+`en.ts` — **suppression du bloc `onboarding.*`** (mort + cadrage « canapé »
   reversé) → une seule source de vérité, plus de piège pour les agents.
 
+**Livré (lot Stratège) — persona 3 + méta-progression :**
+- `lib/achievements.ts` (pur, 6 tests) — catalogue de 7 hauts faits + `buildSnapshot`
+  + `unlockedAchievements` (prédicats sur instantané de l'état local, zéro autorité).
+- `components/AchievementToast.tsx` — célébration globale, **anti-spam par ligne de
+  base figée au 1er rendu** (les hauts faits déjà acquis ne re-célèbrent pas).
+- `ProfileScreen` — section « Hauts faits » (grille badges acquis/verrouillés, n/total).
+
 **Prochains lots candidats (ordre de leverage, tous frontend) :**
-1. **Stratège** : succès/badges (méta-objectif), anneaux de progression partout.
-2. **Touriste (suite)** : onboarding « concierge » quand locale = en, CTA landmarks `gold`.
-3. **Flâneur** : nappe sonore douce au reveal d'archive (réutiliser le synthé WebAudio).
+1. **Touriste (suite)** : onboarding « concierge » quand locale = en, CTA landmarks `gold`.
+2. **Flâneur** : nappe sonore douce au reveal d'archive (réutiliser le synthé WebAudio).
+3. **Stratège (suite)** : saisons / anneaux de progression partout.
 
 **Chantiers lourds (backend / hors scope d'un tour, à arbitrer) :**
 - **Clan de Rame (#4)** et **Guide Conférencier (#6)** : nécessitent tables Supabase

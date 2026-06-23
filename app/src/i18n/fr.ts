@@ -186,6 +186,17 @@ export const fr = {
     reveal: 'Conquiers pour révéler',
     locked: 'À venir sur la ligne',
   },
+  achievements: {
+    sectionTitle: 'Hauts faits',
+    toastTitle: 'Haut fait débloqué',
+    premiere_pierre: { title: 'Première pierre', desc: 'Conquérir ta première station.' },
+    erudit: { title: 'Érudit', desc: 'Débloquer 2 archives culturelles.' },
+    gardien: { title: 'Gardien', desc: 'Conquérir une station au palier Or.' },
+    serie_3: { title: 'Série de 3', desc: '3 jours de jeu d’affilée.' },
+    tresorier: { title: 'Trésorier', desc: 'Amasser 100 jetons de laiton.' },
+    serie_7: { title: 'Série de 7', desc: 'Une semaine entière sans rompre la flamme.' },
+    conquerant: { title: 'Conquérant', desc: 'Conquérir toutes les stations jouables.' },
+  },
   auth: {
     signupTitle: 'Créer un compte', loginTitle: 'Se connecter',
     email: 'Email', password: 'Mot de passe (8+ caractères)', displayName: 'Pseudo',

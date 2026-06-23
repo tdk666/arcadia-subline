@@ -18,6 +18,10 @@
 
 ## EN COURS
 
+- **STRATÈGE — Hauts faits (méta-progression)** (DEC-008, sur PR #6) : `lib/achievements.ts`
+  (pur, 6 tests) = 7 hauts faits + `buildSnapshot`/`unlockedAchievements` ; toast global
+  de déblocage `AchievementToast` (anti-spam : ligne de base figée au 1er rendu) ;
+  section « Hauts faits » au Profil (grille acquis/verrouillés). 57 tests verts.
 - **TOURISTE (partiel) + hygiène i18n** (sur PR #6) : bascule **FR/EN dès le 1er
   écran** (FTUE) pour ne jamais piéger un touriste ; `<html lang>` posé au 1er rendu ;
   **suppression du bloc `onboarding.*`** (mort + cadrage « canapé » reversé) → source

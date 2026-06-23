@@ -153,3 +153,22 @@ juge le parcours « trop long, trop d'objectifs ». Audit P1 #7 + loi UX #2 = 1-
   en sprint scoring dédié.
 
 **Statut.** Appliqué (typecheck + 51 tests + build verts). Personas 4/6 toujours backend.
+
+---
+
+## DEC-008 — Hauts faits (méta-progression « trophées ») + hygiène i18n Touriste
+
+**Cause.** Cap « Game Awards » : profondeur qui récompense le retour (persona Stratège).
++ Touriste : ne jamais piéger un visiteur dans une langue, et purger les pièges de
+source de vérité.
+
+**Décision.**
+- **Hauts faits** : `lib/achievements.ts` (pur, testable) = catalogue de 7 trophées
+  (prédicats sur un instantané de l'état LOCAL — aucune autorité de score). Toast
+  global `AchievementToast` avec **anti-spam par ligne de base figée au 1er rendu**
+  (les trophées déjà acquis ne re-célèbrent pas ; pas de changement de schéma store).
+  Grille « Hauts faits » au Profil. Son fort réservé à la victoire de jeu (toast = haptique seul).
+- **Touriste / i18n** : bascule FR/EN dès le 1er écran (FTUE) ; `<html lang>` au 1er
+  rendu ; **suppression du bloc `onboarding.*`** (mort + cadrage « canapé » reversé).
+
+**Statut.** Appliqué (typecheck + 57 tests + build verts). Tout sur PR #6 (empilée sur #5).

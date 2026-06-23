@@ -187,6 +187,17 @@ export const en: Dict = {
     reveal: 'Conquer to reveal',
     locked: 'Coming to the line',
   },
+  achievements: {
+    sectionTitle: 'Achievements',
+    toastTitle: 'Achievement unlocked',
+    premiere_pierre: { title: 'First stone', desc: 'Conquer your first station.' },
+    erudit: { title: 'Scholar', desc: 'Unlock 2 cultural archives.' },
+    gardien: { title: 'Guardian', desc: 'Conquer a station at Gold tier.' },
+    serie_3: { title: '3-day streak', desc: 'Play 3 days in a row.' },
+    tresorier: { title: 'Treasurer', desc: 'Amass 100 brass tokens.' },
+    serie_7: { title: '7-day streak', desc: 'A full week without breaking the flame.' },
+    conquerant: { title: 'Conqueror', desc: 'Conquer every playable station.' },
+  },
   auth: {
     signupTitle: 'Create an account', loginTitle: 'Sign in',
     email: 'Email', password: 'Password (8+ characters)', displayName: 'Nickname',

@@ -4,6 +4,7 @@ import { backend } from '../lib/backend';
 import { useI18n } from '../i18n';
 import { StatusBar } from './StatusBar';
 import { DailyReward } from './DailyReward';
+import { AchievementToast } from './AchievementToast';
 import { ONBOARDING_KEY } from '../lib/ftue';
 import { IconNetwork, IconCollection, IconLeague, IconProfile } from './icons';
 
@@ -67,6 +68,7 @@ export function AppLayout() {
         <Tab to="/profile" label={t('nav.profile')} icon={<IconProfile size={22} />} />
       </nav>
       <DailyReward />
+      <AchievementToast />
       {showOnboarding && (
         <Suspense fallback={<div className="fixed inset-0 z-[60]" style={{ background: 'var(--color-acier)' }} />}>
           <Emergence

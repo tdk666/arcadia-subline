@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n, type Locale } from '../i18n';
 import { backend } from '../lib/backend';
-import { LINE } from '../lib/content';
+import { LINE, playableStations } from '../lib/content';
 import { rankLabel, rankProgress } from '../lib/rank';
+import { liveStreak } from '../lib/daily';
+import { ACHIEVEMENTS, buildSnapshot, unlockedAchievements } from '../lib/achievements';
 import { useArcadia } from '../store';
 import { AuthSheet } from '../components/AuthSheet';
 import { Button } from '../components/Button';
@@ -14,8 +16,14 @@ export function ProfileScreen() {
   const navigate = useNavigate();
   const user = useArcadia((s) => s.user);
   const tiersWon = useArcadia((s) => s.tiersWon);
+  const storyUnlocked = useArcadia((s) => s.storyUnlocked);
+  const daily = useArcadia((s) => s.daily);
   const pending = useArcadia((s) => s.pending);
   const coins = useArcadia((s) => s.coins);
+
+  const unlocked = new Set(unlockedAchievements(buildSnapshot({
+    tiersWon, storyUnlocked, coins, streak: liveStreak(daily), playableTotal: playableStations().length,
+  })));
   const [stats, setStats] = useState<{ xpTotal: number; streak: number } | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [installEvt, setInstallEvt] = useState<Event | null>(null);
@@ -97,6 +105,35 @@ export function ProfileScreen() {
         >
           {user ? t('auth.signoutCta') : t('auth.signupTitle')}
         </Button>
+      </div>
+
+      {/* hauts faits — la collection de trophées (méta-progression) */}
+      <div className="mt-4 rounded-2xl border border-rail bg-plomb px-5 py-4">
+        <div className="flex items-baseline justify-between">
+          <p className="text-sm font-semibold">{t('achievements.sectionTitle')}</p>
+          <p className="font-display text-sm font-extrabold tabular-nums text-laiton">
+            {unlocked.size}<span className="text-pierre-faint">/{ACHIEVEMENTS.length}</span>
+          </p>
+        </div>
+        <div className="mt-3 grid grid-cols-4 gap-2">
+          {ACHIEVEMENTS.map((a) => {
+            const got = unlocked.has(a.id);
+            return (
+              <div key={a.id} className="flex flex-col items-center gap-1 text-center">
+                <span
+                  className={`flex h-12 w-12 items-center justify-center rounded-full border-2 text-xl ${got ? 'border-laiton' : 'border-rail grayscale'}`}
+                  style={{ background: got ? 'var(--color-laiton)' : 'var(--color-craie-2)', opacity: got ? 1 : 0.5 }}
+                  title={got ? t(`achievements.${a.id}.desc` as Parameters<typeof t>[0]) : ''}
+                >
+                  {got ? a.icon : '🔒'}
+                </span>
+                <span className="line-clamp-2 font-mono text-[8px] uppercase leading-tight tracking-wider text-pierre-faint">
+                  {t(`achievements.${a.id}.title` as Parameters<typeof t>[0])}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* langue */}
