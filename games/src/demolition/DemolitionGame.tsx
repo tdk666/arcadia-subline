@@ -20,7 +20,6 @@ const DEFAULTS: DemolitionParams = {
 };
 
 const TIER_LABEL = { bronze: 'BRONZE', silver: 'ARGENT', gold: 'OR' } as const;
-const TIER_TINT = { bronze: '#c08a55', silver: '#b9c0c4', gold: '#e3c463' } as const;
 
 /* ── Icônes DA (SVG, zéro asset) ────────────────────────────────────── */
 
@@ -229,49 +228,42 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
             )}
           </div>
 
-          {/* ── Barre de destruction + CIBLE live + % CHIFFRÉ proéminent ── */}
-          <div className="pointer-events-none absolute left-3 top-[64px] w-[230px]">
-            <div className="flex items-end justify-between">
-              <span className="text-[8px] font-bold uppercase tracking-[0.22em]" style={{ color: 'rgba(231,220,196,0.9)' }}>
-                {ctx.locale.startsWith('en') ? 'Fortress' : 'Forteresse'}
-              </span>
-              {/* le grand chiffre live : on SAIT toujours où on en est */}
+          {/* ── DESTRUCTION % — grand chiffre live, AU CENTRE en haut : impossible à rater
+               (retour fondateur : « on ne voit pas où on en est »). ── */}
+          <div className="pointer-events-none absolute left-1/2 top-[max(env(safe-area-inset-top),0.5rem)] z-30 w-[min(70vw,280px)] -translate-x-1/2 text-center">
+            <div className="flex items-baseline justify-center gap-1.5">
               <span
-                className="font-display text-[22px] font-extrabold leading-none tabular-nums"
-                style={{ color: targetReached ? '#9ff0b4' : '#f4eeda', textShadow: '0 1px 6px rgba(0,0,0,0.8)' }}
+                className="font-display font-extrabold leading-none tabular-nums"
+                style={{ fontSize: 'clamp(1.7rem,8vw,2.5rem)', color: targetReached ? '#9ff0b4' : '#f4eeda', textShadow: '0 2px 12px rgba(0,0,0,0.95)' }}
               >
                 {hud.destructionPct}%
-                {targetPct > 0 && (
-                  <span className="ml-1 text-[11px] font-bold" style={{ color: targetReached ? '#9ff0b4' : '#cdbfa0' }}>
-                    / {targetPct}%
-                  </span>
-                )}
               </span>
+              {targetPct > 0 && (
+                <span className="font-display text-base font-bold" style={{ color: targetReached ? '#9ff0b4' : '#e3c463', textShadow: '0 1px 6px rgba(0,0,0,0.9)' }}>
+                  / {targetPct}%
+                </span>
+              )}
             </div>
             <div
-              className="relative mt-1 h-3 rounded-md p-[2px]"
-              style={{ background: 'rgba(10,8,5,0.7)', boxShadow: `inset 0 0 0 1.5px ${targetReached ? '#5ec27a' : '#c9a227'}` }}
+              className="relative mx-auto mt-1 h-2.5 rounded-md p-[2px]"
+              style={{ background: 'rgba(10,8,5,0.8)', boxShadow: `inset 0 0 0 1.5px ${targetReached ? '#5ec27a' : '#c9a227'}` }}
             >
               <div
                 className="h-full rounded-[3px] transition-[width] duration-300"
-                style={{
-                  width: `${hud.destructionPct}%`,
-                  background: targetReached ? 'linear-gradient(90deg,#6fce8a,#3f9b5d)' : 'linear-gradient(90deg,#e3c45a,#c9a227)',
-                }}
+                style={{ width: `${hud.destructionPct}%`, background: targetReached ? 'linear-gradient(90deg,#6fce8a,#3f9b5d)' : 'linear-gradient(90deg,#e3c45a,#c9a227)' }}
               />
-              {/* repère de cible : le joueur voit OÙ il doit arriver */}
               {targetPct > 0 && (
                 <span
                   className="absolute top-[-3px] bottom-[-3px] w-[2.5px] rounded-full"
-                  style={{ left: `calc(${targetPct}% )`, background: '#fff', boxShadow: '0 0 0 1px rgba(0,0,0,0.5)' }}
+                  style={{ left: `${targetPct}%`, background: '#fff', boxShadow: '0 0 0 1px rgba(0,0,0,0.5)' }}
                 />
               )}
             </div>
-            {targetReached && (
-              <div className="mt-1 text-[9px] font-bold uppercase tracking-[0.18em]" style={{ color: '#9ff0b4' }}>
-                {ctx.locale.startsWith('en') ? `✓ Target ${targetPct}% reached` : `✓ Objectif ${targetPct}% atteint`}
-              </div>
-            )}
+            <div className="mt-1 text-[9px] font-bold uppercase tracking-[0.2em]" style={{ color: targetReached ? '#9ff0b4' : 'rgba(244,238,218,0.92)', textShadow: '0 1px 4px rgba(0,0,0,0.85)' }}>
+              {targetReached
+                ? (ctx.locale.startsWith('en') ? `✓ Target ${targetPct}% reached` : `✓ Objectif ${targetPct}% atteint`)
+                : (ctx.locale.startsWith('en') ? 'Fortress destroyed' : 'Forteresse détruite')}
+            </div>
           </div>
         </>
       )}
@@ -294,8 +286,8 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
         </div>
       )}
 
-      {/* ── Contrôles ── */}
-      <div className="absolute bottom-3 left-3 flex gap-2 pb-[env(safe-area-inset-bottom)]">
+      {/* ── Contrôles (z élevé : jamais masqués) ── */}
+      <div className="absolute bottom-3 left-3 z-40 flex gap-2 pb-[env(safe-area-inset-bottom)]">
         <button
           type="button"
           onClick={onQuit}
@@ -314,13 +306,6 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
         </button>
       </div>
 
-      {/* badge de palier (teinte médaille) */}
-      <div
-        className="pointer-events-none absolute bottom-3 right-3 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em]"
-        style={{ background: 'rgba(15,11,7,0.74)', color: TIER_TINT[ctx.difficulty], boxShadow: 'inset 0 0 0 1.5px currentColor' }}
-      >
-        ● {TIER_LABEL[ctx.difficulty]}
-      </div>
     </div>
   );
 }

@@ -189,6 +189,9 @@ export const fr = {
   achievements: {
     sectionTitle: 'Hauts faits',
     toastTitle: 'Haut fait débloqué',
+    tapHint: 'Touche un haut fait pour voir comment l’obtenir.',
+    earned: '✓ Obtenu',
+    locked: 'À débloquer',
     premiere_pierre: { title: 'Première pierre', desc: 'Conquérir ta première station.' },
     erudit: { title: 'Érudit', desc: 'Débloquer 2 archives culturelles.' },
     gardien: { title: 'Gardien', desc: 'Conquérir une station au palier Or.' },

@@ -190,6 +190,9 @@ export const en: Dict = {
   achievements: {
     sectionTitle: 'Achievements',
     toastTitle: 'Achievement unlocked',
+    tapHint: 'Tap an achievement to see how to earn it.',
+    earned: '✓ Earned',
+    locked: 'Locked',
     premiere_pierre: { title: 'First stone', desc: 'Conquer your first station.' },
     erudit: { title: 'Scholar', desc: 'Unlock 2 cultural archives.' },
     gardien: { title: 'Guardian', desc: 'Conquer a station at Gold tier.' },
