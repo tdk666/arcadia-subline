@@ -196,3 +196,29 @@ mirrorer tout le Drive mini-jeux dans le brain.
 
 **Statut.** Appliqué (typecheck app+games + 59 tests + build verts). ⚑ targetPct↔answer_key
 (sprint scoring) et complétion images verified = ouverts.
+
+---
+
+## DEC-010 — Alerte sécurité Supabase « rls_disabled_in_public » → durcissement RLS
+
+**Cause.** Mail Supabase (22/06/2026) : une table de `public` est exposée via l'API
+SANS RLS (« publicly accessible »). Or le dépôt active la RLS sur **toutes** ses
+tables (0007 boucle + events 0014 + player_quest_progress 0016 + gtfs_stops_staging
+0009). ⇒ la table fautive a été créée **hors migrations** (SQL Editor à la main —
+lié à la dette DEC-003), OU c'est la **matview `leaderboard_entries`** exposée à anon.
+
+**Décision.**
+- **Migration `0018_rls_hardening.sql`** (idempotente) : active la RLS (deny-by-default)
+  sur TOUTE table de base de `public` qui ne l'a pas. Sûr : service_role bypasse la RLS
+  (ingestion/Edge/fn_submit_attempt) ; les tables à lecture client ont déjà leurs
+  policies ; fermer une table inconnue par défaut = choix sûr, jamais une fuite.
+- **Matview `leaderboard_entries`** : ne supporte pas la RLS. Données non sensibles
+  (display_name + scores). Si l'Advisor la signale, correctif propre = la sortir de
+  l'API (RPC security definer + REVOKE anon) — changement applicatif, traité à part.
+- **Application PROD** : le connecteur Supabase MCP est indisponible ce tour → la
+  migration est **versionnée** mais **pas encore appliquée en prod**. À appliquer via
+  `get_advisors`+`apply_migration` (MCP rétabli) OU par le fondateur (SQL Editor).
+- **DEC-003 ESCALADÉ** : la dette de registre (0016/0017 hand-applied) a maintenant une
+  conséquence sécurité. Réconcilier le registre + n'appliquer QUE par le mécanisme.
+
+**Statut.** Migration committée (versionnée). **Action prod EN ATTENTE** (MCP ou fondateur).

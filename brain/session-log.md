@@ -18,6 +18,13 @@
 
 ## EN COURS
 
+- **🔴 SÉCURITÉ — alerte Supabase « rls_disabled_in_public »** (DEC-010) : une table de
+  `public` exposée sans RLS. Le dépôt active pourtant la RLS partout → table créée HORS
+  migrations (dette DEC-003) ou matview `leaderboard_entries`. Migration **`0018_rls_hardening.sql`**
+  (filet idempotent, active la RLS deny-by-default sur toute table de base non couverte)
+  **committée mais PAS encore appliquée en prod** (connecteur Supabase MCP indisponible ce
+  tour). **À appliquer** : MCP rétabli (`get_advisors`+`apply_migration`) ou fondateur (SQL
+  Editor). Voir le bloc SQL prêt-à-coller fourni en chat.
 - **MINI-JEUX — retours fondateur** (DEC-009, sur PR #5) : **Quiz** = chrono chiffré
   (⏱ Ns), **musique** ambiante « Cabinet des Merveilles » (`games/src/quiz/audio.ts`),
   anti-débordement (zone question `min-h-0`+scroll), **tirage biaisé vers les œuvres
