@@ -1,27 +1,23 @@
 -- =============================================================================
 -- ARCADIA SUBLINE — Migration 0018 : Durcissement RLS (filet de sécurité)
 --
--- CAUSE : alerte Supabase « rls_disabled_in_public » (22/06/2026) — une table du
--- schéma `public` est exposée via l'API PostgREST SANS Row-Level Security.
--- Le dépôt active pourtant la RLS sur TOUTES ses tables (0007 boucle + events 0014
--- + player_quest_progress 0016 + gtfs_stops_staging 0009). La table fautive a donc
--- été créée HORS migrations (SQL Editor à la main — cf. DEC-003).
+-- CAUSE : alerte Supabase « rls_disabled_in_public » (22/06/2026). Diagnostic
+-- (23/06) : la table signalée est **public.spatial_ref_sys** — table SYSTÈME de
+-- l'extension PostGIS (définitions de systèmes de référence spatiale / EPSG).
+-- C'est un FAUX POSITIF classique de l'Advisor sur les projets PostGIS :
+--   · données de RÉFÉRENCE publiques (aucune donnée Arcadia) ;
+--   · possédée par l'extension/`supabase_admin` → on n'en est PAS propriétaire,
+--     impossible d'y activer la RLS (ERROR 42501 « must be owner ») ;
+--   · non modifiable par un client (insert/update/delete nécessitent ownership).
+-- Toutes les VRAIES tables Arcadia ont déjà la RLS (0007/0014/0016/0009).
 --
--- CE FILET : active la RLS (deny-by-default) sur TOUTE table de base de `public`
--- qui ne l'a pas encore. SÛR par construction :
---   · service_role bypasse la RLS → ingestion / Edge / fn_submit_attempt (security
---     definer) continuent d'écrire normalement ;
---   · les tables à lecture client ont DÉJÀ leurs policies (0007/0014/0016) ;
---   · activer la RLS sur une table non couverte = la FERMER par défaut (choix sûr),
---     jamais une fuite. Si une telle table devait être lue côté client, on ajoutera
---     une policy explicite une fois son nom connu (Advisor / get_advisors).
--- Idempotent : ne touche que les tables dont relrowsecurity = false.
---
--- NB MATVIEW : `public.leaderboard_entries` est une vue matérialisée exposée à
--- anon/authenticated (données non sensibles : display_name + scores). Les matviews
--- ne supportent pas la RLS ; si l'Advisor la signale aussi, le correctif propre est
--- de la sortir de l'API (RPC security definer + REVOKE) — changement applicatif
--- traité séparément, hors de ce filet.
+-- CE FILET (idempotent, sans erreur) : active la RLS (deny-by-default) sur toute
+-- table de base de `public` qui ne l'a pas ET qu'on possède — i.e. une éventuelle
+-- table créée à la main hors migrations (dette DEC-003). Exclut explicitement les
+-- tables possédées par une EXTENSION (PostGIS) et avale insufficient_privilege.
+--   · service_role bypasse la RLS → ingestion / Edge / fn_submit_attempt OK ;
+--   · les tables à lecture client ont déjà leurs policies ;
+--   · fermer une table inconnue par défaut = choix sûr, jamais une fuite.
 -- =============================================================================
 
 do $$
@@ -32,22 +28,35 @@ begin
       from pg_class c
       join pg_namespace n on n.oid = c.relnamespace
      where n.nspname = 'public'
-       and c.relkind = 'r'          -- tables de base uniquement (ni vues ni matviews)
+       and c.relkind = 'r'                 -- tables de base uniquement
        and not c.relrowsecurity
+       -- exclure les tables possédées par une EXTENSION (PostGIS spatial_ref_sys…)
+       and not exists (
+         select 1 from pg_depend d
+          where d.classid = 'pg_class'::regclass
+            and d.objid   = c.oid
+            and d.deptype = 'e')
   loop
-    execute format('alter table public.%I enable row level security;', r.relname);
-    raise notice 'RLS activée (filet 0018) sur public.%', r.relname;
+    begin
+      execute format('alter table public.%I enable row level security;', r.relname);
+      raise notice 'RLS activée (filet 0018) sur public.%', r.relname;
+    exception
+      when insufficient_privilege then
+        raise notice 'RLS ignorée (non-propriétaire / table système) sur public.%', r.relname;
+    end;
   end loop;
 end $$;
 
 -- -----------------------------------------------------------------------------
--- DIAGNOSTIC (à exécuter manuellement si besoin d'identifier la/les table(s)) :
+-- DIAGNOSTIC (lister ce qui reste sans RLS, hors tables d'extension) :
 --
---   select n.nspname as schema, c.relname as table, c.relrowsecurity as rls_on
+--   select c.relname as "table", c.relrowsecurity as rls_on
 --     from pg_class c
 --     join pg_namespace n on n.oid = c.relnamespace
 --    where n.nspname = 'public' and c.relkind = 'r'
+--      and not exists (select 1 from pg_depend d
+--                       where d.classid='pg_class'::regclass and d.objid=c.oid and d.deptype='e')
 --    order by c.relrowsecurity, c.relname;
 --
--- Toute ligne avec rls_on = false APRÈS cette migration = anomalie à investiguer.
+-- spatial_ref_sys (PostGIS) restera `false` et c'est ATTENDU (faux positif).
 -- -----------------------------------------------------------------------------

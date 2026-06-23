@@ -221,4 +221,13 @@ lié à la dette DEC-003), OU c'est la **matview `leaderboard_entries`** exposé
 - **DEC-003 ESCALADÉ** : la dette de registre (0016/0017 hand-applied) a maintenant une
   conséquence sécurité. Réconcilier le registre + n'appliquer QUE par le mécanisme.
 
-**Statut.** Migration committée (versionnée). **Action prod EN ATTENTE** (MCP ou fondateur).
+**MISE À JOUR (23/06) — RÉSOLU (faux positif).** Diagnostic exécuté par le fondateur :
+la SEULE table sans RLS est `public.spatial_ref_sys` (table système PostGIS, données EPSG
+de référence publiques) ; **les 20 tables Arcadia ont toutes la RLS = true**. `spatial_ref_sys`
+appartient à l'extension/`supabase_admin` → impossible (et inutile) d'y activer la RLS
+(ERROR 42501). **Aucune donnée exposée, aucune vulnérabilité réelle.** Migration 0018
+corrigée : exclut les tables d'extension + avale `insufficient_privilege` → no-op propre
+(filet pour de futures tables créées à la main). Action restante : **dismiss/acknowledge**
+l'alerte dans le dashboard Supabase (Advisors). DEC-003 (registre) reste à réconcilier.
+
+**Statut.** RÉSOLU (faux positif PostGIS). Migration 0018 corrigée & committée.

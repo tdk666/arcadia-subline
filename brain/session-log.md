@@ -18,13 +18,12 @@
 
 ## EN COURS
 
-- **🔴 SÉCURITÉ — alerte Supabase « rls_disabled_in_public »** (DEC-010) : une table de
-  `public` exposée sans RLS. Le dépôt active pourtant la RLS partout → table créée HORS
-  migrations (dette DEC-003) ou matview `leaderboard_entries`. Migration **`0018_rls_hardening.sql`**
-  (filet idempotent, active la RLS deny-by-default sur toute table de base non couverte)
-  **committée mais PAS encore appliquée en prod** (connecteur Supabase MCP indisponible ce
-  tour). **À appliquer** : MCP rétabli (`get_advisors`+`apply_migration`) ou fondateur (SQL
-  Editor). Voir le bloc SQL prêt-à-coller fourni en chat.
+- **✅ SÉCURITÉ — alerte Supabase « rls_disabled_in_public » = FAUX POSITIF** (DEC-010) :
+  diagnostic confirmé — seule `public.spatial_ref_sys` (table système PostGIS, données EPSG
+  publiques) est sans RLS ; **les 20 tables Arcadia ont la RLS active**. Non modifiable
+  (pas propriétaire) et inutile à sécuriser → **aucune vulnérabilité réelle**. Migration
+  `0018_rls_hardening.sql` corrigée (exclut tables d'extension, avale insufficient_privilege
+  → no-op propre, filet futur). Reste : **dismiss** l'alerte dans le dashboard Supabase.
 - **MINI-JEUX — retours fondateur** (DEC-009, sur PR #5) : **Quiz** = chrono chiffré
   (⏱ Ns), **musique** ambiante « Cabinet des Merveilles » (`games/src/quiz/audio.ts`),
   anti-débordement (zone question `min-h-0`+scroll), **tirage biaisé vers les œuvres
