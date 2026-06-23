@@ -264,7 +264,7 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
         {act === 'quiz' && (
           <div className="ftue-fade mb-1 w-full">
             {/* plaque : on joue bien LA station qu'on vient de toucher (cohérence) */}
-            <span className="mx-auto inline-block rounded-[4px] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white" style={{ background: '#0a5a9e', boxShadow: 'inset 0 0 0 1.5px rgba(255,255,255,0.85)' }}>Louvre — Rivoli</span>
+            <span className="mx-auto inline-block rounded-[4px] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white" style={{ background: '#0a5a9e', boxShadow: 'inset 0 0 0 1.5px rgba(255,255,255,0.85)' }}>Louvre-Rivoli</span>
             <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.25em] text-pierre-faint">{L('ftue.qHint')}</p>
             <h2 className="mx-auto mt-1 max-w-sm font-display text-[clamp(1.15rem,4.8vw,1.6rem)] font-extrabold leading-tight text-pierre">{L('ftue.q')}</h2>
           </div>

@@ -222,7 +222,7 @@ export function ProfileScreen() {
 
       {backend.mode === 'demo' && (
         <p className="mt-4 text-center font-mono text-[11px] text-vermillon">
-          {t('demo.banner')} — {t('demo.detail')}
+          {t('demo.banner')} · {t('demo.detail')}
         </p>
       )}
 

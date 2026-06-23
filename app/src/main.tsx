@@ -5,7 +5,14 @@ import App from './App';
 import { I18nProvider } from './i18n';
 import './index.css';
 
-registerSW({ immediate: true });
+// autoUpdate + vérification périodique : le testeur (et le joueur) ne reste jamais
+// coincé sur un vieux build mis en cache par le service worker.
+registerSW({
+  immediate: true,
+  onRegisteredSW(_swUrl, reg) {
+    if (reg) setInterval(() => { void reg.update(); }, 60_000);
+  },
+});
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

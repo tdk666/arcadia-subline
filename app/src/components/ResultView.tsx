@@ -196,7 +196,7 @@ export function ResultView({
               {archiveIsNew ? `★ ${t('archive.unlocked')}` : t('station.story.title')}
             </span>
             <span className="block font-mono text-[10px] text-pierre-faint">
-              {t('archive.number', { n: station.archive.number })} — {t('archive.open')}
+              {t('archive.number', { n: station.archive.number })} · {t('archive.open')}
             </span>
           </span>
           <span className="text-pierre-faint">›</span>

@@ -305,7 +305,9 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
                     src={q.image!.url}
                     alt=""
                     loading="lazy"
-                    className="max-h-44 w-full rounded-xl object-cover"
+                    // hauteur bornée au viewport : même une œuvre en portrait ne
+                    // peut JAMAIS pousser le bouton hors de l'écran (+ pied sticky)
+                    className="max-h-[26vh] w-full rounded-xl object-cover"
                     style={{ background: 'var(--color-craie-2)' }}
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   />
