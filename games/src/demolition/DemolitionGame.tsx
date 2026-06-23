@@ -163,110 +163,64 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
         </div>
       )}
 
-      {/* ── PLAQUE ÉMAILLÉE (nom de station + palier) ── */}
-      <div
-        className="pointer-events-none absolute left-3 top-[max(env(safe-area-inset-top),0.6rem)] rounded-[5px] px-4 py-1.5"
-        style={{
-          background: '#0a5a9e',
-          boxShadow: 'inset 0 0 0 2.5px rgba(255,255,255,0.9), inset 0 0 0 4px #0a5a9e, 0 5px 14px rgba(0,0,0,0.45)',
-        }}
-      >
-        {[
-          { l: '6px', t: '6px' }, { r: '6px', t: '6px' },
-          { l: '6px', b: '6px' }, { r: '6px', b: '6px' },
-        ].map((p, i) => (
-          <span
-            key={i}
-            className="absolute h-[5px] w-[5px] rounded-full"
-            style={{ left: p.l, right: p.r, top: p.t, bottom: p.b, background: '#cfe0ee', boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.3)' }}
-          />
-        ))}
-        <div className="text-[15px] font-extrabold uppercase leading-none tracking-[0.14em] text-white">
-          {ctx.stationName}
-        </div>
-        <div className="mt-1 text-[8px] font-semibold uppercase leading-none tracking-[0.3em]" style={{ color: 'rgba(255,255,255,0.78)' }}>
-          Palier {TIER_LABEL[ctx.difficulty]} · Arcadia SubLine
-        </div>
-      </div>
-
-      {hud && (
-        <>
-          {/* ── Cluster d'indicateurs (droite) ── */}
-          <div className="pointer-events-none absolute right-3 top-[max(env(safe-area-inset-top),0.6rem)] flex items-center gap-2">
-            {/* pavés restants : rangée qui se vide (lecture instantanée façon Angry Birds) */}
-            <div
-              className="flex items-center gap-1 rounded-lg px-2 py-1.5"
-              style={{ background: 'rgba(15,11,7,0.74)', boxShadow: 'inset 0 0 0 1.5px #c9a227' }}
-            >
-              {Array.from({ length: maxShots }).map((_, i) => (
-                <span key={i} style={{ opacity: i < Math.max(hud.shotsLeft, 0) ? 1 : 0.22, transition: 'opacity 0.25s' }}>
-                  <PaveIcon size={15} />
-                </span>
-              ))}
-            </div>
-            {/* étendards */}
-            <div
-              className="flex items-center gap-0.5 rounded-lg px-2.5 py-1.5"
-              style={{ background: 'rgba(15,11,7,0.74)', boxShadow: 'inset 0 0 0 1.5px #c9a227' }}
-            >
-              {Array.from({ length: hud.totalTargets }).map((_, i) => (
-                <StandardIcon key={i} down={i < hud.targetsDown} size={15} />
-              ))}
-            </div>
-            {/* chrono (palier Or) */}
-            {hud.timeLeftS !== null && (
-              <div
-                className="rounded-lg px-3 py-1.5 text-[15px] font-extrabold leading-none"
-                style={
-                  urgent
-                    ? { background: 'rgba(187,46,42,0.85)', color: '#fff', boxShadow: 'inset 0 0 0 1.5px #e3c463' }
-                    : { background: 'rgba(15,11,7,0.74)', color: '#e3c463', boxShadow: 'inset 0 0 0 1.5px #3f6b4d' }
-                }
-              >
-                {hud.timeLeftS}s
+      {/* ── HUD — BARRE HAUTE pleine largeur, TOUJOURS rendue (valeurs par défaut tant
+           que le moteur n'a pas émis), texte + icônes. Le compteur de pavés et le %
+           de destruction sont désormais impossibles à manquer (retours fondateur). ── */}
+      {(() => {
+        const shotsLeft = Math.max(0, hud?.shotsLeft ?? maxShots);
+        const pct = hud?.destructionPct ?? 0;
+        const tDown = hud?.targetsDown ?? 0;
+        const tTotal = hud?.totalTargets ?? 3;
+        const timeLeftS = hud?.timeLeftS ?? null;
+        return (
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 z-40 flex items-start gap-2 px-3 pb-4 pt-[max(env(safe-area-inset-top),0.4rem)]"
+            style={{ background: 'linear-gradient(to bottom, rgba(12,9,6,0.92) 0%, rgba(12,9,6,0.5) 62%, transparent 100%)' }}
+          >
+            {/* station + palier */}
+            <div className="flex-none leading-none">
+              <div className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.85)' }}>
+                {ctx.stationName}
               </div>
-            )}
-          </div>
+              <div className="mt-0.5 text-[8px] font-semibold uppercase tracking-[0.28em]" style={{ color: '#e3c463' }}>
+                {TIER_LABEL[ctx.difficulty]}
+              </div>
+            </div>
 
-          {/* ── DESTRUCTION % — grand chiffre live, AU CENTRE en haut : impossible à rater
-               (retour fondateur : « on ne voit pas où on en est »). ── */}
-          <div className="pointer-events-none absolute left-1/2 top-[max(env(safe-area-inset-top),0.5rem)] z-30 w-[min(70vw,280px)] -translate-x-1/2 text-center">
-            <div className="flex items-baseline justify-center gap-1.5">
-              <span
-                className="font-display font-extrabold leading-none tabular-nums"
-                style={{ fontSize: 'clamp(1.7rem,8vw,2.5rem)', color: targetReached ? '#9ff0b4' : '#f4eeda', textShadow: '0 2px 12px rgba(0,0,0,0.95)' }}
-              >
-                {hud.destructionPct}%
-              </span>
-              {targetPct > 0 && (
-                <span className="font-display text-base font-bold" style={{ color: targetReached ? '#9ff0b4' : '#e3c463', textShadow: '0 1px 6px rgba(0,0,0,0.9)' }}>
-                  / {targetPct}%
+            {/* DESTRUCTION % — centre, grand chiffre + barre */}
+            <div className="min-w-0 flex-1 text-center">
+              <div className="font-display font-extrabold leading-none tabular-nums" style={{ fontSize: 'clamp(1.4rem,7vw,2.1rem)', color: targetReached ? '#9ff0b4' : '#f4eeda', textShadow: '0 2px 10px rgba(0,0,0,0.95)' }}>
+                {pct}%{targetPct > 0 && <span className="ml-1 text-sm font-bold" style={{ color: targetReached ? '#9ff0b4' : '#e3c463' }}>/ {targetPct}%</span>}
+              </div>
+              <div className="relative mx-auto mt-1 h-2 max-w-[180px] overflow-hidden rounded-md" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                <div className="h-full rounded-md transition-[width] duration-300" style={{ width: `${pct}%`, background: targetReached ? 'linear-gradient(90deg,#6fce8a,#3f9b5d)' : 'linear-gradient(90deg,#e3c45a,#c9a227)' }} />
+                {targetPct > 0 && <span className="absolute top-0 bottom-0 w-[2px] bg-white" style={{ left: `${targetPct}%` }} />}
+              </div>
+              <div className="mt-0.5 text-[8px] font-bold uppercase tracking-[0.18em]" style={{ color: 'rgba(244,238,218,0.9)', textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}>
+                {ctx.locale.startsWith('en') ? 'Fortress destroyed' : 'Forteresse détruite'}
+              </div>
+            </div>
+
+            {/* pavés restants (TEXTE + icône) · étendards · chrono */}
+            <div className="flex flex-none flex-col items-end gap-1">
+              <div className="flex items-center gap-1 rounded-lg px-2 py-1" style={{ background: 'rgba(0,0,0,0.5)', boxShadow: 'inset 0 0 0 1.5px #c9a227' }}>
+                <PaveIcon size={14} />
+                <span className="font-display text-sm font-extrabold tabular-nums text-white">
+                  {shotsLeft}<span className="text-[10px] text-white/60">/{maxShots}</span>
                 </span>
-              )}
-            </div>
-            <div
-              className="relative mx-auto mt-1 h-2.5 rounded-md p-[2px]"
-              style={{ background: 'rgba(10,8,5,0.8)', boxShadow: `inset 0 0 0 1.5px ${targetReached ? '#5ec27a' : '#c9a227'}` }}
-            >
-              <div
-                className="h-full rounded-[3px] transition-[width] duration-300"
-                style={{ width: `${hud.destructionPct}%`, background: targetReached ? 'linear-gradient(90deg,#6fce8a,#3f9b5d)' : 'linear-gradient(90deg,#e3c45a,#c9a227)' }}
-              />
-              {targetPct > 0 && (
-                <span
-                  className="absolute top-[-3px] bottom-[-3px] w-[2.5px] rounded-full"
-                  style={{ left: `${targetPct}%`, background: '#fff', boxShadow: '0 0 0 1px rgba(0,0,0,0.5)' }}
-                />
-              )}
-            </div>
-            <div className="mt-1 text-[9px] font-bold uppercase tracking-[0.2em]" style={{ color: targetReached ? '#9ff0b4' : 'rgba(244,238,218,0.92)', textShadow: '0 1px 4px rgba(0,0,0,0.85)' }}>
-              {targetReached
-                ? (ctx.locale.startsWith('en') ? `✓ Target ${targetPct}% reached` : `✓ Objectif ${targetPct}% atteint`)
-                : (ctx.locale.startsWith('en') ? 'Fortress destroyed' : 'Forteresse détruite')}
+              </div>
+              <div className="flex items-center gap-1.5 rounded-lg px-2 py-1" style={{ background: 'rgba(0,0,0,0.5)', boxShadow: 'inset 0 0 0 1.5px #c9a227' }}>
+                <span className="flex items-center gap-0.5">
+                  {Array.from({ length: tTotal }).map((_, i) => <StandardIcon key={i} down={i < tDown} size={12} />)}
+                </span>
+                {timeLeftS !== null && (
+                  <span className="ml-1 font-display text-sm font-extrabold tabular-nums" style={{ color: urgent ? '#ff6b6b' : '#e3c463' }}>{timeLeftS}s</span>
+                )}
+              </div>
             </div>
           </div>
-        </>
-      )}
+        );
+      })()}
 
       {/* ── Coach de tir : doigt fantôme qui tire la fronde puis relâche ── */}
       {hud && !hud.interacted && hud.phase === 'aim' && (
