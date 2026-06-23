@@ -18,6 +18,9 @@
 
 ## EN COURS
 
+- **FLÂNEUR — révélation d'archive sonore** (sur PR #6) : `lib/feedback.ts ▸ reveal()`
+  = accord chaud (quinte ouverte Do-Sol-Do, filtré) + haptique, joué à l'ouverture
+  de `ArchiveCard` (le pendant sonore du sceau). 57 tests verts.
 - **STRATÈGE — Hauts faits (méta-progression)** (DEC-008, sur PR #6) : `lib/achievements.ts`
   (pur, 6 tests) = 7 hauts faits + `buildSnapshot`/`unlockedAchievements` ; toast global
   de déblocage `AchievementToast` (anti-spam : ligne de base figée au 1er rendu) ;

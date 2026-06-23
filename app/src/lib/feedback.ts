@@ -86,6 +86,35 @@ export function tap(): void {
 }
 
 /**
+ * RÉVÉLATION D'ARCHIVE — un accord chaud en quinte ouverte (Do-Sol-Do), filtré et
+ * doux, qui « s'ouvre » comme un parchemin. Le pendant sonore du sceau qui se
+ * pose (persona Flâneur : le slow-travel, la révélation culturelle qui respire).
+ * Tasteful et bref ; best-effort, jamais bloquant.
+ */
+export function reveal(): void {
+  haptic([12, 28, 12]);
+  const ac = audio();
+  if (!ac) return;
+  try {
+    const now = ac.currentTime;
+    const master = ac.createGain();
+    master.gain.setValueAtTime(0.0001, now);
+    master.gain.exponentialRampToValueAtTime(0.16, now + 0.18); // attaque douce
+    master.gain.exponentialRampToValueAtTime(0.0001, now + 1.7); // longue détente
+    const lp = ac.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 1400;
+    lp.connect(master); master.connect(ac.destination);
+    [261.63, 392.0, 523.25].forEach((f, i) => { // C4 · G4 · C5 — quinte ouverte, noble
+      const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+      const g = ac.createGain(); g.gain.value = i === 0 ? 0.5 : 0.3;
+      o.connect(g).connect(lp); o.start(now); o.stop(now + 1.75);
+    });
+  } catch {
+    /* noop */
+  }
+}
+
+/**
  * FANFARE DE VICTOIRE — un petit arpège majeur ascendant (Do-Mi-Sol-Do) chaud,
  * synthétisé, façon « level cleared » (Royal Match / Candy Crush). Couplé à une
  * haptique de célébration. Best-effort, jamais bloquant. Le climax sonore de la

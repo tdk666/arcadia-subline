@@ -1,11 +1,15 @@
+import { useEffect } from 'react';
 import { pickText, useI18n } from '../i18n';
 import type { StationContent } from '../lib/content';
+import { reveal } from '../lib/feedback';
 
 /* ── LE PAYOFF CULTUREL : l'archive comme objet de collection ───────── */
 /** Carte d'archive plein écran (parchemin clair, sceau + récit + faits).
  *  Réutilisée par l'écran de résultat ET la collection. */
 export function ArchiveCard({ station, onClose }: { station: StationContent; onClose: () => void }) {
   const { t, locale } = useI18n();
+  // le pendant sonore du sceau qui se pose (révélation culturelle)
+  useEffect(() => { reveal(); }, []);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 px-5" onClick={onClose}>
       <div
