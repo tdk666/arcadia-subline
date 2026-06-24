@@ -72,6 +72,8 @@ export interface ArcadiaBackend {
   checkIn(stationId: string, method: 'manual'): Promise<CheckInResult>;
   getActiveCheckIn(stationId: string): Promise<{ expiresAt: string } | null>;
   getLineLeaderboard(lineId: string): Promise<LeaderboardEntry[]>;
+  /** Classement GÉNÉRAL (tout Paris, tous joueurs) — page « Classement » du menu. */
+  getGlobalLeaderboard(): Promise<LeaderboardEntry[]>;
   /** Classement PAR STATION (titre « Chef de Station ») : meilleur score/joueur. */
   getStationLeaderboard(stationId: string): Promise<LeaderboardEntry[]>;
   getMyStationProgress(stationId: string): Promise<StationProgress | null>;

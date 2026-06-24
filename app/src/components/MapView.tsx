@@ -19,14 +19,13 @@ import {
   stationsOnLines,
 } from '../lib/geo';
 import { auraColor } from '../lib/cosmetics';
+import { playableStations } from '../lib/content';
 import { useArcadia } from '../store';
 import type { AvatarHandle } from './avatar3d';
 
 // fond épuré (lignée CARTO Positron) — la base « Citymapper-clean »
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
 const PARIS: [number, number] = [2.3488, 48.8534];
-// station « porte d'entrée » : le phare focal de la carte (alignée FTUE + contenu)
-const HERO_SLUG = 'louvre-rivoli';
 const HERO_RGB: [number, number, number] = [201, 162, 39]; // laiton maison (#c9a227)
 // la cinématique d'arrivée ne joue qu'UNE fois par session (pas à chaque onglet)
 let introPlayed = false;
@@ -136,9 +135,15 @@ export function MapView({ playableCodes, onStation }: Props) {
       pitch: 0,
       bearing: -17,
       maxPitch: 72,
-      attributionControl: { compact: true },
+      // attribution réduite au minimum légal (OSM = obligatoire) : un simple « ⓘ »
+      // replié en bas, plutôt que le bandeau verbeux OpenFreeMap/OpenMapTiles.
+      attributionControl: false,
     });
 
+    map.addControl(
+      new maplibregl.AttributionControl({ compact: true, customAttribution: '© OpenStreetMap' }),
+      'bottom-right',
+    );
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
     const geo = new maplibregl.GeolocateControl({
       positionOptions: { enableHighAccuracy: true },
@@ -257,20 +262,6 @@ export function MapView({ playableCodes, onStation }: Props) {
           'circle-opacity': 0.7,
         },
       });
-      // halo chaud sous les stations jouables : la ligne « respire », allumée comme
-      // des lampadaires (échelle humaine) — sous les pastilles pour rester lisible
-      map.addLayer({
-        id: 'stations-halo',
-        source: 'metro-stations',
-        type: 'circle',
-        filter: ['==', ['get', 'playable'], true],
-        paint: {
-          'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, 5, 15, 15],
-          'circle-color': '#c9a227',
-          'circle-opacity': ['interpolate', ['linear'], ['zoom'], 11, 0.08, 15, 0.20],
-          'circle-blur': 1,
-        },
-      });
       // stations jouables : pastilles « plan de métro » (blanc, fin liseré encre)
       // discrètes en ville pour laisser le ruban jaune dominer, nettes au zoom
       map.addLayer({
@@ -302,17 +293,24 @@ export function MapView({ playableCodes, onStation }: Props) {
         paint: { 'text-color': '#2a2118', 'text-halo-color': '#f6f1e6', 'text-halo-width': 1.5 },
       });
 
-      // ── PHARE HÉROS : pulse « tape-moi » sur la station d'entrée (focal Pokémon-GO) ──
+      // ── PHARES « JOUABLE MAINTENANT » : pulse « tape-moi » sur les SEULES stations
+      // au contenu prêt (Louvre-Rivoli + Bastille aujourd'hui). Pas une station dorée
+      // arbitraire : on signale exactement ce que tu peux jouer tout de suite. ──
       try {
-        const hero = geoStation(HERO_SLUG);
-        if (hero && !map.hasImage('hero-pulse')) {
+        const ready = playableStations()
+          .map((s) => geoStation(s.slug))
+          .filter((s): s is NonNullable<typeof s> => !!s);
+        if (ready.length && !map.hasImage('hero-pulse')) {
           map.addImage('hero-pulse', makePulsingDot(map, HERO_RGB), { pixelRatio: 2 });
           map.addSource('hero-beacon', {
             type: 'geojson',
             data: {
-              type: 'Feature',
-              properties: { slug: hero.slug, name: hero.name },
-              geometry: { type: 'Point', coordinates: [hero.lon, hero.lat] },
+              type: 'FeatureCollection',
+              features: ready.map((s) => ({
+                type: 'Feature',
+                properties: { slug: s.slug, name: s.name },
+                geometry: { type: 'Point', coordinates: [s.lon, s.lat] },
+              })),
             },
           });
           map.addLayer({
@@ -323,7 +321,7 @@ export function MapView({ playableCodes, onStation }: Props) {
               'icon-image': 'hero-pulse',
               'icon-allow-overlap': true,
               'icon-ignore-placement': true,
-              'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.5, 15, 1],
+              'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.45, 15, 0.9],
             },
           });
         }

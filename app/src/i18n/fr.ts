@@ -221,7 +221,7 @@ export const fr = {
     confirmSent: 'Compte créé ! Confirme ton e-mail ({email}) pour te connecter.',
   },
   leaderboard: {
-    title: 'Maître de la Ligne', subtitle: 'Ligne 1 · somme de tes meilleurs scores par station',
+    title: 'Classement de Paris', subtitle: 'Tout Paris, tous joueurs · le sommet vise « Empereur de Paris »',
     empty: 'Personne au classement pour l’instant. Sois le premier !',
     you: 'toi', rank: 'Rang', player: 'Joueur', score: 'Score',
     rival: 'Ton prochain rival',

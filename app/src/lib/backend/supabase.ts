@@ -146,6 +146,27 @@ export class SupabaseBackend implements ArcadiaBackend {
     }));
   }
 
+  async getGlobalLeaderboard(): Promise<LeaderboardEntry[]> {
+    // Classement GÉNÉRAL (page « Classement » du menu) : scope 'global' de la matview
+    // leaderboard_entries (XP total, déjà rangée, rafraîchie par pg_cron). Lecture
+    // publique non sensible (pseudo + score). Aucun nouveau SQL requis (matview 0008).
+    const me = (await this.getUser())?.id;
+    const { data, error } = await this.sb
+      .from('leaderboard_entries')
+      .select('player_id, display_name, score, rank')
+      .eq('scope', 'global')
+      .order('rank', { ascending: true })
+      .limit(50);
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((r: { player_id: string; display_name: string; score: number; rank: number }) => ({
+      playerId: r.player_id,
+      displayName: r.display_name,
+      rank: Number(r.rank),
+      score: Number(r.score),
+      isMe: r.player_id === me,
+    }));
+  }
+
   async getStationLeaderboard(stationId: string): Promise<LeaderboardEntry[]> {
     const me = (await this.getUser())?.id;
     const { data, error } = await this.sb.rpc('fn_station_leaderboard', { p_station_id: stationId, p_limit: 20 });

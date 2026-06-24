@@ -297,3 +297,36 @@ défensif, jugé en preview.
 
 **Statut.** Appliqué (typecheck + 71 tests + build verts). À valider visuellement en preview (PR #5).
 Suite possible : pulse sur la « prochaine station à conquérir » (état joueur), transitions de sélection.
+
+---
+
+## DEC-014 — IA des classements + carte « jouable maintenant » (retours fondateur live)
+
+**Cause.** Test live fondateur : (1) le podium ne convient pas → veut un **tableau vertical**.
+(2) La page « Classement » du menu montrait « Maître de la Ligne 1 » — incohérent : on n'est pas
+forcément sur la Ligne 1, une page de menu doit être **générale**. Le classement station se voit
+À LA station, ses positions dans le **Profil**. (3) Carte : pourquoi Louvre-Rivoli en or et pas
+Bastille ? Confusion = le phare unique semblait arbitraire. (4) Message d'attribution OpenFreeMap relou.
+
+**Recherche (best-in-class, méthodo « voir ce que font les meilleurs »).** Foursquare **Swarm** :
+le **Leaderboard** (général/amis) est une surface DISTINCTE des **Mayorships** (couronne par lieu,
+contre tout le monde). Confirme l'intuition fondateur : général ≠ par-lieu, deux surfaces.
+
+**Décision.**
+- **Tableau vertical** partout (composant `Leaderboard` réécrit) : 1 rang/ligne, top-3 accentué
+  (or/argent/bronze), couronne sur le 1er, ligne « TOI » + cible « +N pts pour dépasser ». Fini le podium.
+- **Page « Classement » = GÉNÉRALE** (`getGlobalLeaderboard`) : tout Paris, tous joueurs, lecture de
+  la matview `leaderboard_entries` scope `global` (XP total — **aucun SQL nouveau**, matview 0008).
+  Apex narratif = « Empereur de Paris ». Le classement par station reste à la station (Chef de Station) ;
+  les positions perso iront au Profil (prochaine passe).
+- **Carte** : le phare pulsant marque les **stations au contenu prêt** (`playableStations()` =
+  Louvre-Rivoli + Bastille), pas une station dorée arbitraire → réponse claire au « pourquoi celle-ci ».
+  **Halo large retiré** (carte volontairement minimale, retour fondateur).
+- **Attribution** réduite : `attributionControl` custom compact « © OpenStreetMap » replié en bas.
+  NB : l'attribution OSM est **légalement obligatoire** (licence ODbL) — non supprimable, seulement
+  minimisable (un « ⓘ » sur mobile). Suppression totale = changer de tuiles / auto-héberger.
+
+**Statut.** Appliqué (typecheck + 71 tests + build verts). À valider en preview.
+**Ouvert (décision fondateur requise).** Logique « on joue quand on est sur la ligne » : voir proposition
+d'archi (réconciliation séquentielle + maîtrise async) — contredit un invariant verrouillé (async jouable),
+donc à trancher AVANT toute reconstruction. Profil « tes couronnes/positions » = passe suivante.

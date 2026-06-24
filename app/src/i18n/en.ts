@@ -222,7 +222,7 @@ export const en: Dict = {
     confirmSent: 'Account created! Confirm your e-mail ({email}) to sign in.',
   },
   leaderboard: {
-    title: 'Line Master', subtitle: 'Line 1 · sum of your best station scores',
+    title: 'Paris Ranking', subtitle: 'All of Paris, every player · the summit aims for “Emperor of Paris”',
     empty: 'Nobody on the board yet. Be the first!',
     you: 'you', rank: 'Rank', player: 'Player', score: 'Score',
     rival: 'Your next rival',

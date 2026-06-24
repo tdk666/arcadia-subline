@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useI18n } from '../i18n';
 import { backend, type LeaderboardEntry } from '../lib/backend';
-import { LINE } from '../lib/content';
 import { Mascotte } from '../components/Mascotte';
 import { Leaderboard } from '../components/Leaderboard';
 import { useArcadia } from '../store';
@@ -12,9 +11,12 @@ export function LeaderboardScreen() {
   const [entries, setEntries] = useState<LeaderboardEntry[] | null>(null);
   const [error, setError] = useState(false);
 
+  // Page « Classement » du menu = GÉNÉRAL (tout Paris, tous joueurs) — pas une ligne
+  // précise (tu n'es pas forcément sur la Ligne 1). Le classement par station se voit
+  // À la station ; tes positions, dans le Profil.
   useEffect(() => {
     let alive = true;
-    backend.getLineLeaderboard(LINE.id)
+    backend.getGlobalLeaderboard()
       .then((e) => { if (alive) setEntries(e); })
       .catch(() => { if (alive) setError(true); });
     return () => { alive = false; };
@@ -25,7 +27,7 @@ export function LeaderboardScreen() {
       <header className="flex items-center gap-3">
         <span
           className="flex h-11 w-11 items-center justify-center rounded-full font-display text-xl font-extrabold text-encre"
-          style={{ background: LINE.color }}
+          style={{ background: 'radial-gradient(circle at 38% 30%,#fbe9a6,#c9a227 62%,#86680f)' }}
         >
           ♛
         </span>
@@ -46,7 +48,7 @@ export function LeaderboardScreen() {
         </div>
       )}
 
-      {/* podium best-in-class (top-3 sur socles + ligne « toi » + cible à dépasser) */}
+      {/* tableau vertical (du 1er au dernier) + ligne « toi » + cible à dépasser */}
       {entries !== null && entries.length > 0 && (
         <Leaderboard entries={entries} className="mt-5" />
       )}

@@ -218,6 +218,26 @@ export class DemoBackend implements ArcadiaBackend {
       .map((e, i) => ({ ...e, rank: i + 1 }));
   }
 
+  async getGlobalLeaderboard(): Promise<LeaderboardEntry[]> {
+    // Classement général « tout Paris » : rivaux prestige (XP total) + TOI dès que
+    // tu as joué. Le live (Supabase) lit la matview leaderboard_entries scope=global.
+    const rivals = [
+      { displayName: 'EmpereurDesQuais', score: 18420 },
+      { displayName: 'MaestroM1', score: 14210 },
+      { displayName: 'ReineDeBastille', score: 12880 },
+      { displayName: 'BaronDuMarais', score: 9650 },
+      { displayName: 'Guimard1900', score: 7340 },
+      { displayName: 'TunnelRunner', score: 5120 },
+      { displayName: 'PendulaireX', score: 3460 },
+      { displayName: 'QuaiNuit', score: 1980 },
+    ];
+    const all = rivals.map((r) => ({ ...r, isMe: false, playerId: r.displayName }));
+    if (this.state.xpTotal > 0) {
+      all.push({ displayName: this.state.user?.displayName ?? 'Toi', score: this.state.xpTotal, isMe: true, playerId: 'demo-user' });
+    }
+    return all.sort((a, b) => b.score - a.score).map((e, i) => ({ ...e, rank: i + 1 }));
+  }
+
   async getStationLeaderboard(stationId: string): Promise<LeaderboardEntry[]> {
     // démo : rivaux déterministes PAR station (mêmes pour une station donnée) + TOI
     // dès que tu as un score. Le live (Supabase) lira fn_station_leaderboard.
