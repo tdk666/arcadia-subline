@@ -14,7 +14,9 @@
  *
  * Honnêteté : on décerne la CONQUÊTE (drapeau LIBÉRÉE — toujours vrai), JAMAIS un
  * rang faux ; la couronne « Empereur » est VERROUILLÉE (but à mériter). « ta
- * conquête », pas « ta ligne » : firstStation/firstLine = PARAMÈTRE (défaut Bastille).
+ * conquête », pas « ta ligne ». NB : ce cold-open est **ancré Bastille par design**
+ * (l'art de la démolition EST la Bastille) ; `firstStation` pilote le copy/analytics
+ * et reste réservé à de futurs cold-opens par station — pas une généricité visuelle.
  * Présence = sur-couche bonus future, jamais un gate.
  *
  * Invariants FTUE : zéro score serveur, portrait, guest-first, tricolore = conquête
@@ -186,9 +188,11 @@ export function Emergence({ onDone, onStart, firstStation = DEFAULT_FIRST }: {
   // ── T2 → T3 : pull-out / grue, l'apex se lève ──
   function toApex() { hapticTap(); setBeat('apex'); }
 
-  // caméra persistante (push-in / pull-out continus) : la carte morphe, jamais de coupe
+  // caméra persistante (push-in / pull-out continus) : la carte morphe, jamais de coupe.
+  // Origine = la station de départ (Bastille par défaut), nœud visuel `first`.
+  const firstNode = NODES.find((n) => n.first)!;
   const boardScale = beat === 'assault' ? 2.6 : beat === 'apex' ? 1.12 : 1;
-  const boardOrigin = `${(firstStation.slug ? NODES.find((n) => n.first)!.x : 348) / 400 * 100}% ${NODES.find((n) => n.first)!.y / 300 * 100}%`;
+  const boardOrigin = `${(firstNode.x / 400) * 100}% ${(firstNode.y / 300) * 100}%`;
   const boardVisible = beat !== 'emergence';
   const dark = beat === 'emergence' && !wiped;
 
