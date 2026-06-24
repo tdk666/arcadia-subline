@@ -74,14 +74,32 @@ dans un **mode Maître score-chase + classement par station**, couronne contesta
 > ladder Clash Royale, Elo échecs, territoires Travian.
 
 ## La hiérarchie des titres (du plus atomique à l'apex)
-| Titre | Périmètre | Détenteur = meilleur sur… |
-|------|-----------|---------------------------|
-| **Chef de Station** | 1 station | son meilleur score sur CETTE station |
-| **Roi de la Ligne** (« Roi de la 4 ») | 1 ligne | Σ de ses meilleurs scores sur les stations de la ligne |
-| **Boss de Quartier** | quartier (Le Marais, Quartier latin…) inter-lignes | Σ sur les stations du quartier (clusters curatés) |
-| **Maire d'Arrondissement** (1–20) | 1 arrondissement | Σ sur les stations de l'arrondissement |
-| **Élu de la Rive** (gauche / droite) | 1 rive — 2 titres seulement | Σ sur les stations de la rive |
-| **Empereur de Paris** | tout Paris | Σ sur toutes les stations |
+Gradient logique ASCENDANT (du plus modeste à l'apex), validé fondateur :
+| # | Titre | Périmètre | Détenteur = meilleur sur… |
+|---|------|-----------|---------------------------|
+| 1 | **Chef de Station** | 1 station | son meilleur score sur CETTE station |
+| 2 | **Maître de la Ligne** (« Maître de la 4 ») | 1 ligne | Σ de ses meilleurs scores sur les stations de la ligne |
+| 3 | **Baron du Quartier** *(ex-« Boss » — proposition gradient)* | quartier (Le Marais, Quartier latin…) inter-lignes | Σ sur les stations du quartier (clusters curatés) |
+| 4 | **Maire de l'Arrondissement** (1–20) | 1 arrondissement | Σ sur les stations de l'arrondissement |
+| 5 | **Roi de la Rive** (gauche / droite) | 1 rive — 2 titres seulement | Σ sur les stations de la rive |
+| 6 | **Empereur de Paris** | tout Paris | Σ sur toutes les stations |
+
+Gradient de puissance : Chef → Maître → Baron → Maire → Roi → Empereur (ascension
+civique + féodale, ton parisien assumé). *NB : « Baron du Quartier » remplace « Boss »
+pour tenir le gradient — à confirmer fondateur.*
+
+### Idées créatives (à valider — enrichissements best-in-class)
+- **LE SACRE** : micro-cérémonie de couronnement (sceau + Marseillaise feutrée + tricolore)
+  quand on prend un titre — le « money shot » à partager (acquisition).
+- **PRIME DE DÉTRÔNEMENT** : prendre une couronne = bonus de points one-shot ; le détrôné reçoit
+  une **revanche** (notif « reprends ta couronne »). Boucle de rivalité (Clash/Strava).
+- **DYNASTIE** : tenir un titre N jours d'affilée = badge « Dynastie » + bonus de prestige récurrent
+  (récompense la défense, pas que la prise).
+- **NOBLESSE (méta-rang)** : nombre de couronnes tenues SIMULTANÉMENT → rang méta (« tu tiens 5
+  couronnes ») — un objectif transverse au-dessus des titres.
+- **BLASON** : chaque titre porte un écusson collectionnable (Hall des Titres = galerie d'armoiries).
+- **TITRES ÉTERNELS vs SAISONNIERS** : couronnes live (always-on) + un classement saisonnier qui
+  reset (renouvellement §4 SAISONS) → double terrain de jeu.
 
 ## Le principe d'architecture clé : UNE source de vérité
 **`station_best` = (joueur × station → meilleur score)**. **TOUS** les titres supérieurs sont
