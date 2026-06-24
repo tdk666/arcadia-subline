@@ -107,6 +107,10 @@ export const fr = {
       banked: '{draw} questions tirées · {lives} vie(s)',
     },
     quizPoints: '{pts}/{threshold} pts vers le palier',
+    presence: {
+      scored: 'Présence validée · tes parties comptent (points, classement, conquête).',
+      training: 'Sans check-in : entraînement libre, sans points. Valide ta présence pour conquérir.',
+    },
     leaderboard: {
       title: 'Classement de la station',
       hint: 'meilleur score',
@@ -161,6 +165,9 @@ export const fr = {
     tryAgain: 'Continue comme ça !',
     tryAgainHint: 'Rejoue pour gagner des points et débloquer le palier.',
     pointsWon: 'Points gagnés',
+    training: 'Entraînement',
+    trainingHint: 'Score non comptabilisé. Valide ta présence (check-in) en station pour gagner des points, monter au classement et conquérir.',
+    trainingCta: 'Faire le check-in en station',
     tierUnlocked: 'Palier débloqué ✓',
     score: 'Score', xp: 'XP', mastery: 'Maîtrise',
     bestScore: 'Pas de progression sur ton meilleur score, l’XP récompense la marge.',

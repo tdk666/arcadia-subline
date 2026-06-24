@@ -64,8 +64,12 @@ export function ResultView({
     );
     if (res === 'copied') { setShareMsg(true); window.setTimeout(() => setShareMsg(false), 2200); }
   }
-  // point de conversion : APRÈS la victoire, si invité en mode Supabase
-  const showGuestSave = result.success && !user && backend.mode === 'supabase';
+  // Présence requise (DEC-015) : sans check-in, la partie est un ENTRAÎNEMENT
+  // (jouable, non comptabilisée). On l'affiche clairement plutôt que de laisser
+  // croire à un bug « score non sauvé ».
+  const isTraining = result.scored === false;
+  // point de conversion : APRÈS la victoire comptabilisée, si invité en mode Supabase
+  const showGuestSave = result.success && !isTraining && !user && backend.mode === 'supabase';
 
   const archiveSeenKey = `arcadia.archive.seen.${station.slug}`;
   const archiveIsNew = result.success && !localStorage.getItem(archiveSeenKey);
@@ -124,6 +128,20 @@ export function ResultView({
           !result.success && <p className="mt-2 text-sm text-pierre-dim">{t('result.defeatHint')}</p>
         )}
       </div>
+
+      {isTraining && (
+        <div className="animate-slide-up w-full max-w-xs rounded-2xl border border-ambre/50 bg-ambre/10 px-4 py-3 text-left">
+          <p className="font-display text-sm font-extrabold text-ambre">🎯 {t('result.training')}</p>
+          <p className="mt-1 text-xs leading-relaxed text-pierre-dim">{t('result.trainingHint')}</p>
+          <Link
+            to={`/station/${result.slug}`}
+            onClick={() => tap()}
+            className="mt-2 inline-block font-mono text-[11px] font-bold text-laiton underline-offset-2 active:underline"
+          >
+            → {t('result.trainingCta')}
+          </Link>
+        </div>
+      )}
 
       <div className="animate-slide-up flex w-full max-w-xs flex-col gap-2.5">
         {isBanked ? (

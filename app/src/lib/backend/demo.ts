@@ -105,12 +105,21 @@ export class DemoBackend implements ArcadiaBackend {
     };
   }
 
+  /** Présence requise (DEC-015) : un check-in actif (non expiré) sur la station rend
+   *  la partie « officielle ». Sans présence, on joue en ENTRAÎNEMENT (non comptabilisé). */
+  private hasActiveCheckIn(stationId: string): boolean {
+    const now = Date.now();
+    return this.state.checkIns.some((c) => c.stationId === stationId && c.expiresAt > now);
+  }
+
   /** Réplique fidèle des formules serveur (0012 démolition / 0016 banque) — démo. */
   async submitAttempt(questId: string, answers: Record<string, unknown>, durationMs: number): Promise<AttemptResult> {
     const loc = locate(questId);
     const station = loc?.content;
     const tier = loc?.tier ?? 'bronze';
     const params = station?.quests[tier]?.params ?? {};
+    // présence validée ? (si station introuvable : on ne pénalise pas → compté)
+    const scored = station ? this.hasActiveCheckIn(station.stationId) : true;
 
     // ── Quiz BANQUE V2 : cumul vers le seuil, jamais re-créditer un item réussi ──
     if (station && station.game.archetype === 'quiz' && isBankedQuiz(station)) {
@@ -120,7 +129,9 @@ export class DemoBackend implements ArcadiaBackend {
       const r = previewBankedQuizScore(
         questions, tier, answers as GameAnswers, durationMs, threshold, prog.pointsTotal, prog.passed,
       );
-      if (!r.flagged) {
+      // ENTRAÎNEMENT (pas de présence) : on calcule le score pour le retour, mais on
+      // ne persiste RIEN (ni progression, ni XP, ni maîtrise) et le seuil n'avance pas.
+      if (!r.flagged && scored) {
         this.state.questProgress[questId] = {
           pointsTotal: r.pointsTotal,
           passed: Array.from(new Set([...prog.passed, ...r.newPassed])),
@@ -131,8 +142,9 @@ export class DemoBackend implements ArcadiaBackend {
         this.save();
       }
       return {
-        attemptId: null, score: r.score, success: r.success, xpGained: r.xpGained,
-        mastery: r.mastery, flagged: r.flagged, pointsTotal: r.pointsTotal, pointsThreshold: threshold,
+        attemptId: null, score: r.score, success: r.success, xpGained: scored ? r.xpGained : 0,
+        mastery: r.mastery, flagged: r.flagged,
+        pointsTotal: scored ? r.pointsTotal : prog.pointsTotal, pointsThreshold: threshold, scored,
       };
     }
 
@@ -141,7 +153,9 @@ export class DemoBackend implements ArcadiaBackend {
     const { score, success, xpGained, mastery, flagged } =
       previewDemolitionScore(params, tier, (Object.values(answers)[0] ?? {}) as GameAnswers, durationMs, best);
 
-    if (!flagged) {
+    // ENTRAÎNEMENT (pas de présence) : score affiché pour le retour, mais rien n'est
+    // persisté (ni meilleur score, ni XP, ni maîtrise) → pas de conquête sans présence.
+    if (!flagged && scored) {
       this.state.bestScores[questId] = Math.max(best, score);
       this.state.xpTotal += xpGained;
       this.state.streak = Math.max(1, this.state.streak);
@@ -149,7 +163,7 @@ export class DemoBackend implements ArcadiaBackend {
       this.save();
     }
 
-    return { attemptId: null, score, success, xpGained, mastery, flagged };
+    return { attemptId: null, score, success, xpGained: scored ? xpGained : 0, mastery, flagged, scored };
   }
 
   async getQuestProgress(questIds: string[]): Promise<QuestProgress[]> {

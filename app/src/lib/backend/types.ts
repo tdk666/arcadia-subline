@@ -17,6 +17,10 @@ export interface AttemptResult {
   pointsTotal?: number | null;
   /** Banque V2 : seuil de points du palier (null = quête non-banque). */
   pointsThreshold?: number | null;
+  /** Présence validée (check-in actif) ⇒ la partie COMPTE (points/maîtrise/classement).
+   *  false = partie d'entraînement (jouable, mais non comptabilisée). undefined =
+   *  ancien chemin/serveur sans gate ⇒ traité comme comptabilisé. (DEC-015) */
+  scored?: boolean;
 }
 
 /** Progression banque V2 par quête (lecture). Seuils/déblocage = autorité serveur. */

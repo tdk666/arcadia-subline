@@ -79,6 +79,9 @@ export class SupabaseBackend implements ArcadiaBackend {
       flagged: !!data.flagged,
       pointsTotal: data.points_total ?? null,
       pointsThreshold: data.points_threshold ?? null,
+      // gate de présence (DEC-015) : le serveur renverra `scored` une fois le SQL
+      // appliqué ; tant qu'il ne le fait pas, on considère la partie comptabilisée.
+      scored: data.scored ?? true,
     };
   }
 

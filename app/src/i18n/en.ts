@@ -109,6 +109,10 @@ export const en: Dict = {
       banked: '{draw} questions drawn · {lives} life/lives',
     },
     quizPoints: '{pts}/{threshold} pts toward the tier',
+    presence: {
+      scored: 'Presence confirmed · your runs count (points, ranking, conquest).',
+      training: 'No check-in: free training, no points. Confirm your presence to conquer.',
+    },
     leaderboard: {
       title: 'Station ranking',
       hint: 'best score',
@@ -162,6 +166,9 @@ export const en: Dict = {
     tryAgain: 'Keep it up!',
     tryAgainHint: 'Play again to earn points and unlock the tier.',
     pointsWon: 'Points won',
+    training: 'Training run',
+    trainingHint: 'Not counted. Confirm your presence (check-in) at the station to earn points, climb the ranking and conquer.',
+    trainingCta: 'Check in at the station',
     tierUnlocked: 'Tier unlocked ✓',
     score: 'Score', xp: 'XP', mastery: 'Mastery',
     bestScore: 'No improvement on your best score, XP rewards the margin.',

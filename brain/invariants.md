@@ -18,8 +18,12 @@ Toute violation = régression. On ne les rouvre qu'avec une entrée explicite da
 - **Gating des paliers côté serveur** : silver/gold exigent le palier précédent
   (succès demolition, ou seuil de points atteint en banque v2). Le client ne peut
   pas forcer un palier verrouillé.
-- **Check-in actif requis** pour les quêtes `exploration` (les quêtes `knowledge`
-  restent jouables sans présence — async-first).
+- **Présence requise pour COMPTER (DEC-015, supersède l'« async-first »)** : toute
+  quête rattachée à une station n'est **comptabilisée** (points / XP / maîtrise /
+  lignes / classements) qu'avec un **check-in actif**. Sans présence, la partie reste
+  **jouable en entraînement** (journalisée `scored=false`, jamais créditée). Gate DOUX
+  côté serveur (`fn_submit_attempt` ne bloque plus, il ne crédite pas) + côté client
+  (flag `scored`). Décision fondateur (option « présence requise / géo-gate »).
 
 ## Source de vérité des données de jeu
 

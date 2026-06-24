@@ -79,7 +79,9 @@ export const useArcadia = create<ArcadiaState>()(
       recordResult: (r) => {
         set((s) => {
           const next: Partial<ArcadiaState> = { lastResult: r };
-          if (r.success && !r.flagged) {
+          // Présence requise (DEC-015) : une partie d'entraînement (scored === false)
+          // est jouable mais ne débloque rien, ne crédite ni XP ni jetons ni série.
+          if (r.success && !r.flagged && r.scored !== false) {
             const won = new Set(s.tiersWon[r.slug] ?? []);
             won.add(r.tier);
             next.tiersWon = { ...s.tiersWon, [r.slug]: TIER_ORDER.filter((t) => won.has(t)) };

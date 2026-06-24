@@ -330,3 +330,35 @@ contre tout le monde). Confirme l'intuition fondateur : général ≠ par-lieu, 
 **Ouvert (décision fondateur requise).** Logique « on joue quand on est sur la ligne » : voir proposition
 d'archi (réconciliation séquentielle + maîtrise async) — contredit un invariant verrouillé (async jouable),
 donc à trancher AVANT toute reconstruction. Profil « tes couronnes/positions » = passe suivante.
+
+---
+
+## DEC-015 — Présence requise pour conquérir (gate de présence généralisé)
+
+**Cause.** Fondateur (test live) : « il faut vraiment reconstruire l'app : on est censé la
+jouer quand on est SUR la ligne ; on ne peut pas jouer la station suivante si on n'y est pas. »
+Question d'archi posée (3 options) ; choix = **« Présence requise (géo-gate) »** : on ne marque
+des points / ne conquiert QUE physiquement présent ; en async = entraînement, sans points.
+
+**Recherche (best-in-class).** Foursquare **Swarm** : la **Mayorship** (couronne d'un lieu) se
+gagne par la présence répétée — la présence EST le cœur de la couronne. Conforte le choix.
+
+**Décision.**
+- **Gate de présence DOUX et généralisé** : toute quête rattachée à une station n'est
+  **comptabilisée** (points/XP/maîtrise/lignes/classements) qu'avec un **check-in actif**.
+  Sans présence, la partie reste **jouable en ENTRAÎNEMENT** (non créditée, hors classement).
+- **Supersède** l'invariant « knowledge async-first » (les quiz comptaient sans présence).
+  L'app reste découvrable/jouable (entraînement, FTUE, démo) — on ne bloque jamais le JEU,
+  on conditionne le SCORE. Le check-in (déclaratif aujourd'hui, photo/trajet demain) est la porte.
+- **Serveur** : `fn_submit_attempt` passe du blocage dur `exploration ⇒ CHECKIN_REQUIRED` à un
+  gate doux (`scored` calculé par présence ; journalise toujours, ne crédite que si présent).
+  Colonne `quest_attempts.scored` (default true ⇒ historique intact) ; classements station/ligne
+  filtrent `scored`. Migration **0021_presence_gate.sql** (versionnée, à appliquer après revue —
+  PAS de paste à l'aveugle sur la porte de score sacrée).
+- **Client/démo** : flag `AttemptResult.scored` ; le store ne crédite/débloque que si `scored`.
+  Bannière « Entraînement · non comptabilisé » au résultat + bannière de présence à la station.
+
+**Statut.** Tranche client+démo LIVE (typecheck + 71 tests + build verts) : démontre le modèle
+tout de suite (en démo le check-in est libre → preview 100 % jouable). Serveur = migration 0021
+prête, à appliquer délibérément (connecteur ou paste validé). NB préview live : tant que 0021 n'est
+pas appliquée, le scoring live reste inchangé (tout compté) — seule la démo montre le gate complet.
