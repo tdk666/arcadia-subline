@@ -1,95 +1,108 @@
 /**
- * « L'ÉMERGENCE » V3 — séquence-titre d'accueil, registre ÉMERVEILLEMENT
- * CINÉMATIQUE (réf. Sky / Monument Valley). Audit « Epic » appliqué :
+ * « L'ÉMERGENCE » — COLD-OPEN CINÉMATIQUE (le film, port de Claude Design).
  *
- *  · UN SEUL MONDE — la carte de Paris (Ligne 1, Seine, plaques émaillées) naît
- *    au renversement et NE DISPARAÎT PLUS : quiz → reveal → conquête se jouent
- *    DESSUS, caméra tenue (zéro coupe sèche).
- *  · NARRATION = reconquête du TRAJET (le temps mort du métro devient un jeu),
- *    jamais « depuis le canapé » (fidèle au Manifeste / BRAND_BOOK).
- *  · COUTURE finale : l'intro se fond dans la vraie carte (Louvre-Rivoli pulse),
- *    un seul geste évident → on sait où on arrive.
+ * REMPLACE TOTALEMENT l'ancienne cinématique 7-actes (tunnel/reversal/promise/quiz/
+ * reveal/conquest/epilogue, faux quiz scripté, « Mémoire n°002 », fleur-de-lys,
+ * « Commencer sans compte »). Ici : 4 TEMPS, 3 transitions continues.
  *
- * Tempo HYBRIDE (chaque temps respire + tap pour précipiter). Sound design en
- * couches (WebAudio). Invariants FTUE : zéro score serveur, portrait, guest-first,
- * tricolore = conquête only, reduced-motion = repli, skippable → carte.
+ * MANDAT A — art-direction : easings nommés (--ease-emergence/conquest/authority),
+ * grain filmique constant, gloss sur les plaques émail uniquement, une clé chaude
+ * (Craie/Laiton) qui reconquiert le noir (Châssis = son absence), apex kinétique.
+ * MANDAT B — COMPRÉHENSION : le texte écran SEUL répond Où (Paris/métro) · Quoi
+ * (chaque station = un jeu à conquérir) · Pourquoi revenir (Chef de Station →
+ * Empereur, sur des jours). Carte lisiblement métro ; icônes-âmes = variété.
+ *
+ * Honnêteté : on décerne la CONQUÊTE (drapeau LIBÉRÉE — toujours vrai), JAMAIS un
+ * rang faux ; la couronne « Empereur » est VERROUILLÉE (but à mériter). « ta
+ * conquête », pas « ta ligne » : firstStation/firstLine = PARAMÈTRE (défaut Bastille).
+ * Présence = sur-couche bonus future, jamais un gate.
+ *
+ * Invariants FTUE : zéro score serveur, portrait, guest-first, tricolore = conquête
+ * only, reduced-motion = repli, skippable. Slots câblés : pose Marc « pointe » (réel),
+ * sfx WebAudio (réel). Embeds live (MapLibre / Matter.js) = 2e passe visuelle.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useI18n } from '../../i18n';
 import { tap as hapticTap, haptic } from '../../lib/feedback';
 import { track } from '../../lib/analytics';
 import { ftueSfx } from '../../lib/sfx-ftue';
-import { Button } from '../Button';
 import { ONBOARDING_KEY } from '../../lib/ftue';
 import { MarcGuide, type MarcState } from './MarcGuide';
 
-type Act = 'tunnel' | 'reversal' | 'promise' | 'quiz' | 'reveal' | 'conquest' | 'epilogue';
-const ORDER: Act[] = ['tunnel', 'reversal', 'promise', 'quiz', 'reveal', 'conquest', 'epilogue'];
+type Beat = 'emergence' | 'map' | 'assault' | 'apex';
 
-// ── Le plateau de Paris (Ligne 1) — viewBox 400×300, Louvre-Rivoli = héros ──
-const NODES = [
-  { x: 40, y: 150, n: 'La Défense' },
-  { x: 108, y: 116, n: 'Étoile', g: '⌂' },
-  { x: 182, y: 158, n: 'Concorde' },
-  { x: 244, y: 132, n: 'Louvre-Rivoli', g: '▣', hero: true },
-  { x: 304, y: 166, n: 'Châtelet', g: '†' },
-  { x: 360, y: 146, n: 'Bastille', g: '⚑', boss: true },
+interface FirstStation { slug: string; name: string }
+const DEFAULT_FIRST: FirstStation = { slug: 'bastille', name: 'Bastille' };
+
+// ── Le plateau de Paris (Ligne 1) — viewBox 400×300. Noms RÉELS + icônes-âmes
+//    (télégraphe « un jeu différent par station »). Bastille = firstStation (pulse),
+//    Gare de Lyon = la balise est (le « prochain » = reviens demain). ──
+type Soul = 'arch' | 'star' | 'museum' | 'cross' | 'fortress' | 'clock';
+interface Node { x: number; y: number; name: string; soul: Soul; label?: boolean; first?: boolean; east?: boolean }
+const NODES: Node[] = [
+  { x: 36, y: 150, name: 'La Défense', soul: 'arch' },
+  { x: 104, y: 118, name: 'Champs-Élysées', soul: 'star' },
+  { x: 176, y: 158, name: 'Concorde', soul: 'star' },
+  { x: 240, y: 130, name: 'Louvre-Rivoli', soul: 'museum', label: true },
+  { x: 300, y: 164, name: 'Châtelet', soul: 'cross' },
+  { x: 348, y: 138, name: 'Bastille', soul: 'fortress', label: true, first: true },
+  { x: 386, y: 120, name: 'Gare de Lyon', soul: 'clock', east: true },
 ];
-const LINE_PATH = 'M 40 150 C 78 120, 92 118, 108 116 S 160 158, 182 158 S 226 132, 244 132 S 288 166, 304 166 S 344 146, 360 146';
-const TERRITORY_PATH = 'M 40 150 C 78 120, 92 118, 108 116 S 160 158, 182 158 S 226 132, 244 132'; // conquis : ouest → Louvre
-const SEINE_PATH = 'M 0 232 C 90 210, 150 250, 220 224 S 330 206, 400 230';
-const LOUVRE = NODES.find((n) => n.hero)!;
-const CAM: Record<Act, number> = { tunnel: 1, reversal: 1, promise: 1.7, quiz: 1.7, reveal: 1.7, conquest: 1.25, epilogue: 1 };
-// Silhouette lointaine de Paris (horizon, profondeur) : toits + Tour Eiffel,
-// Arc de Triomphe, dômes (Panthéon / Sacré-Cœur). Muet, derrière la ligne.
-const SKYLINE =
-  'M 0 96 L 0 78 L 14 78 L 18 70 L 30 70 L 30 84 L 48 84 L 48 72 L 60 72 L 60 84 ' +
-  'L 78 84 Q 82 58 86 84 L 104 84 L 104 74 L 120 74 L 120 84 ' + // Arc de Triomphe (bloc)
-  'L 150 84 L 156 40 L 162 84 ' + // Tour Eiffel (flèche)
-  'L 188 84 L 188 72 L 206 72 L 206 84 L 224 84 ' +
-  'Q 240 56 256 84 ' + // dôme (Panthéon)
-  'L 280 84 L 280 70 L 296 70 L 296 84 L 320 84 ' +
-  'Q 336 60 352 84 ' + // dôme (Sacré-Cœur)
-  'L 372 84 L 372 76 L 400 76 L 400 96 Z';
+const LINE_PATH = 'M 36 150 C 74 122, 90 120, 104 118 S 156 158, 176 158 S 222 130, 240 130 S 286 164, 300 164 S 336 138, 348 138 S 376 122, 386 120';
 
-function ParisBoard({ draw, focus, conquered, reduced }: { draw: boolean; focus: boolean; conquered: boolean; reduced: boolean }) {
+/** Icône-âme : un motif distinct par station (variété lisible, zéro emoji). */
+function SoulIcon({ soul, color }: { soul: Soul; color: string }) {
+  const s = { stroke: color, strokeWidth: 1.4, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+  switch (soul) {
+    case 'fortress': return <g {...s}><path d="M-5 5 V-3 H-3 V-5 H-1 V-3 H1 V-5 H3 V-3 H5 V5 Z" /></g>;
+    case 'museum': return <g {...s}><path d="M-5 5 H5 M-4 5 V-1 M0 5 V-1 M4 5 V-1 M-5 -1 L0 -5 L5 -1 Z" /></g>;
+    case 'arch': return <g {...s}><path d="M-4 5 V-2 A4 4 0 0 1 4 -2 V5" /></g>;
+    case 'star': return <g {...s}><path d="M0 -5 L1.3 -1.3 L5 -1 L2 1.4 L3 5 L0 2.8 L-3 5 L-2 1.4 L-5 -1 L-1.3 -1.3 Z" /></g>;
+    case 'cross': return <g {...s}><path d="M0 -5 V5 M-4 0 H4" /></g>;
+    case 'clock': return <g {...s}><circle cx="0" cy="0" r="4.5" /><path d="M0 0 V-3 M0 0 L2 1.5" /></g>;
+  }
+}
+
+function ParisBoard({ conquered }: { conquered: boolean }) {
   return (
     <svg viewBox="0 0 400 300" className="h-full w-full" preserveAspectRatio="xMidYMid slice" aria-hidden>
       <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fbf7ec" /><stop offset="1" stopColor="#efe6d2" /></linearGradient>
-        <radialGradient id="halo"><stop offset="0" stopColor="#0a5a9e" stopOpacity="0.22" /><stop offset="1" stopColor="#0a5a9e" stopOpacity="0" /></radialGradient>
+        <linearGradient id="emg-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fbf7ec" /><stop offset="1" stopColor="#efe6d2" /></linearGradient>
+        <radialGradient id="emg-halo"><stop offset="0" stopColor="#0a5a9e" stopOpacity="0.28" /><stop offset="1" stopColor="#0a5a9e" stopOpacity="0" /></radialGradient>
       </defs>
-      <rect width="400" height="300" fill="url(#sky)" />
-      {/* horizon : silhouette lointaine de Paris (profondeur, brume) */}
-      <path d={SKYLINE} fill="#0a5a9e" opacity="0.07" transform="translate(0 -6)" />
-      <path d={SKYLINE} fill="#0a5a9e" opacity="0.1" />
-      {/* la Seine */}
-      <path d={`${SEINE_PATH} L 400 300 L 0 300 Z`} fill="#0a5a9e" opacity="0.12" />
-      <path d={SEINE_PATH} fill="none" stroke="#7db4e0" strokeWidth="1.4" opacity="0.5" />
-      {/* tracé de la Ligne 1 (gris chaud) puis dessin animé en laiton */}
-      <path d={LINE_PATH} fill="none" stroke="#d8cdb4" strokeWidth="5" strokeLinecap="round" />
-      <path d={LINE_PATH} fill="none" stroke="var(--color-laiton)" strokeWidth="5" strokeLinecap="round"
-        pathLength={1} className={draw && !reduced ? 'ftue-line-draw' : ''}
-        style={{ filter: 'drop-shadow(0 0 5px rgba(201,162,39,0.5))', strokeDashoffset: draw ? undefined : 0, strokeDasharray: draw ? undefined : 'none' }} />
-      {/* territoire conquis : ouest → Louvre s'illumine */}
-      {conquered && (
-        <path d={TERRITORY_PATH} fill="none" stroke="#f2c200" strokeWidth="5.5" strokeLinecap="round"
-          pathLength={1} className={reduced ? '' : 'ftue-territory'} style={{ filter: 'drop-shadow(0 0 8px rgba(242,194,0,0.8))' }} />
-      )}
-      {/* stations = plaques émaillées (le motif signature) */}
-      {NODES.map((nd, i) => {
-        const isLouvre = nd.hero;
-        const tricolore = isLouvre && conquered;
+      <rect width="400" height="300" fill="url(#emg-sky)" />
+      {/* la Seine (repère « c'est Paris ») */}
+      <path d="M 0 232 C 90 210, 150 250, 220 224 S 330 206, 400 230" fill="none" stroke="#7db4e0" strokeWidth="1.6" opacity="0.5" />
+      {/* la LIGNE D'OR persistante (élément qui morphe à travers les temps) */}
+      <path d={LINE_PATH} fill="none" stroke="var(--color-laiton)" strokeWidth="4.5" strokeLinecap="round"
+        style={{ filter: 'drop-shadow(0 0 5px rgba(201,162,39,0.5))' }} />
+      {NODES.map((nd) => {
+        // au 1er run, tout est « dette » (gris) SAUF la station de départ qui pulse
+        const active = !!nd.first;
+        const plaqueFill = nd.first && conquered ? '#fff' : active ? '#0a5a9e' : '#b9b09b';
+        const stroke = nd.first && conquered ? '#bb2e2a' : '#fff';
         return (
-          <g key={nd.n} className={draw && !reduced ? 'ftue-bloom' : ''} style={{ transformBox: 'fill-box', transformOrigin: 'center', animationDelay: `${0.4 + i * 0.14}s` }}>
-            {nd.g && <text x={nd.x} y={nd.y - 16} textAnchor="middle" fontSize="13" fill="#9c7d18" opacity="0.85">{nd.g}</text>}
-            {isLouvre && focus && <circle cx={nd.x} cy={nd.y} r="26" fill="url(#halo)" className={reduced ? '' : 'animate-map-pulse'} />}
-            {/* plaque */}
-            <rect x={nd.x - (isLouvre ? 10 : 6)} y={nd.y - (isLouvre ? 7 : 5)} width={isLouvre ? 20 : 12} height={isLouvre ? 14 : 10} rx="2.5"
-              fill={tricolore ? '#fff' : '#0a5a9e'} stroke={tricolore ? '#bb2e2a' : '#fff'} strokeWidth={isLouvre ? 2 : 1.4}
-              style={isLouvre ? { filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.35))' } : undefined} />
-            {tricolore && <rect x={nd.x - 10} y={nd.y - 7} width="6.6" height="14" fill="#0a5a9e" />}
-            {tricolore && <rect x={nd.x + 3.4} y={nd.y - 7} width="6.6" height="14" fill="#bb2e2a" />}
+          <g key={nd.name}>
+            {nd.first && !conquered && <circle cx={nd.x} cy={nd.y} r="22" fill="url(#emg-halo)" className="animate-map-pulse" />}
+            {/* icône-âme au-dessus du nœud : le jeu DIFFÉRENT de chaque station */}
+            <g transform={`translate(${nd.x} ${nd.y - 16})`} opacity={active ? 0.95 : 0.5}>
+              <SoulIcon soul={nd.soul} color={active ? '#9c7d18' : '#8a8270'} />
+            </g>
+            {/* plaque émaillée */}
+            <rect x={nd.x - (active ? 9 : 5.5)} y={nd.y - (active ? 6.5 : 4)} width={active ? 18 : 11} height={active ? 13 : 8} rx="2.2"
+              fill={plaqueFill} stroke={stroke} strokeWidth={active ? 1.8 : 1.2}
+              style={active ? { filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.32))' } : undefined} />
+            {/* tricolore quand la station est conquise (drapeau planté) */}
+            {nd.first && conquered && <><rect x={nd.x - 9} y={nd.y - 6.5} width="6" height="13" fill="#0a5a9e" /><rect x={nd.x + 3} y={nd.y - 6.5} width="6" height="13" fill="#bb2e2a" /></>}
+            {/* NOMS RÉELS en petites-capitales espacées (signalétique métro lisible) */}
+            {nd.label && (
+              <text x={nd.x} y={nd.y + 18} textAnchor="middle" fontSize="8.5" letterSpacing="0.8"
+                fontFamily="'Work Sans', sans-serif" fontWeight="700" fill="#2a2118"
+                style={{ textShadow: '0 1px 2px rgba(246,241,230,0.9)' }}>
+                {nd.name.toUpperCase()}
+              </text>
+            )}
+            {nd.east && <text x={nd.x} y={nd.y - 24} textAnchor="middle" fontSize="7" letterSpacing="0.6" fontFamily="'Work Sans', sans-serif" fontWeight="700" fill="#5d5446">GARE DE LYON</text>}
           </g>
         );
       })}
@@ -97,20 +110,23 @@ function ParisBoard({ draw, focus, conquered, reduced }: { draw: boolean; focus:
   );
 }
 
-export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: () => void }) {
+export function Emergence({ onDone, onStart, firstStation = DEFAULT_FIRST }: {
+  onDone: () => void; onStart?: () => void; firstStation?: FirstStation;
+}) {
   const { t, locale, setLocale } = useI18n();
   const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  const beat = (ms: number) => (reduced ? Math.min(ms, 800) : ms);
-  const L = (k: string, p?: Record<string, string | number>) => t(k as Parameters<typeof t>[0], p);
+  const beatMs = (ms: number) => (reduced ? Math.min(ms, 500) : ms);
+  const L = (k: string) => t(k as Parameters<typeof t>[0]);
 
-  const [act, setAct] = useState<Act>('tunnel');
-  const [marc, setMarc] = useState<MarcState>('entree');
-  const [speaking, setSpeaking] = useState(false);
-  const [picked, setPicked] = useState<string | null>(null);
-  const [planted, setPlanted] = useState(false);
+  const [beat, setBeat] = useState<Beat>('emergence');
+  const [wiped, setWiped] = useState(false);      // T0→T1 light-wipe joué
+  const [hint, setHint] = useState(false);        // T0 fallback anti-blocage
+  const [hits, setHits] = useState(0);            // T2 coups portés (imperdable)
+  const [liberated, setLiberated] = useState(false);
+  const [flash, setFlash] = useState(false);      // T2 « révolte ? révolution »
+  const [archiveOpen, setArchiveOpen] = useState(false);
+  const [marc, setMarc] = useState<MarcState>('idle');
   const [muted, setMuted] = useState(false);
-  // affordance « Entrer » : escalade si le joueur reste dans le noir > 2,5 s (anti-blocage)
-  const [hint, setHint] = useState(false);
   const timers = useRef<number[]>([]);
 
   const after = useCallback((ms: number, fn: () => void) => { const id = window.setTimeout(fn, ms); timers.current.push(id); return id; }, []);
@@ -118,261 +134,275 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
   useEffect(() => () => { clearTimers(); ftueSfx.ambientStop(); }, []);
   useEffect(() => { track('ftue_emergence_start'); }, []);
 
-  // Débloque l'audio ET lance la nappe ambiante (idempotent) au 1er geste.
   const wakeAudio = () => { ftueSfx.unlock(); ftueSfx.ambientStart(); };
-
   const mark = () => { try { localStorage.setItem(ONBOARDING_KEY, '1'); } catch { /* noop */ } };
-  const skip = () => { hapticTap(); track('ftue_skip', { act }); ftueSfx.ambientStop(); mark(); onDone(); };
+  const skip = () => { hapticTap(); track('ftue_skip', { beat }); ftueSfx.ambientStop(); mark(); onDone(); };
   const finish = () => { hapticTap(); track('ftue_done'); ftueSfx.ambientStop(); mark(); (onStart ?? onDone)(); };
-  const go = (a: Act) => setAct(a);
-  const next = () => { const i = ORDER.indexOf(act); if (i < ORDER.length - 1) go(ORDER[i + 1]); };
 
-  // 100 % AU TOUCHÉ : aucun temps n'avance seul — le joueur cause chaque étape.
+  // T0 : fallback anti-blocage (l'invite « Entrer » s'intensifie après 2,5 s sans tap)
   useEffect(() => {
     clearTimers();
-    setHint(false);
-    switch (act) {
-      case 'tunnel':
-        setMarc('entree'); ftueSfx.rumble(reduced ? 1 : 3.4);
-        after(beat(1100), () => setMarc('salut'));
-        // FALLBACK anti-blocage : si pas de tap après 2,5 s, l'invite « Entrer » s'intensifie
-        after(2500, () => setHint(true));
-        break;
-      case 'reversal': setMarc('pointe'); ftueSfx.whoosh(); haptic([20, 40, 30]); break;
-      case 'promise': setMarc('pointe'); after(beat(1400), () => setMarc('idle')); break;
-      case 'quiz': setMarc('pointe'); after(beat(800), () => setMarc('idle')); break;
-      case 'reveal': setMarc('pointe'); break;
-      case 'conquest': setMarc('idle'); setPlanted(false); break;
-      case 'epilogue': setMarc('idle'); after(beat(600), () => setMarc('salut')); break;
-    }
+    if (beat === 'emergence') { setHint(false); after(2500, () => setHint(true)); ftueSfx.rumble(reduced ? 1 : 3); }
+    if (beat === 'map') setMarc('pointe');
+    if (beat === 'assault') setMarc('idle');
+    if (beat === 'apex') setMarc('salut');
     return clearTimers;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [act]);
+  }, [beat]);
 
-  function plantFlag() {
-    if (planted) return;
-    hapticTap(); setPlanted(true); ftueSfx.sparkle(); haptic([40, 60, 90]); setMarc('celebre');
+  // ── T0 : un tap perce le noir → light-wipe (la lumière du tunnel DEVIENT le jour) ──
+  function pierce() {
+    if (wiped) return;
+    wakeAudio(); hapticTap(); ftueSfx.whoosh(); haptic([18, 30, 24]);
+    setWiped(true);
+    after(beatMs(1100), () => { setBeat('map'); ftueSfx.chime(); });
   }
 
-  // un toucher = une étape. Quiz/épilogue : cibles dédiées. Conquête : planter puis continuer.
-  function onStageTap() {
-    wakeAudio();
-    if (act === 'quiz' || act === 'epilogue') return;
-    if (act === 'conquest') { if (!planted) plantFlag(); else { hapticTap(); next(); } return; }
-    hapticTap(); next();
+  // ── T1 → T2 : push-in dans Bastille ──
+  function takeBastille() {
+    hapticTap(); haptic(20); track('ftue_take_first', { slug: firstStation.slug });
+    setBeat('assault');
   }
 
-  function answer(choice: string, correct: boolean) {
-    if (picked) return;
-    wakeAudio(); hapticTap(); setPicked(choice);
-    setMarc(correct ? 'acquiesce' : 'reconforte'); haptic(correct ? [30] : [55, 40, 55]);
-    after(beat(1200), () => { go('reveal'); ftueSfx.chime(); setSpeaking(true); after(beat(2600), () => setSpeaking(false)); });
+  // ── T2 : démolition IMPERDABLE (chaque tap fait céder ; au 4e, la Bastille tombe) ──
+  function strike() {
+    if (liberated) return;
+    haptic(22);
+    setHits((h) => {
+      const n = h + 1;
+      if (n >= 4) liberate();
+      return n;
+    });
   }
-  function toggleMute() { const m = !muted; setMuted(m); ftueSfx.setMuted(m); }
+  function liberate() {
+    if (liberated) return;
+    setLiberated(true);
+    hapticTap(); ftueSfx.sparkle(); haptic([40, 60, 90]); setMarc('celebre');
+    track('ftue_liberated', { slug: firstStation.slug });
+    after(beatMs(700), () => setFlash(true));
+    after(beatMs(1900), () => setFlash(false));
+  }
 
-  const dark = act === 'tunnel';
-  const boardVisible = act !== 'tunnel';
-  const focus = act === 'promise' || act === 'quiz' || act === 'reveal' || (act === 'conquest' && !planted);
-  const conquered = planted || act === 'epilogue';
-  const tapLabel = act === 'tunnel' ? L('ftue.tapEnter')
-    : act === 'promise' ? L('ftue.tapStation')
-    : act === 'conquest' ? (planted ? L('ftue.continueHint') : L('ftue.tapConquer'))
-    : (act === 'reversal' || act === 'reveal') ? L('ftue.continueHint')
-    : '';
+  // ── T2 → T3 : pull-out / grue, l'apex se lève ──
+  function toApex() { hapticTap(); setBeat('apex'); }
+
+  // caméra persistante (push-in / pull-out continus) : la carte morphe, jamais de coupe
+  const boardScale = beat === 'assault' ? 2.6 : beat === 'apex' ? 1.12 : 1;
+  const boardOrigin = `${(firstStation.slug ? NODES.find((n) => n.first)!.x : 348) / 400 * 100}% ${NODES.find((n) => n.first)!.y / 300 * 100}%`;
+  const boardVisible = beat !== 'emergence';
+  const dark = beat === 'emergence' && !wiped;
 
   return (
     <div
       className="fixed inset-0 z-[60] mx-auto flex max-w-md select-none flex-col overflow-hidden"
-      style={{ background: dark ? 'var(--color-acier)' : 'var(--color-craie)', transition: 'background 1s ease', color: dark ? 'var(--color-craie)' : 'var(--color-pierre)' }}
-      onPointerDown={onStageTap}
+      style={{ background: dark ? 'var(--color-acier)' : 'var(--color-craie)', transition: 'background 1s var(--ease-emergence)', color: dark ? 'var(--color-craie)' : 'var(--color-pierre)' }}
+      onPointerDown={beat === 'emergence' ? pierce : beat === 'assault' && !liberated ? strike : undefined}
     >
-      {/* ── LE MONDE PERSISTANT : plateau de Paris + caméra tenue ── */}
-      <div className="pointer-events-none absolute inset-0 z-0" style={{ opacity: boardVisible ? 1 : 0, transition: 'opacity 1.1s ease' }}>
-        <div className="ftue-cam h-full w-full" style={{ transform: `scale(${CAM[act]})`, transformOrigin: `${(LOUVRE.x / 400) * 100}% ${(LOUVRE.y / 300) * 100}%` }}>
-          <ParisBoard draw={act === 'reversal'} focus={focus} conquered={conquered} reduced={reduced} />
+      {/* ── MONDE PERSISTANT : plateau de Paris (push-in/pull-out via scale) ── */}
+      <div className="pointer-events-none absolute inset-0 z-0" style={{ opacity: boardVisible ? 1 : 0, transition: 'opacity 1.1s var(--ease-emergence)' }}>
+        <div className="h-full w-full" style={{ transform: `scale(${boardScale})`, transformOrigin: boardOrigin, transition: 'transform 1.2s var(--ease-authority)', filter: beat === 'assault' ? 'blur(2px) brightness(0.96)' : 'none' }}>
+          <ParisBoard conquered={liberated || beat === 'apex'} />
         </div>
       </div>
 
-      {/* atmosphère */}
-      {boardVisible && !reduced && (
-        <div className="ftue-godray pointer-events-none absolute inset-x-0 top-0 z-0 h-1/2"
-          style={{ background: 'conic-gradient(from 180deg at 60% -10%, transparent 0deg, rgba(227,196,99,0.20) 18deg, transparent 40deg, rgba(227,196,99,0.14) 64deg, transparent 88deg)', filter: 'blur(2px)' }} />
-      )}
-      <div className="pointer-events-none absolute inset-0 z-0" style={{ boxShadow: 'inset 0 0 170px rgba(0,0,0,0.26)' }} />
-      <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.05] mix-blend-overlay" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.6) 0.5px, transparent 0.6px)', backgroundSize: '3px 3px' }} />
-      {/* voile de lecture : la moitié basse se fond en craie pour la lisibilité du texte */}
-      {boardVisible && <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[62%]" style={{ background: 'linear-gradient(to bottom, transparent, var(--color-craie) 58%)' }} />}
-      {/* LE RENVERSEMENT : la lumière envahit depuis le phare (plan tenu) */}
-      {act === 'reversal' && (
-        <div className="ftue-flood-slow pointer-events-none absolute inset-0 z-[2]" style={{ background: 'radial-gradient(120% 100% at 61% 44%, #fffdf7 0%, var(--color-craie) 55%, #efe6d2 100%)' }} />
+      {/* grain filmique CONSTANT + voile de lecture bas */}
+      <div className="film-grain pointer-events-none absolute inset-0 z-[1] opacity-[0.06]" />
+      {boardVisible && <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[58%]" style={{ background: 'linear-gradient(to bottom, transparent, var(--color-craie) 60%)' }} />}
+      {/* T0→T1 LIGHT-WIPE : la lumière (clé chaude) envahit le noir depuis le phare */}
+      {beat === 'emergence' && (
+        <div className="pointer-events-none absolute inset-0 z-[2]" style={{ background: 'radial-gradient(120% 100% at 62% 42%, #fffdf7 0%, var(--color-craie) 52%, #efe6d2 100%)', opacity: wiped ? 1 : 0, transition: 'opacity 1.1s var(--ease-emergence)' }} />
       )}
 
-      {/* ── BARRE HAUTE ── */}
+      {/* ── BARRE HAUTE : son · langue · passer ── */}
       <div className="relative z-30 flex items-center justify-between px-4 pt-[max(env(safe-area-inset-top),1rem)]">
         <div className="flex items-center gap-2">
-          <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={() => toggleMute()} aria-label="son"
+          <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={() => { const m = !muted; setMuted(m); ftueSfx.setMuted(m); }} aria-label="son"
             className="flex h-9 w-9 items-center justify-center rounded-full text-sm active:scale-95"
-            style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', color: dark ? 'rgba(244,238,218,0.75)' : 'var(--color-pierre-faint)' }}>
-            {muted ? '🔇' : '🔊'}
-          </button>
-          {/* le touriste ne doit JAMAIS être piégé dans une langue : bascule dès l'accueil */}
-          <button type="button" onPointerDown={(e) => e.stopPropagation()}
-            onClick={() => { hapticTap(); setLocale(locale === 'fr' ? 'en' : 'fr'); }}
+            style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', color: dark ? 'rgba(244,238,218,0.75)' : 'var(--color-pierre-faint)' }}>{muted ? '🔇' : '🔊'}</button>
+          <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={() => { hapticTap(); setLocale(locale === 'fr' ? 'en' : 'fr'); }}
             aria-label={locale === 'fr' ? 'Switch to English' : 'Passer en français'}
             className="flex h-9 items-center justify-center rounded-full px-3 font-mono text-xs font-bold tracking-wider active:scale-95"
-            style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', color: dark ? 'rgba(244,238,218,0.75)' : 'var(--color-pierre-faint)' }}>
-            {locale === 'fr' ? 'EN' : 'FR'}
-          </button>
+            style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', color: dark ? 'rgba(244,238,218,0.75)' : 'var(--color-pierre-faint)' }}>{locale === 'fr' ? 'EN' : 'FR'}</button>
         </div>
-        <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={() => skip()}
+        <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={skip}
           className="rounded-full px-3.5 py-1.5 font-mono text-xs backdrop-blur active:scale-95"
-          style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)', color: dark ? 'rgba(244,238,218,0.7)' : 'var(--color-pierre-faint)' }}>
-          {L('ftue.skip')} ›
-        </button>
+          style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)', color: dark ? 'rgba(244,238,218,0.7)' : 'var(--color-pierre-faint)' }}>{L('ftue.skip')} ›</button>
       </div>
 
-      {/* ── BANDE NARRATIVE (bas, lisible sur le voile) ── */}
-      <div className="relative z-10 mt-auto flex flex-col items-center px-7 text-center">
-        {act === 'tunnel' && (
-          <div className="ftue-fade mb-2 flex flex-col items-center">
-            {/* phare + rame MP59 stylisée qui percute le wordmark (brand-block AAA) */}
-            <svg viewBox="0 0 300 90" className="mb-3 h-16 w-64" aria-hidden>
-              <defs><radialGradient id="hl"><stop offset="0" stopColor="#f2c200" stopOpacity="0.9" /><stop offset="1" stopColor="#f2c200" stopOpacity="0" /></radialGradient></defs>
-              <circle className="ftue-headlight" cx="232" cy="46" r="46" fill="url(#hl)" style={{ transformBox: 'fill-box', transformOrigin: 'center' }} />
-              <g className="ftue-rise">
-                <rect x="60" y="30" width="150" height="34" rx="9" fill="#8fc9b9" stroke="#cfe0d9" strokeWidth="2" />
-                <rect x="72" y="38" width="26" height="14" rx="3" fill="#0c2230" opacity="0.85" />
-                <rect x="108" y="38" width="26" height="14" rx="3" fill="#0c2230" opacity="0.85" />
-                <circle cx="204" cy="47" r="5" fill="#f2c200" />
-              </g>
+      {/* ════════ T0 — ÉMERGENCE (noir qui respire → déflagration) ════════ */}
+      {beat === 'emergence' && (
+        <div className="relative z-10 mt-auto mb-auto flex flex-col items-center px-7 text-center">
+          {/* point de lumière qui palpite au bout du tunnel */}
+          {!wiped && <div className="animate-map-pulse mb-6 h-3 w-3 rounded-full" style={{ background: '#f2c200', boxShadow: '0 0 30px 12px rgba(242,194,0,0.55)' }} />}
+          {/* la rame MP59 jaillit au wipe (slot render mat) */}
+          <svg viewBox="0 0 300 90" className="mb-3 h-16 w-64" aria-hidden style={{ opacity: wiped ? 1 : 0.85, transition: 'opacity 0.6s var(--ease-emergence)' }}>
+            <rect x="60" y="30" width="150" height="34" rx="9" fill="#8fc9b9" stroke="#cfe0d9" strokeWidth="2" />
+            <rect x="72" y="38" width="26" height="14" rx="3" fill="#0c2230" opacity="0.85" />
+            <rect x="108" y="38" width="26" height="14" rx="3" fill="#0c2230" opacity="0.85" />
+            <circle cx="204" cy="47" r="5" fill="#f2c200" />
+          </svg>
+          <h1 className="text-[clamp(1.6rem,8vw,2.6rem)] font-bold uppercase leading-[0.95]" style={{ fontFamily: 'var(--font-brand)', color: wiped ? 'var(--color-pierre)' : 'var(--color-craie)', transition: 'color 0.8s var(--ease-emergence)' }}>
+            {L('ftue.t0LookUp')}
+          </h1>
+        </div>
+      )}
+
+      {/* ════════ T1 — CARTE VIVANTE (compréhension : OÙ + QUOI) ════════ */}
+      {beat === 'map' && (
+        <div className="relative z-10 mt-auto flex flex-col items-center px-7 text-center">
+          <p className="ftue-rise max-w-sm font-display text-[clamp(1.05rem,4.8vw,1.45rem)] font-extrabold leading-tight text-pierre">
+            {L('ftue.t1Orient')}
+          </p>
+        </div>
+      )}
+
+      {/* ════════ T2 — DÉMOLITION + DRAPEAU (muet ; on enseigne « conquérir ») ════════ */}
+      {beat === 'assault' && (
+        <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-7 text-center">
+          {/* la Bastille (stylisée) qui cède tap après tap — IMPERDABLE */}
+          <div className={`relative ${liberated ? 'film-shake' : ''}`} style={{ width: 200, height: 150 }}>
+            <svg viewBox="0 0 200 150" className="h-full w-full" aria-hidden>
+              {/* tours + courtine ; chaque coup en retire une assise (lisible) */}
+              {[0, 1, 2].map((tw) => {
+                const cx = 40 + tw * 60;
+                const floors = Math.max(1, 4 - Math.min(hits, 3));
+                return (
+                  <g key={tw}>
+                    {Array.from({ length: liberated ? 1 : floors }).map((_, f) => (
+                      <rect key={f} x={cx - 18} y={120 - f * 26} width="36" height="26" rx="2"
+                        fill={liberated ? '#cdbf9b' : '#7a6a4e'} stroke="#3a2f1e" strokeWidth="1" />
+                    ))}
+                  </g>
+                );
+              })}
+              <rect x="6" y="120" width="188" height="14" fill="#5a4a34" />
             </svg>
-            <p className="font-mono text-[11px] uppercase tracking-[0.32em]" style={{ color: 'var(--color-ambre)' }}>{L('ftue.tunnelKicker')}</p>
-            <h1 className="ftue-brand mt-2 text-[clamp(2rem,9vw,3rem)] font-bold uppercase leading-[0.95]" style={{ fontFamily: 'var(--font-brand)', color: 'var(--color-craie)' }}>
-              Arcadia <span style={{ color: 'var(--color-laiton-clair)' }}>SubLine</span>
-            </h1>
-            {/* cartouche émaillé PARIS · LIGNE 1 (signature réseau) */}
-            <div className="ftue-fade mt-3 flex items-center gap-2" style={{ animationDelay: '0.5s' }}>
-              <span className="inline-flex items-center gap-1.5 rounded-[3px] px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.22em] text-white"
-                style={{ background: '#0a5a9e', boxShadow: 'inset 0 0 0 1.5px rgba(255,255,255,0.85)' }}>Paris</span>
-              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-extrabold text-white"
-                style={{ background: '#f2c200', color: '#1a1a1a', boxShadow: 'inset 0 0 0 1.5px rgba(255,255,255,0.6)' }}>1</span>
-            </div>
-            <p className="mt-3 max-w-xs text-sm" style={{ color: 'rgba(244,238,218,0.62)' }}>{L('ftue.tunnelSub')}</p>
-          </div>
-        )}
-
-        {act === 'reversal' && (
-          <p className="ftue-rise mb-2 font-display text-[clamp(1.6rem,7vw,2.2rem)] font-extrabold" style={{ color: 'var(--color-pierre)', animationDelay: '0.9s' }}>{L('ftue.reversal')}</p>
-        )}
-
-        {act === 'promise' && (
-          <p className="ftue-rise mb-2 max-w-sm font-display text-[clamp(1.2rem,5.4vw,1.6rem)] font-extrabold leading-tight" style={{ color: 'var(--color-pierre)' }}>{L('ftue.emergence')}</p>
-        )}
-
-        {act === 'quiz' && (
-          <div className="ftue-fade mb-1 w-full">
-            {/* plaque : on joue bien LA station qu'on vient de toucher (cohérence) */}
-            <span className="mx-auto inline-block rounded-[4px] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white" style={{ background: '#0a5a9e', boxShadow: 'inset 0 0 0 1.5px rgba(255,255,255,0.85)' }}>Louvre-Rivoli</span>
-            <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.25em] text-pierre-faint">{L('ftue.qHint')}</p>
-            <h2 className="mx-auto mt-1 max-w-sm font-display text-[clamp(1.15rem,4.8vw,1.6rem)] font-extrabold leading-tight text-pierre">{L('ftue.q')}</h2>
-          </div>
-        )}
-
-        {act === 'reveal' && (
-          <div className="ftue-fade mb-1 w-full">
-            <div className="ftue-open mx-auto flex w-full max-w-xs items-center gap-3 rounded-2xl border-2 px-4 py-2.5 text-left" style={{ borderColor: 'rgba(63,107,77,0.5)', background: 'rgba(63,107,77,0.1)' }}>
-              <span className="animate-glow flex h-10 w-10 flex-none items-center justify-center rounded-full border-2 text-lg" style={{ borderColor: 'var(--color-guimard)', color: 'var(--color-guimard)' }}>⚜</span>
-              <span className="flex-1">
-                <span className="block font-display text-sm font-bold" style={{ color: 'var(--color-guimard)' }}>{L('ftue.archive')}</span>
-                <span className="block font-mono text-[10px] text-pierre-faint">{L('ftue.archiveNum')}</span>
-              </span>
-            </div>
-            <p className="ftue-rise mx-auto mt-3 max-w-sm font-display text-[clamp(1.1rem,4.6vw,1.5rem)] font-extrabold italic leading-snug text-pierre" style={{ animationDelay: '0.2s' }}>« {L('ftue.reveal')} »</p>
-          </div>
-        )}
-
-        {act === 'conquest' && (
-          <div className="ftue-fade mb-1 flex flex-col items-center">
-            {planted && !reduced && (
-              <div className="pointer-events-none absolute inset-0 -z-0 flex justify-center gap-2 overflow-hidden">
-                {['#0a5a9e', '#ffffff', '#bb2e2a'].map((c, i) => (
-                  <span key={c} className="ftue-tricolore mt-[-30%] h-[150%] w-6 rounded-full" style={{ background: c, opacity: 0.8, animationDelay: `${i * 0.12}s` }} />
+            {/* débris match-matière à la chute (poussière craie + éclats émail + paillettes laiton) */}
+            {liberated && !reduced && (
+              <div className="pointer-events-none absolute inset-0 overflow-visible">
+                {Array.from({ length: 14 }).map((_, i) => (
+                  <span key={i} className="absolute block rounded-[1px]"
+                    style={{ left: `${10 + (i * 37) % 80}%`, top: `${40 + (i * 23) % 40}%`,
+                      width: i % 3 === 0 ? 6 : 3, height: i % 3 === 0 ? 6 : 3,
+                      background: i % 3 === 0 ? '#0a5a9e' : i % 3 === 1 ? '#c9a227' : 'rgba(201,178,140,0.8)',
+                      animation: `flag-plant 0.6s var(--ease-conquest) both`, animationDelay: `${i * 0.03}s` }} />
                 ))}
               </div>
             )}
-            {planted ? (
-              <>
-                <h2 className="ftue-rise font-display text-2xl font-extrabold text-pierre">{L('ftue.conquest')}</h2>
-                <p className="mt-1 max-w-xs text-sm text-pierre-dim">{L('ftue.conquestSub')}</p>
-              </>
-            ) : (
-              <p className="ftue-rise font-display text-xl font-extrabold text-pierre">{L('ftue.conquestPrompt')}</p>
+            {/* DRAPEAU « LIBÉRÉE » sur mât laiton (overshoot+settle) — conquête, JAMAIS un rang */}
+            {liberated && (
+              <div className="flag-plant absolute -top-10 left-1/2 -translate-x-1/2">
+                <div className="plaque-gloss rounded-[3px] px-3 py-1.5 text-center" style={{ background: '#0a5a9e', boxShadow: 'inset 0 0 0 2px rgba(255,255,255,0.85), 0 4px 10px rgba(0,0,0,0.3)' }}>
+                  <span className="font-display text-xs font-extrabold tracking-wide text-white">{L('ftue.t2Liberated')}</span>
+                </div>
+                <div className="mx-auto h-10 w-1" style={{ background: 'linear-gradient(#c9a227,#86680f)' }} />
+              </div>
             )}
           </div>
-        )}
 
-        {act === 'epilogue' && (
-          <div className="ftue-fade mb-1 flex flex-col items-center">
-            <h2 className="font-display text-2xl font-extrabold leading-tight text-pierre">{L('ftue.epilogue')}</h2>
-            <p className="mt-1.5 max-w-xs text-sm text-pierre-dim">{L('ftue.epilogueSub')}</p>
-          </div>
-        )}
-      </div>
-
-      {/* ── MARC (il guide) ── */}
-      <div className="relative z-10 flex flex-none items-end justify-center" style={{ height: 132 }}>
-        {/* key-light chaud : détache Marc du fond, lui donne du volume */}
-        <div className="pointer-events-none absolute bottom-0 left-1/2 h-[150px] w-[260px] -translate-x-1/2"
-          style={{ background: dark
-            ? 'radial-gradient(60% 70% at 50% 80%, rgba(242,194,0,0.22), transparent 70%)'
-            : 'radial-gradient(58% 68% at 50% 82%, rgba(227,196,99,0.34), transparent 70%)' }} />
-        <MarcGuide state={marc} speaking={speaking} size={126} />
-      </div>
-
-      {/* ── ACTION (pouce) ── */}
-      <div className="relative z-20 px-5 pb-[max(env(safe-area-inset-bottom),1.1rem)]">
-        {act === 'quiz' && (
-          <div className="flex flex-col gap-2">
-            {([['a', L('ftue.a1'), true], ['b', L('ftue.a2'), false], ['c', L('ftue.a3'), false]] as const).map(([id, label, correct]) => {
-              const reveal = picked !== null; const isPicked = picked === id;
-              let bg = 'var(--color-plomb)', border = 'var(--color-rail)', fg = 'var(--color-pierre)';
-              if (reveal && correct) { bg = 'var(--color-guimard)'; border = 'var(--color-guimard)'; fg = '#fff'; }
-              else if (reveal && isPicked && !correct) { bg = 'var(--color-vermillon)'; border = 'var(--color-vermillon)'; fg = '#fff'; }
-              else if (reveal) { fg = 'var(--color-pierre-dim)'; }
-              return (
-                <button key={id} type="button" disabled={reveal} onClick={(e) => { e.stopPropagation(); answer(id, correct); }}
-                  className={`rounded-2xl px-4 py-3 text-left font-semibold ${reveal ? '' : 'active:scale-[0.98]'}`}
-                  style={{ background: bg, color: fg, boxShadow: `inset 0 0 0 1.5px ${border}`, opacity: reveal && !correct && !isPicked ? 0.55 : 1 }}>
-                  {reveal && correct ? '✓ ' : reveal && isPicked ? '✕ ' : ''}{label}
-                </button>
-              );
-            })}
-          </div>
-        )}
-        {act === 'epilogue' ? (
-          <Button variant="gold" size="md" className="animate-glow" onClick={(e) => { e.stopPropagation(); finish(); }}>⚜ {L('ftue.cta')}</Button>
-        ) : act !== 'quiz' && tapLabel ? (
-          <div className="flex justify-center">
-            <span
-              className={`inline-flex items-center gap-2 rounded-full font-mono font-semibold uppercase tracking-[0.14em] backdrop-blur transition-all duration-300 ${
-                dark
-                  ? (hint ? 'animate-glow px-5 py-2.5 text-[13px]' : 'px-4 py-2 text-[12px]')
-                  : 'ftue-breathe px-4 py-2 text-[11px]'
-              }`}
-              style={
-                dark
-                  // tunnel (fond Acier) : laiton VIF, contraste fort, JAMAIS de creux d'opacité ;
-                  // après 2,5 s sans tap (hint), l'invite grossit et s'illumine (anti-blocage).
-                  ? { background: hint ? 'rgba(242,194,0,0.30)' : 'rgba(242,194,0,0.18)', color: 'var(--color-laiton-clair)', boxShadow: 'inset 0 0 0 1.5px rgba(227,196,99,0.7)' }
-                  : { background: 'rgba(10,90,158,0.1)', color: 'var(--color-email)' }
-              }
-            >
-              <span aria-hidden className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: 'currentColor', boxShadow: '0 0 0 3px rgba(160,160,160,0.18)' }} />
-              {tapLabel}
+          {/* invite muette (disparaît dès le 1er coup) */}
+          {!liberated && hits === 0 && (
+            <span className="ftue-breathe mt-6 inline-flex items-center gap-2 rounded-full px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ background: 'rgba(10,90,158,0.1)', color: 'var(--color-email)' }}>
+              <span aria-hidden className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: 'currentColor' }} />{L('ftue.t2Tap')}
             </span>
+          )}
+
+          {/* après la chute : repère COMPTABLE (1 prise, d'autres au-delà) + continuer */}
+          {liberated && (
+            <div className="ftue-rise mt-8 flex flex-col items-center" style={{ animationDelay: '0.3s' }}>
+              <p className="text-sm font-semibold text-pierre-dim">{L('ftue.t2Countable')}</p>
+              <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={() => setArchiveOpen(true)}
+                className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-guimard underline-offset-2 active:underline">⚜ {L('ftue.t2ArchiveCta')}</button>
+              <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={toApex}
+                className="mt-3 rounded-full px-5 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ background: 'rgba(10,90,158,0.12)', color: 'var(--color-email)' }}>{L('ftue.t2Continue')} ›</button>
+            </div>
+          )}
+
+          {/* FLASH 1 s : « C'est une révolte ? — Non, Sire… » (tradition, 14 juillet) */}
+          {flash && (
+            <div className="ftue-fade pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center px-8 text-center" style={{ background: 'rgba(17,17,21,0.82)' }}>
+              <p className="font-display text-lg font-bold italic text-craie">« {L('ftue.t2FlashQ')} »</p>
+              <p className="mt-2 font-display text-xl font-extrabold italic" style={{ color: 'var(--color-laiton-clair)' }}>« {L('ftue.t2FlashA')} »</p>
+              <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.3em]" style={{ color: 'var(--color-ambre)' }}>{L('ftue.t2FlashTag')}</p>
+            </div>
+          )}
+
+          {/* archive Palloy (optionnelle, hors boucle muette) */}
+          {archiveOpen && (
+            <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 px-8" onPointerDown={(e) => { e.stopPropagation(); setArchiveOpen(false); }}>
+              <div className="max-w-xs rounded-2xl border-2 p-5 text-center" style={{ background: 'var(--color-plomb)', borderColor: 'var(--color-guimard)' }}>
+                <p className="text-sm text-pierre-dim">{L('ftue.t2Archive')}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ════════ T3 — CARTON-TITRE (compréhension : POURQUOI revenir) ════════ */}
+      {beat === 'apex' && (
+        <div className="relative z-10 mt-auto flex flex-col items-center px-7 pb-2 text-center">
+          {/* couronne VERROUILLÉE-mais-rayonnante (but à mériter) */}
+          <div className="crown-radiate relative mb-3 flex h-14 w-14 items-center justify-center rounded-full" style={{ background: 'radial-gradient(circle at 40% 30%, #fbe9a6, #c9a227 60%, #86680f)' }}>
+            <span className="font-display text-2xl font-extrabold text-encre">♛</span>
+            <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-[9px]" style={{ background: 'var(--color-acier)', color: 'var(--color-laiton-clair)' }}>🔒</span>
           </div>
-        ) : null}
-      </div>
+          {/* l'ÉCHELLE lisible (Chef de Station → Empereur) */}
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-pierre-faint">{L('ftue.t3Scale')}</p>
+          {/* apex kinétique, lettre par lettre */}
+          <h1 className="mt-1 font-display text-[clamp(1.5rem,7vw,2.3rem)] font-extrabold leading-none tracking-tight text-pierre">
+            {L('ftue.t3Apex').split('').map((ch, i) => (
+              <span key={i} className="apex-letter" style={{ animationDelay: `${0.15 + i * 0.045}s` }}>{ch === ' ' ? ' ' : ch}</span>
+            ))}
+          </h1>
+          <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.3em]" style={{ color: 'var(--color-laiton)' }}>{L('ftue.t3Locked')}</span>
+
+          {/* flamme « jour 1 » (Ambre) + ombre rival discrète (Vermillon) */}
+          <div className="mt-3 flex items-center gap-4">
+            <span className="flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--color-ambre)' }}>
+              <span className="flame-flicker inline-block h-3 w-2 rounded-full" style={{ background: 'radial-gradient(circle at 50% 70%, #ffd27a, #e0964a)' }} />{L('ftue.t3Flame')}
+            </span>
+            <span className="h-3 w-px bg-rail" />
+            <span className="font-mono text-[10px] uppercase tracking-widest" style={{ color: 'rgba(187,46,42,0.6)' }}>● rival</span>
+          </div>
+
+          {/* SEUL CTA = la balise est (Gare de Lyon) : un « prochain » = reviens demain */}
+          <button type="button" onClick={finish}
+            className="mt-5 inline-flex items-center gap-2 rounded-2xl px-6 py-3.5 font-display text-base font-extrabold text-white active:translate-y-[2px]"
+            style={{ background: 'var(--color-email)', boxShadow: '0 5px 0 #073f6e, 0 8px 18px rgba(10,90,158,0.35)' }}>
+            {L('ftue.t3Go')}
+            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-laiton-clair">{L('ftue.t3NextLabel')} · Gare de Lyon ›</span>
+          </button>
+        </div>
+      )}
+
+      {/* ── MARC (absent en T0 ; entre dans la lumière en T1, célèbre au drapeau) ── */}
+      {beat !== 'emergence' && (
+        <div className="relative z-10 flex flex-none items-end justify-center" style={{ height: beat === 'apex' ? 96 : 120 }}>
+          <div className="pointer-events-none absolute bottom-0 left-1/2 h-[140px] w-[240px] -translate-x-1/2" style={{ background: 'radial-gradient(58% 68% at 50% 82%, rgba(227,196,99,0.30), transparent 70%)' }} />
+          <MarcGuide state={marc} size={beat === 'apex' ? 92 : 116} />
+        </div>
+      )}
+
+      {/* ── ACTION (pouce) — T1 : un seul CTA, bouton physique ── */}
+      {beat === 'map' && (
+        <div className="relative z-20 px-5 pb-[max(env(safe-area-inset-bottom),1.1rem)]">
+          <button type="button" onClick={takeBastille}
+            className="w-full rounded-2xl py-4 font-display text-lg font-extrabold text-white active:translate-y-[3px]"
+            style={{ background: 'var(--color-email)', boxShadow: '0 5px 0 #073f6e, 0 8px 18px rgba(10,90,158,0.35)' }}>
+            ⚔ {L('ftue.t1Cta')}
+          </button>
+        </div>
+      )}
+
+      {/* T0 : invite « Entrer » (laiton vif, fallback intensifié après 2,5 s) */}
+      {beat === 'emergence' && !wiped && (
+        <div className="relative z-20 flex justify-center px-5 pb-[max(env(safe-area-inset-bottom),1.4rem)]">
+          <span className={`inline-flex items-center gap-2 rounded-full font-mono font-semibold uppercase tracking-[0.14em] backdrop-blur transition-all duration-300 ${hint ? 'animate-glow px-5 py-2.5 text-[13px]' : 'px-4 py-2 text-[12px]'}`}
+            style={{ background: hint ? 'rgba(242,194,0,0.30)' : 'rgba(242,194,0,0.18)', color: 'var(--color-laiton-clair)', boxShadow: 'inset 0 0 0 1.5px rgba(227,196,99,0.7)' }}>
+            <span aria-hidden className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: 'currentColor' }} />{L('ftue.t0Tap')}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

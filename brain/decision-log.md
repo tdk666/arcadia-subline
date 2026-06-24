@@ -450,3 +450,52 @@ cohérent. La réactivation future reste : `ALTER DATABASE postgres SET arcadia.
 + `PRESENCE_REQUIRED=true` (flags.ts).
 
 **Statut.** Acté. note-intention §3 + session-log + invariants (interdit `db push`) mis à jour.
+
+---
+
+## DEC-023 — Art-direction de l'intro portée de Claude Design (film 3-transitions)
+
+**Cause.** Le board a livré le film « L'Émergence » (cold-open) via Claude Design ; on le PORTE
+dans le vrai stack (pas de DOM mock collé). Le connecteur Design est inaccessible en remote
+(auth interactive) → bundle fourni en local (artefact compilé 3,6 Mo, frame apex SVG = Acier +
+halo laiton + « EMPEREUR » craie) ; l'art-direction vient du brief + de cette frame.
+
+**Décision.**
+- **Easings nommés en tokens CSS** : `--ease-emergence` (0.16,1,0.3,1), `--ease-conquest`
+  (0.34,1.56,0.64,1), `--ease-authority` (0.22,1,0.36,1). Reveals sur grille ~200 ms.
+- **Grain filmique CONSTANT** (`.film-grain`, feTurbulence SVG, opacité ~0.06, overlay) sur les
+  4 temps. **Gloss** (`.plaque-gloss`) UNIQUEMENT sur les plaques émail.
+- **Une clé chaude** (Craie/Laiton) qui reconquiert le noir ; Châssis Acier = son absence.
+- **3 transitions CONTINUES** (caméra tenue, board persistant qui morphe) : T0→T1 light-wipe ·
+  T1→T2 push-in (scale dans Bastille) · T2→T3 pull-out. Apex kinétique lettre-par-lettre
+  (`.apex-letter`), drapeau overshoot (`.flag-plant`), couronne `.crown-radiate`, flamme `.flame-flicker`.
+- **Slots réels câblés** : pose Marc « pointe »/« celebre »/« salut » (contrat réel), sfx WebAudio
+  (rumble→whoosh→chime, sparkle). **Embeds live MapLibre/Matter.js = 2e passe visuelle** (rendu non
+  vérifiable à l'aveugle sur l'écran le plus critique ; choix fondateur « film fiable d'abord »).
+
+**Statut.** Appliqué — `Emergence.tsx` réécrit en 4 temps, REMPLACE la cinématique 7-actes. Verts.
+À valider visuellement en preview (fidélité frames Design + on-device).
+
+---
+
+## DEC-024 — Couche de COMPRÉHENSION diégétique de l'intro (correctif fondateur)
+
+**Cause.** L'ancienne intro n'enseignait pas « où je suis / ce que je fais / pourquoi revenir ».
+Exigence : le texte écran SEUL doit le dire, sans mur de texte.
+
+**Décision (les 3 réponses, en mots, une fois).**
+- **OÙ / QUOI** : carte T1 lisiblement métro (ligne 1 en or, **noms réels** LOUVRE-RIVOLI/BASTILLE/
+  GARE DE LYON en petites-capitales espacées, **icônes-âmes** distinctes par nœud = « un jeu différent
+  par station ») + une ligne d'orientation : « Paris. Le métro est ton terrain. Chaque station, un jeu. »
+- **JE FAIS QUOI** : T2 enseigne le verbe « conquérir » EN LE FAISANT (démolition imperdable) ; à la
+  chute, **drapeau LIBÉRÉE** (conquête, JAMAIS un rang faux) + repère COMPTABLE « 1 station prise. La
+  ligne t'attend. » + flash tradition « C'est une révolte ? — Non, Sire… · 14 JUILLET 1789 ».
+- **POURQUOI REVENIR** : T3 échelle lisible « De Chef de Station à Empereur de Paris », apex kinétique,
+  **couronne VERROUILLÉE-rayonnante** (but à mériter), flamme « Jour 1 », **balise est Gare de Lyon** =
+  un « prochain » = reviens demain. PAS de bouton « Commencer » : le seul CTA = la balise.
+
+**Honnêteté (intacte)** : « ta conquête » pas « ta ligne » ; firstStation = PARAMÈTRE (défaut Bastille) ;
+géo = bonus futur, jamais un gate. i18n FR+EN. Test de compréhension à valider sur un inconnu en preview.
+
+**Statut.** Appliqué. Verts. Tué : 7-actes, « métro boulot dodo », faux quiz/rang, « Mémoire n°002 »,
+fleur-de-lys ⚜ (sauf marqueur archive culturel), « Commencer sans compte » en gate.
