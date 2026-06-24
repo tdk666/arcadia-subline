@@ -217,8 +217,8 @@ export function Emergence({ onDone, onStart, firstStation = DEFAULT_FIRST }: {
       <div className="relative z-30 flex items-center justify-between px-4 pt-[max(env(safe-area-inset-top),1rem)]">
         <div className="flex items-center gap-2">
           <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={() => { const m = !muted; setMuted(m); ftueSfx.setMuted(m); }} aria-label="son"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-sm active:scale-95"
-            style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', color: dark ? 'rgba(244,238,218,0.75)' : 'var(--color-pierre-faint)' }}>{muted ? '🔇' : '🔊'}</button>
+            className="flex h-9 w-9 items-center justify-center rounded-full font-mono text-[9px] font-bold tracking-wider active:scale-95"
+            style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', color: dark ? 'rgba(244,238,218,0.75)' : 'var(--color-pierre-faint)' }}>{muted ? 'OFF' : 'SON'}</button>
           <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={() => { hapticTap(); setLocale(locale === 'fr' ? 'en' : 'fr'); }}
             aria-label={locale === 'fr' ? 'Switch to English' : 'Passer en français'}
             className="flex h-9 items-center justify-center rounded-full px-3 font-mono text-xs font-bold tracking-wider active:scale-95"
@@ -312,7 +312,7 @@ export function Emergence({ onDone, onStart, firstStation = DEFAULT_FIRST }: {
             <div className="ftue-rise mt-8 flex flex-col items-center" style={{ animationDelay: '0.3s' }}>
               <p className="text-sm font-semibold text-pierre-dim">{L('ftue.t2Countable')}</p>
               <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={() => setArchiveOpen(true)}
-                className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-guimard underline-offset-2 active:underline">⚜ {L('ftue.t2ArchiveCta')}</button>
+                className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-guimard underline-offset-2 active:underline">{L('ftue.t2ArchiveCta')} ›</button>
               <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={toApex}
                 className="mt-3 rounded-full px-5 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ background: 'rgba(10,90,158,0.12)', color: 'var(--color-email)' }}>{L('ftue.t2Continue')} ›</button>
             </div>
@@ -343,8 +343,12 @@ export function Emergence({ onDone, onStart, firstStation = DEFAULT_FIRST }: {
         <div className="relative z-10 mt-auto flex flex-col items-center px-7 pb-2 text-center">
           {/* couronne VERROUILLÉE-mais-rayonnante (but à mériter) */}
           <div className="crown-radiate relative mb-3 flex h-14 w-14 items-center justify-center rounded-full" style={{ background: 'radial-gradient(circle at 40% 30%, #fbe9a6, #c9a227 60%, #86680f)' }}>
-            <span className="font-display text-2xl font-extrabold text-encre">♛</span>
-            <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-[9px]" style={{ background: 'var(--color-acier)', color: 'var(--color-laiton-clair)' }}>🔒</span>
+            {/* couronne (SVG, zéro emoji) */}
+            <svg viewBox="0 0 24 16" width="28" aria-hidden><path d="M2 14 L3.5 5 L8 10 L12 3 L16 10 L20.5 5 L22 14 Z" fill="#15110c" /></svg>
+            {/* cadenas « à mériter » (SVG, sur pastille Acier) */}
+            <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full" style={{ background: 'var(--color-acier)' }}>
+              <svg viewBox="0 0 16 16" width="9" aria-hidden><path d="M4.5 7 V5 a3.5 3.5 0 0 1 7 0 V7" fill="none" stroke="#e3c463" strokeWidth="1.6" /><rect x="3.5" y="7" width="9" height="6" rx="1.2" fill="#e3c463" /></svg>
+            </span>
           </div>
           {/* l'ÉCHELLE lisible (Chef de Station → Empereur) */}
           <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-pierre-faint">{L('ftue.t3Scale')}</p>
@@ -389,7 +393,7 @@ export function Emergence({ onDone, onStart, firstStation = DEFAULT_FIRST }: {
           <button type="button" onClick={takeBastille}
             className="w-full rounded-2xl py-4 font-display text-lg font-extrabold text-white active:translate-y-[3px]"
             style={{ background: 'var(--color-email)', boxShadow: '0 5px 0 #073f6e, 0 8px 18px rgba(10,90,158,0.35)' }}>
-            ⚔ {L('ftue.t1Cta')}
+            {L('ftue.t1Cta')}
           </button>
         </div>
       )}
