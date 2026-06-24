@@ -225,6 +225,7 @@ export const fr = {
     you: 'toi', rank: 'Rang', player: 'Joueur', score: 'Score',
     rival: 'Ton prochain rival',
     rivalGap: 'à {n} points',
+    toOvertake: '+{n} pts pour dépasser {name}',
     guestHint: 'Crée un compte pour apparaître au classement.',
   },
   profile: {

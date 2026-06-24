@@ -226,6 +226,7 @@ export const en: Dict = {
     you: 'you', rank: 'Rank', player: 'Player', score: 'Score',
     rival: 'Your next rival',
     rivalGap: '{n} points away',
+    toOvertake: '+{n} pts to overtake {name}',
     guestHint: 'Create an account to appear on the ranking.',
   },
   profile: {
