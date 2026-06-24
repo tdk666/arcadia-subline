@@ -111,6 +111,7 @@ export const fr = {
       title: 'Classement de la station',
       hint: 'meilleur score',
       chef: 'Chef de Station',
+      sacre: 'Tu règnes sur cette station. Défends ta couronne !',
       joinHint: 'Joue pour entrer au classement et viser la couronne.',
     },
   },

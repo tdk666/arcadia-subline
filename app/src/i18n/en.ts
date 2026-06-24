@@ -113,6 +113,7 @@ export const en: Dict = {
       title: 'Station ranking',
       hint: 'best score',
       chef: 'Station Chief',
+      sacre: 'You reign over this station. Defend your crown!',
       joinHint: 'Play to enter the ranking and claim the crown.',
     },
   },

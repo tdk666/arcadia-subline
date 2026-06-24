@@ -280,6 +280,12 @@ export function StationScreen() {
               👑 {t('station.leaderboard.chef')} : {board[0].isMe ? t('leaderboard.you') : board[0].displayName}
             </span>
           </div>
+          {board[0].isMe && (
+            <div className="animate-pop mt-2 flex items-center gap-2 rounded-lg border border-laiton/60 bg-laiton/15 px-3 py-2">
+              <span className="text-lg" aria-hidden>👑</span>
+              <span className="font-display text-sm font-extrabold text-pierre">{t('station.leaderboard.sacre')}</span>
+            </div>
+          )}
           <Leaderboard entries={board} className="mt-4" />
           {!board.some((e) => e.isMe) && (
             <p className="mt-3 font-mono text-[10px] text-pierre-faint">{t('station.leaderboard.joinHint')}</p>
