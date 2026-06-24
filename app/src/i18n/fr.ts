@@ -221,7 +221,7 @@ export const fr = {
     confirmSent: 'Compte créé ! Confirme ton e-mail ({email}) pour te connecter.',
   },
   leaderboard: {
-    title: 'Classement', subtitle: 'Ligne 1 · conquiers ta ligne',
+    title: 'Maître de la Ligne', subtitle: 'Ligne 1 · somme de tes meilleurs scores par station',
     empty: 'Personne au classement pour l’instant. Sois le premier !',
     you: 'toi', rank: 'Rang', player: 'Joueur', score: 'Score',
     rival: 'Ton prochain rival',

@@ -132,19 +132,16 @@ export class SupabaseBackend implements ArcadiaBackend {
   }
 
   async getLineLeaderboard(lineId: string): Promise<LeaderboardEntry[]> {
+    // « Maître de la Ligne » (DEC-012) : Σ des meilleurs scores par station de la
+    // ligne, via fn_line_leaderboard — source de vérité unique (station_best).
     const me = (await this.getUser())?.id;
-    const { data, error } = await this.sb.from('leaderboard_entries')
-      .select('player_id, display_name, rank, score')
-      .eq('scope', 'line')
-      .eq('line_id', lineId)
-      .order('rank', { ascending: true })
-      .limit(50);
+    const { data, error } = await this.sb.rpc('fn_line_leaderboard', { p_line_id: lineId, p_limit: 50 });
     if (error) throw new Error(error.message);
-    return (data ?? []).map((r) => ({
+    return (data ?? []).map((r: { player_id: string; display_name: string; total_score: number; rank: number }) => ({
       playerId: r.player_id,
       displayName: r.display_name,
-      rank: r.rank,
-      score: r.score,
+      rank: Number(r.rank),
+      score: Number(r.total_score),
       isMe: r.player_id === me,
     }));
   }
