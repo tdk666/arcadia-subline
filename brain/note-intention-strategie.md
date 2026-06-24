@@ -70,3 +70,21 @@ et de refondre l'IA des classements. La tranche jouable = **Ligne 1**, 2 station
   classement coexistent (XP global vs Σ station_best) : **à trancher** quelle métrique fait foi où.
 - ⚑ Dette connue : `quest_attempts(scored)` mériterait un index pour les classements à l'échelle ;
   l'alerte `spatial_ref_sys` (PostGIS) reste un faux positif à *dismiss* dans le dashboard.
+
+## 8. Digest advisors sécurité (lu au connecteur, 2026-06-24, post-0021)
+**Aucune faille critique NOUVELLE introduite par 0021.** Les fonctions de classement + `fn_submit_attempt`
+sont signalées « SECURITY DEFINER exécutable par anon/authenticated » — **par design** (classements =
+lecture publique non sensible ; submit = exige l'auth). État :
+- **Par design, OK** : `fn_station_leaderboard`/`fn_line_leaderboard` (anon read), `fn_submit_attempt`
+  (auth only), `quest_steps_public` (vue definer qui MASQUE `answer_key` — c'est tout l'intérêt),
+  `leaderboard_entries` matview exposée (classement public), `events` insert WITH CHECK true (sink
+  télémétrie), RLS-no-policy sur `quest_steps`/`source_refs`/`sponsors` (= deny-all, sûr).
+- **Faux positif** : `spatial_ref_sys` RLS off (PostGIS, DEC-010) → *dismiss*.
+- **À corriger (petit, recommandé)** : `function_search_path_mutable` sur `fn_touch_updated_at`,
+  `unaccent_lite`, `fn_checkin_server_fields`, `fn_jsonb_has_forbidden_key`,
+  `fn_quest_steps_payload_guard` → ajouter `set search_path = public, pg_temp` (conforme à notre
+  invariant zone rouge ; migration additive triviale).
+- **Quick win produit** : activer la protection « mots de passe compromis » (HaveIBeenPwned) dans
+  Auth ; déplacer extensions `postgis`/`pg_net` hors du schéma `public` (cosmétique).
+- **Index manquant** : ajouter `ix_quest_attempts_scored` (ou composite quest_id/scored/flagged)
+  avant la montée en charge des classements.
