@@ -109,6 +109,12 @@ export const en: Dict = {
       banked: '{draw} questions drawn · {lives} life/lives',
     },
     quizPoints: '{pts}/{threshold} pts toward the tier',
+    leaderboard: {
+      title: 'Station ranking',
+      hint: 'best score',
+      chef: 'Station Chief',
+      joinHint: 'Play to enter the ranking and claim the crown.',
+    },
   },
   brief: {
     objective: 'Objective',

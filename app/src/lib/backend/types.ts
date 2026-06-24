@@ -72,6 +72,8 @@ export interface ArcadiaBackend {
   checkIn(stationId: string, method: 'manual'): Promise<CheckInResult>;
   getActiveCheckIn(stationId: string): Promise<{ expiresAt: string } | null>;
   getLineLeaderboard(lineId: string): Promise<LeaderboardEntry[]>;
+  /** Classement PAR STATION (titre « Chef de Station ») : meilleur score/joueur. */
+  getStationLeaderboard(stationId: string): Promise<LeaderboardEntry[]>;
   getMyStationProgress(stationId: string): Promise<StationProgress | null>;
   getMyStats(): Promise<{ xpTotal: number; streak: number } | null>;
   /** Banque V2 : progression par quête (points cumulés, items réussis, déblocage). */

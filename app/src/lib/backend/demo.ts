@@ -218,6 +218,25 @@ export class DemoBackend implements ArcadiaBackend {
       .map((e, i) => ({ ...e, rank: i + 1 }));
   }
 
+  async getStationLeaderboard(stationId: string): Promise<LeaderboardEntry[]> {
+    // démo : rivaux déterministes PAR station (mêmes pour une station donnée) + TOI
+    // dès que tu as un score. Le live (Supabase) lira fn_station_leaderboard.
+    const NAMES = ['MaîtreDuQuai', 'CitoyenneM', 'TribunDuMarais', 'Guimard1900', 'ReineDeNuit', 'Sans-culotte89', 'PendulaireX'];
+    let seed = 0;
+    for (let i = 0; i < stationId.length; i++) seed = (seed * 31 + stationId.charCodeAt(i)) | 0;
+    seed = Math.abs(seed);
+    const rivals = NAMES.slice(0, 5 + (seed % 3)).map((displayName, i) => ({
+      displayName, playerId: `npc-${i}-${displayName}`, isMe: false,
+      score: 420 + ((seed >> (i + 1)) % 900) + i * 25,
+    }));
+    const myScore = Object.values(this.state.bestScores).reduce((m, v) => Math.max(m, v), 0);
+    const all = rivals.slice();
+    if (myScore > 0) {
+      all.push({ displayName: this.state.user?.displayName ?? 'Toi', playerId: 'demo-user', isMe: true, score: myScore });
+    }
+    return all.sort((a, b) => b.score - a.score).map((e, i) => ({ ...e, rank: i + 1 }));
+  }
+
   async getMyStationProgress(stationId: string) {
     return this.state.stations[stationId] ?? null;
   }

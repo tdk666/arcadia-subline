@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { TIER_ORDER, type DifficultyTier } from '@arcadia/games';
 import { pickText, useI18n } from '../i18n';
 import { backend } from '../lib/backend';
+import type { LeaderboardEntry } from '../lib/backend/types';
 import { getStationContent, isBankedQuiz, tierThreshold } from '../lib/content';
 import { presenceProviders } from '../lib/presence';
 import { useArcadia } from '../store';
@@ -47,6 +48,8 @@ export function StationScreen() {
   const [serverState, setServerState] = useState<'discovered' | 'visited' | 'mastered' | null>(null);
   // Banque V2 : points cumulés + déblocage par palier (clé = tier)
   const [bankProg, setBankProg] = useState<Record<string, { pointsTotal: number; threshold: number; unlocked: boolean }>>({});
+  // classement PAR STATION → titre « Chef de Station » (DEC-012)
+  const [board, setBoard] = useState<LeaderboardEntry[]>([]);
 
   useEffect(() => { track('station_open', { slug }); }, [slug]);
   const [storyOpen, setStoryOpen] = useState(false);
@@ -61,6 +64,7 @@ export function StationScreen() {
     ]);
     setCheckInUntil(ci?.expiresAt ?? null);
     setServerState(prog?.state ?? null);
+    backend.getStationLeaderboard(content.stationId).then(setBoard).catch(() => setBoard([]));
 
     if (isBankedQuiz(content)) {
       const ids = TIER_ORDER.map((tr) => content.quests[tr].questId);
@@ -265,6 +269,41 @@ export function StationScreen() {
           })}
         </div>
       </section>
+
+      {/* CLASSEMENT PAR STATION — la couronne « Chef de Station » (compétition sans fin, DEC-012) */}
+      {board.length > 0 && (
+        <section className="mt-5 rounded-xl border border-rail bg-plomb p-4">
+          <div className="flex items-baseline justify-between">
+            <h3 className="font-display text-sm font-bold">{t('station.leaderboard.title')}</h3>
+            <span className="font-mono text-[10px] uppercase tracking-wider text-pierre-faint">{t('station.leaderboard.hint')}</span>
+          </div>
+          {/* le détenteur = Chef de Station */}
+          <div className="mt-2 flex items-center gap-2 rounded-lg border border-laiton/50 bg-laiton/10 px-3 py-2">
+            <span className="text-lg" aria-hidden>👑</span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-mono text-[9px] uppercase tracking-[0.18em] text-laiton">{t('station.leaderboard.chef')}</span>
+              <span className="block truncate font-display text-sm font-extrabold text-pierre">
+                {board[0].displayName}{board[0].isMe ? ` · ${t('leaderboard.you')}` : ''}
+              </span>
+            </span>
+            <span className="font-display text-sm font-extrabold tabular-nums text-laiton">{board[0].score.toLocaleString()}</span>
+          </div>
+          {board.length > 1 && (
+            <ul className="mt-2 flex flex-col gap-1">
+              {board.slice(1, 6).map((e) => (
+                <li key={e.playerId} className={`flex items-center gap-2 rounded-md px-2 py-1 text-sm ${e.isMe ? 'bg-email/10' : ''}`}>
+                  <span className="w-5 flex-none font-mono text-[11px] text-pierre-faint">{e.rank}</span>
+                  <span className="min-w-0 flex-1 truncate text-pierre-dim">{e.displayName}{e.isMe ? ` · ${t('leaderboard.you')}` : ''}</span>
+                  <span className="font-display text-xs font-bold tabular-nums text-pierre">{e.score.toLocaleString()}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {!board.some((e) => e.isMe) && (
+            <p className="mt-2 font-mono text-[10px] text-pierre-faint">{t('station.leaderboard.joinHint')}</p>
+          )}
+        </section>
+      )}
 
       {/* check-in — SUR-COUCHE optionnelle, jamais bloquante */}
       <section className="mt-5 rounded-xl border border-dashed border-rail bg-craie-2 p-4">

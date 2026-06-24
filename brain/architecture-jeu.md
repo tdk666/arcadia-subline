@@ -80,13 +80,13 @@ on est en République : Antiquité → Révolution/République → Monarchie →
 |---|------|----------------|-----------|---------------------------|
 | 1 | **Chef de Station** | intemporel | 1 station | son meilleur score sur CETTE station |
 | 2 | **Maître de la Ligne** (« Maître de la 4 ») | corporations/métiers | 1 ligne | Σ de ses meilleurs scores sur la ligne |
-| 3 | **Tribun du Quartier** | Antiquité + Révolution (défenseur du peuple) | quartier (Le Marais, Quartier latin…) | Σ sur les stations du quartier |
+| 3 | **Baron du Quartier** | féodal/médiéval (le fondateur aime ✓) | quartier (Le Marais, Quartier latin…) | Σ sur les stations du quartier |
 | 4 | **Maire de l'Arrondissement** (1–20) | République | 1 arrondissement | Σ sur les stations de l'arrondissement |
 | 5 | **Roi de la Rive** (gauche / droite) | Monarchie | 1 rive (2 titres) | Σ sur les stations de la rive |
 | 6 | **Empereur de Paris** | Empire | tout Paris | Σ sur toutes les stations |
 
-Gradient : Chef → Maître → Tribun → Maire → Roi → Empereur. Spectre historique assumé
-(« Tribun » remplace « Baron/Boss » : plus républicain, défenseur du quartier). Libellés =
+Gradient : Chef → Maître → Baron → Maire → Roi → Empereur. Spectre historique assumé
+(« Baron du Quartier » conservé — choix fondateur). Libellés =
 i18n, donc faciles à ajuster. Alternatives possibles par saison (ex. saison Révolution →
 « Sans-culotte », « Citoyen », « Conventionnel » ; saison Commune → « Fédéré »…).
 

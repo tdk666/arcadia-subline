@@ -107,6 +107,12 @@ export const fr = {
       banked: '{draw} questions tirées · {lives} vie(s)',
     },
     quizPoints: '{pts}/{threshold} pts vers le palier',
+    leaderboard: {
+      title: 'Classement de la station',
+      hint: 'meilleur score',
+      chef: 'Chef de Station',
+      joinHint: 'Joue pour entrer au classement et viser la couronne.',
+    },
   },
   brief: {
     objective: 'Objectif',

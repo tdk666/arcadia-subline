@@ -149,6 +149,19 @@ export class SupabaseBackend implements ArcadiaBackend {
     }));
   }
 
+  async getStationLeaderboard(stationId: string): Promise<LeaderboardEntry[]> {
+    const me = (await this.getUser())?.id;
+    const { data, error } = await this.sb.rpc('fn_station_leaderboard', { p_station_id: stationId, p_limit: 20 });
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((r: { player_id: string; display_name: string; best_score: number; rank: number }) => ({
+      playerId: r.player_id,
+      displayName: r.display_name,
+      rank: Number(r.rank),
+      score: r.best_score,
+      isMe: r.player_id === me,
+    }));
+  }
+
   async getMyStationProgress(stationId: string): Promise<StationProgress | null> {
     const { data: session } = await this.sb.auth.getSession();
     if (!session.session) return null;
