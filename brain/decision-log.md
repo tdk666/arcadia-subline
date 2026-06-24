@@ -432,3 +432,21 @@ la présence doit être un **bonus**, pas une barrière (cohérent avec le pitch
 via `apply_migration` quand le connecteur Supabase revient (déconnecté en fin de sprint) — PAS de
 SQL Editor. Tant que 0022 n'est pas appliquée, le live reste sur 0021 (présence requise) : **le test
 J+1 n'est pas lisible sans 0022**. Priorité fondateur.
+
+---
+
+## DEC-019 — 0022 appliquée en prod + registre réconcilié (board, 2026-06-24)
+
+**Fait (par le board, connecteur vérifié).**
+- **Migration 0022 APPLIQUÉE en prod.** `fn_submit_attempt` live = version flag (DEC-018). Vérifié :
+  `arcadia.presence_required` absent ⇒ **défaut OFF ⇒ `scored=true` partout** (test J+1 lisible).
+  Zone rouge intacte (auth requise, `answer_key` jamais renvoyé, advisory lock, anti-farming sur
+  `scored`, DEFINER + search_path) ; **anon ne peut PAS exécuter** ; `quest_steps=153` inchangé.
+- **Registre réconcilié** : 0016, 0017, 0018, 0019, 0021 enregistrés **en MÉTADONNÉE** (corps NON
+  rejoués → pas de régression de fonction). `db push` les saute désormais (landmine désarmé).
+
+**Conséquence.** L'état LIVE = présence OFF (play-from-anywhere compte). Le client (flag off) est
+cohérent. La réactivation future reste : `ALTER DATABASE postgres SET arcadia.presence_required='true'`
++ `PRESENCE_REQUIRED=true` (flags.ts).
+
+**Statut.** Acté. note-intention §3 + session-log + invariants (interdit `db push`) mis à jour.

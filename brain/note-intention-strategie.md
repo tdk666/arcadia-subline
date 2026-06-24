@@ -17,16 +17,16 @@ et de refondre l'IA des classements. La tranche jouable = **Ligne 1**, 2 station
   Maire de l'Arrondissement → Roi de la Rive → Empereur de Paris.
 - **DEC-013/014** — Carte épurée (phares pulsants sur stations jouables) ; classements en **tableau
   vertical** ; page « Classement » du menu = **générale** (tout Paris), pas une ligne précise.
-- **DEC-018 (supersède DEC-015)** — **PRÉSENCE = FLAG, jamais un gate**. Arbitrage board :
-  play-from-anywhere compte ; `arcadia.presence_required` (défaut **false**) ⇒ tout compte. La
-  présence reviendra en multiplicateur / couronne « Vérifiée ». Migration **0022** (prête).
+- **DEC-018 (supersède DEC-015)** — **PRÉSENCE = FLAG, jamais un gate**. `arcadia.presence_required`
+  (défaut **false**) ⇒ tout compte. Migration **0022 APPLIQUÉE en prod** (board, 2026-06-24).
 - **DEC-017** — **DA deux couches**, Bible v3.0 (`docs/BRAND_BOOK_V3.md`) = source unique.
 
-## 3. État LIVE (vérifiable au connecteur)
-- **Migration 0021 appliquée** ✓ (colonne `quest_attempts.scored` ; gate doux ; classements
-  filtrent `scored`). ⚠️ **0022 PAS encore appliquée** (connecteur déconnecté en fin de sprint) :
-  le live est donc encore en **présence requise** → le test J+1 n'est lisible qu'**après** 0022.
-  Le client est déjà aligné DEC-018 (flag off, surface présence éteinte).
+## 3. État LIVE (vérifié au connecteur par le board, 2026-06-24)
+- **0022 LIVE** : `fn_submit_attempt` = version flag, `arcadia.presence_required` OFF ⇒ **`scored=true`
+  partout, test J+1 lisible**. Zone rouge intacte (anon ne peut pas exécuter ; `answer_key` jamais
+  renvoyé ; advisory lock ; anti-farming sur `scored` ; DEFINER+search_path). `quest_steps=153`.
+- **Registre réconcilié** (0016-0021 en métadonnée, corps non rejoués ; `db push` désarmé).
+- Client aligné DEC-018 (flag off, surface présence éteinte).
 - Données actuelles : 2 joueurs (TDK666, Agathelabest), 29 tentatives (toutes `scored=true`, antérieures
   au gate), 3 check-ins. `fn_station_leaderboard` renvoie bien : Bastille (TDK666 1184, Agathe 351),
   Louvre (TDK666 40). Classement général = matview `leaderboard_entries` scope `global` (XP).

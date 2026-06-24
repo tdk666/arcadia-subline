@@ -109,6 +109,8 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
   const [picked, setPicked] = useState<string | null>(null);
   const [planted, setPlanted] = useState(false);
   const [muted, setMuted] = useState(false);
+  // affordance « Entrer » : escalade si le joueur reste dans le noir > 2,5 s (anti-blocage)
+  const [hint, setHint] = useState(false);
   const timers = useRef<number[]>([]);
 
   const after = useCallback((ms: number, fn: () => void) => { const id = window.setTimeout(fn, ms); timers.current.push(id); return id; }, []);
@@ -128,8 +130,14 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
   // 100 % AU TOUCHÉ : aucun temps n'avance seul — le joueur cause chaque étape.
   useEffect(() => {
     clearTimers();
+    setHint(false);
     switch (act) {
-      case 'tunnel': setMarc('entree'); ftueSfx.rumble(reduced ? 1 : 3.4); after(beat(1100), () => setMarc('salut')); break;
+      case 'tunnel':
+        setMarc('entree'); ftueSfx.rumble(reduced ? 1 : 3.4);
+        after(beat(1100), () => setMarc('salut'));
+        // FALLBACK anti-blocage : si pas de tap après 2,5 s, l'invite « Entrer » s'intensifie
+        after(2500, () => setHint(true));
+        break;
       case 'reversal': setMarc('pointe'); ftueSfx.whoosh(); haptic([20, 40, 30]); break;
       case 'promise': setMarc('pointe'); after(beat(1400), () => setMarc('idle')); break;
       case 'quiz': setMarc('pointe'); after(beat(800), () => setMarc('idle')); break;
@@ -346,8 +354,18 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
         ) : act !== 'quiz' && tapLabel ? (
           <div className="flex justify-center">
             <span
-              className="ftue-breathe inline-flex items-center gap-2 rounded-full px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] backdrop-blur"
-              style={{ background: dark ? 'rgba(255,255,255,0.12)' : 'rgba(10,90,158,0.1)', color: dark ? 'rgba(244,238,218,0.9)' : 'var(--color-email)' }}
+              className={`inline-flex items-center gap-2 rounded-full font-mono font-semibold uppercase tracking-[0.14em] backdrop-blur transition-all duration-300 ${
+                dark
+                  ? (hint ? 'animate-glow px-5 py-2.5 text-[13px]' : 'px-4 py-2 text-[12px]')
+                  : 'ftue-breathe px-4 py-2 text-[11px]'
+              }`}
+              style={
+                dark
+                  // tunnel (fond Acier) : laiton VIF, contraste fort, JAMAIS de creux d'opacité ;
+                  // après 2,5 s sans tap (hint), l'invite grossit et s'illumine (anti-blocage).
+                  ? { background: hint ? 'rgba(242,194,0,0.30)' : 'rgba(242,194,0,0.18)', color: 'var(--color-laiton-clair)', boxShadow: 'inset 0 0 0 1.5px rgba(227,196,99,0.7)' }
+                  : { background: 'rgba(10,90,158,0.1)', color: 'var(--color-email)' }
+              }
             >
               <span aria-hidden className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: 'currentColor', boxShadow: '0 0 0 3px rgba(160,160,160,0.18)' }} />
               {tapLabel}

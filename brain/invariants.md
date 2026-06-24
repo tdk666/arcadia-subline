@@ -31,6 +31,10 @@ Toute violation = régression. On ne les rouvre qu'avec une entrée explicite da
 - **Le seed SQL (`supabase/seed.sql` + `migrations/**`) est la source de vérité des
   paramètres de jeu. `content/*.json` en est le MIROIR.** En cas d'écart, le JSON
   s'aligne sur le seed (cf. DEC-001), jamais l'inverse sans migration.
+- **JAMAIS `supabase db push`** (le registre 0001-0012 est driftant → un push rejouerait
+  des corps anciens et RÉGRESSERAIT les fonctions live, ex. `fn_submit_attempt`). Les
+  migrations passent **uniquement par `apply_migration` / MCP, dans l'ordre chronologique**,
+  en finissant par la plus récente (la dernière def d'une fonction gagne). Réf. DEC-019.
 
 ## Produit / stratégie
 
