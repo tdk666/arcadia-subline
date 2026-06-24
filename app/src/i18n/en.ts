@@ -56,7 +56,7 @@ export const en: Dict = {
     reversal: 'Your line awakens.',
     continueHint: 'tap to continue',
     tapEnter: 'tap to board',
-    tapStation: '↑ tap Louvre-Rivoli to play its station',
+    tapStation: 'tap to enter Louvre-Rivoli',
     tapConquer: 'tap to conquer',
     conquestPrompt: 'Plant your flag on Louvre-Rivoli.',
     emergence: 'Every station on your commute hides a story to conquer.',

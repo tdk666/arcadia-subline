@@ -343,8 +343,16 @@ export function Emergence({ onDone, onStart }: { onDone: () => void; onStart?: (
         )}
         {act === 'epilogue' ? (
           <Button variant="gold" size="md" className="animate-glow" onClick={(e) => { e.stopPropagation(); finish(); }}>⚜ {L('ftue.cta')}</Button>
-        ) : act !== 'quiz' ? (
-          <p className="ftue-breathe text-center font-mono text-[11px]" style={{ color: dark ? 'rgba(244,238,218,0.6)' : 'var(--color-pierre-faint)' }}>{tapLabel}</p>
+        ) : act !== 'quiz' && tapLabel ? (
+          <div className="flex justify-center">
+            <span
+              className="ftue-breathe inline-flex items-center gap-2 rounded-full px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] backdrop-blur"
+              style={{ background: dark ? 'rgba(255,255,255,0.12)' : 'rgba(10,90,158,0.1)', color: dark ? 'rgba(244,238,218,0.9)' : 'var(--color-email)' }}
+            >
+              <span aria-hidden className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: 'currentColor', boxShadow: '0 0 0 3px rgba(160,160,160,0.18)' }} />
+              {tapLabel}
+            </span>
+          </div>
         ) : null}
       </div>
     </div>

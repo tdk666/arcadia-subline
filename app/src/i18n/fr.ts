@@ -54,7 +54,7 @@ export const fr = {
     reversal: 'Ta ligne s’éveille.',
     continueHint: 'touche pour continuer',
     tapEnter: 'touche pour embarquer',
-    tapStation: '↑ touche Louvre-Rivoli pour jouer sa station',
+    tapStation: 'touche pour entrer dans Louvre-Rivoli',
     tapConquer: 'touche pour conquérir',
     conquestPrompt: 'Plante ton drapeau sur Louvre-Rivoli.',
     emergence: 'Chaque station de ton trajet cache une histoire à conquérir.',
