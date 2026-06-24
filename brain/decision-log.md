@@ -252,3 +252,26 @@ tirage (DEC-009) sans effet.
   de nouvelles œuvres = travail Atelier (ne pas inventer la culture / risque 404 d'URL).
 
 **Statut.** Appliqué (typecheck + 60 tests + build verts). 37/37 verified désormais affichables.
+
+---
+
+## DEC-012 — Architecture de jeu : maîtrise sans fin + hiérarchie de titres géographiques
+
+**Cause.** Fondateur : « compétition SANS FIN pour être Maître d'une station » + hiérarchie
+de titres (Chef de Station → Roi de Ligne → Boss de Quartier → Maire d'Arrondissement →
+Élu de la Rive → Empereur de Paris). Contrainte : « on joue dans la rame / sur le quai ».
+
+**Décision (validée).**
+- Maîtrise = **score-chase + classement, façon Geometry Dash** (PAS niveaux Candy Crush ; les
+  paliers restent la rampe d'apprentissage finie, l'Or ouvre le mode Maître sans fin).
+- **Hiérarchie de titres = couronnes contestables** dérivées d'**UNE source de vérité** :
+  `station_best` (joueur × station → meilleur score). Tous les titres supérieurs = agrégation
+  (Σ) de `station_best` filtrée par appartenance géo (ligne / quartier / arrondissement / rive / empire).
+- **Présence = âme des titres** (Manifeste §5) : async jouable (plancher), mais check-in vérifié
+  = multiplicateur + couronne « Vérifiée » qui prime. Géoloc jamais bloquante.
+- Chaque titre : défendable (notif « couronne tombée »), rapporte des points de prestige, public.
+- Détail complet + phases A→E dans **`brain/architecture-jeu.md`**. Clans = après (Manifeste §11).
+
+**Statut.** Architecture validée & documentée. Cœur algorithmique pur (`lib/titles.ts`) implémenté
+& testé (DB-agnostique). Reste : wiring serveur (station_best + classements) = migrations additives
+soignées (`fn_submit_attempt` signature intacte, `answer_key` jamais exposé) — prochain sprint DB.

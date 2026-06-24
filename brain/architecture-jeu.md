@@ -62,3 +62,64 @@ dans un **mode Maître score-chase + classement par station**, couronne contesta
 3. Statut « Maître » + « Maître Vérifié » (check-in) sur StationScreen + classement par station.
 4. Boucle de reprise (notif « ta couronne est tombée ») — couche notif, plus tard.
 5. Quiz : variante score-chase (vitesse/série) au-delà du seuil.
+
+---
+
+# 🏆 LE SYSTÈME DE TITRES (validé fondateur — vision x400)
+
+> Validé. Hiérarchie géographique de **couronnes contestables**. Contrainte fondateur :
+> « on joue dans la rame ou sur le quai » → la **présence vérifiée** est le cœur des
+> titres (multiplicateur + couronne « Vérifiée » qui prime), SANS bloquer le jeu async
+> (plancher Manifeste §5). Réf. meilleurs jeux : segments/KOM Strava, arènes Pokémon GO,
+> ladder Clash Royale, Elo échecs, territoires Travian.
+
+## La hiérarchie des titres (du plus atomique à l'apex)
+| Titre | Périmètre | Détenteur = meilleur sur… |
+|------|-----------|---------------------------|
+| **Chef de Station** | 1 station | son meilleur score sur CETTE station |
+| **Roi de la Ligne** (« Roi de la 4 ») | 1 ligne | Σ de ses meilleurs scores sur les stations de la ligne |
+| **Boss de Quartier** | quartier (Le Marais, Quartier latin…) inter-lignes | Σ sur les stations du quartier (clusters curatés) |
+| **Maire d'Arrondissement** (1–20) | 1 arrondissement | Σ sur les stations de l'arrondissement |
+| **Élu de la Rive** (gauche / droite) | 1 rive — 2 titres seulement | Σ sur les stations de la rive |
+| **Empereur de Paris** | tout Paris | Σ sur toutes les stations |
+
+## Le principe d'architecture clé : UNE source de vérité
+**`station_best` = (joueur × station → meilleur score)**. **TOUS** les titres supérieurs sont
+des **agrégations** de `station_best` filtrées par l'appartenance géographique de la station.
+⇒ on implémente le score de station UNE fois ; ligne/quartier/arrondissement/rive/empereur
+en découlent par `GROUP BY` sur des tables d'appartenance statiques. Élégant, pas de double compte.
+
+- **Appartenance** (métadonnée statique) : `station → {lignes[], arrondissement, rive, quartier?}`.
+  Dérivée des coordonnées IDFM (`network-geo.json`) : arrondissement (point-dans-polygone),
+  rive (polygone Seine), quartier (listes curatées Atelier). Table/JSON de mapping versionné.
+- **Agrégat de scope** = joueur au **plus haut Σ de ses `station_best`** sur les stations du scope.
+  (Σ récompense largeur ET profondeur ; le Chef de plusieurs stations d'une ligne → Roi de la ligne.)
+
+## Mécaniques best-in-class (chaque titre : défendable · rapporte des points · public)
+- **Couronne contestable** (Strava KOM / arènes PGo) : on garde le titre tant que personne ne bat
+  le score/Σ. Dépassé → **notif « ta couronne tombe »** → on rejoue pour reprendre. Boucle SANS FIN.
+- **Présence = âme** (Manifeste §5) : run async = éligible (plancher) ; run **avec check-in vérifié**
+  = **× multiplicateur** + éligible à la couronne **« Vérifié »** qui **prime** sur l'async.
+  Le vrai Maître est celui qui joue SUR PLACE. Géoloc jamais bloquante.
+- **Prestige/points** : détenir un titre rapporte des **points de prestige** (récurrents + bonus de
+  prise) → alimentent l'XP global et la course à l'Empereur. (Plus on tient haut/longtemps, plus ça paie.)
+- **Public** : « Hall des Titres » + classement par scope, consultable de tous (sur StationScreen,
+  LineMap, et un onglet dédié). Chaque couronne affiche son détenteur (pseudo + avatar).
+- **Anti-triche** : titres calculés UNIQUEMENT depuis `station_best` (scores serveur `fn_submit_attempt`).
+  Jamais de calcul client. Saisons : reset périodique d'un classement parallèle (renouvellement).
+
+## Implémentation phasée (zone scoring sacré → migrations soignées, additives)
+- **Phase A — FONDATION** : `station_best` (best/joueur/station, alimenté par `fn_submit_attempt`)
+  + **classement par station** + couronne **Chef de Station** sur StationScreen. Démolition =
+  score-chase prêt (score déjà continu). ⇒ la boucle atomique ; tout en découle.
+- **Phase B — LIGNE** : Roi de la Ligne (Σ station_best sur la ligne) + vue + UI LineMap.
+- **Phase C — GÉO** : mapping station→arrondissement/rive (depuis IDFM geo) + Maire / Élu de la Rive /
+  Empereur ; quartiers curatés → Boss de Quartier. + « Hall des Titres ».
+- **Phase D — PRÉSENCE** : multiplicateur check-in + couronnes « Vérifiées » (sur-couche localisation).
+- **Phase E — PRESTIGE & DÉFENSE** : points de prestige récurrents + notifs « couronne tombée ».
+- **Clans** : APRÈS (sécurité/modération by design, Manifeste §11) — idée fondateur, à concevoir ensuite.
+
+## Quiz : rendre le score continu (sinon pas de score-chase)
+Le quiz plafonne au seuil de banque. Pour la maîtrise : `station_best` du quiz = score-chase
+(vitesse + série sans-faute + précision), additif dans `fn_submit_attempt`. Démolition déjà OK.
+

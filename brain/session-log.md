@@ -18,6 +18,7 @@
 
 ## EN COURS
 
+- **ARCHITECTURE DE JEU validée (DEC-012) — titres géographiques** : maîtrise sans fin = score-chase + classement (Geometry Dash), PAS niveaux Candy Crush. Hiérarchie de couronnes contestables (Chef de Station → Roi de Ligne → Boss de Quartier → Maire d'Arrondissement → Élu de Rive → Empereur), dérivées d'UNE source de vérité `station_best`. Présence vérifiée = âme des titres (multiplicateur + couronne « Vérifiée »), async jouable (plancher §5). Design complet : `brain/architecture-jeu.md`. **Cœur algorithmique pur livré** : `lib/titles.ts` (agrégation/classement par scope, 11 tests) — DB-agnostique, prêt à brancher au serveur. Reste : wiring DB (station_best + leaderboards, migrations additives) + mapping géo IDFM.
 - **✅ SÉCURITÉ — alerte Supabase « rls_disabled_in_public » = FAUX POSITIF** (DEC-010) :
   diagnostic confirmé — seule `public.spatial_ref_sys` (table système PostGIS, données EPSG
   publiques) est sans RLS ; **les 20 tables Arcadia ont la RLS active**. Non modifiable
