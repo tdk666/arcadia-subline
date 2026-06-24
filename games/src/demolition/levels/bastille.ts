@@ -58,17 +58,18 @@ const roofA = tower(600, 70, 5);   // tour de l'Ouest
 const roofD = tower(752, 84, 6);   // DONJON (cœur de la forteresse)
 const roofC = tower(902, 70, 5);   // tour de l'Est
 
-// ── Courtines de liaison (entre les tours) ──
-curtain(676, 80, 3);   // courtine Ouest–Donjon
-curtain(827, 78, 3);   // courtine Donjon–Est
+// ── Courtines de liaison (entre les tours) — ajustées pour NE PAS chevaucher le
+//    donjon (Ouest–Donjon : 635→709 ; Donjon–Est : 794→866) ──
+curtain(672, 74, 3);   // courtine Ouest–Donjon
+curtain(830, 72, 3);   // courtine Donjon–Est
 
-// ── Barils de poudre : la poudre que le peuple vint saisir le 14 juillet.
-//    Fragiles, ils EXPLOSENT en chaîne et soufflent la pierre alentour : la clé
-//    pour ouvrir la forteresse. POSÉS DANS LE VIDE devant le pont-levis (jamais
-//    en chevauchement d'un bloc, sinon la résolution de collision fait « glisser »
-//    la forteresse au spawn) ; le souffle (R≈140) atteint pont + tour Ouest. ──
-blocks.push({ x: 470, y: GROUND - 19, w: 26, h: 38, material: 'powder' });
-blocks.push({ x: 548, y: GROUND - 19, w: 26, h: 38, material: 'powder' });
+// ── Baril de poudre : la poudre que le peuple vint saisir le 14 juillet.
+//    À MÉRITER (retour fondateur : un baril « tout devant » faisait gagner en un coup).
+//    UN seul baril, logé dans le RENFONCEMENT derrière le pont-levis (gap 531→565,
+//    aucun chevauchement de pierre). Le pont (501→531) protège un tir rasant : il
+//    faut d'abord briser le pont OU lober par-dessus pour le détoner → vraie adresse.
+//    Souffle réduit (R≈105) : il ouvre la tour Ouest, jamais toute la forteresse. ──
+blocks.push({ x: 548, y: GROUND - 19, w: 24, h: 38, material: 'powder' });
 
 // ── Renforts du palier OR : plaques de fer devant le donjon et la tour Est ──
 blocks.push({ x: 700, y: GROUND - 52, w: 18, h: 104, material: 'iron', reinforcement: true });

@@ -227,7 +227,12 @@ export class DemolitionEngine {
       const body = Bodies.rectangle(spec.x, spec.y, spec.w, spec.h, {
         label: 'block', density: mat.density, friction: 0.7, restitution: 0.05,
       });
-      Sleeping.set(body, true); // la forteresse dort jusqu'au premier impact réel
+      // ANTI-DÉRIVE : on FIGE chaque bloc en statique pendant la visée. Un corps
+      // seulement « endormi » (enableSleeping=false) continue à résoudre les
+      // chevauchements (courtines/renforts) et GLISSE — bug fondateur. Statique =
+      // immobile au pixel. Le passage dynamique→statique capture `_original` ;
+      // setStatic(false) au 1er tir lui rend sa masse (sinon gravité nulle).
+      Body.setStatic(body, true);
       const maxHp = spec.material === 'iron' ? Infinity : mat.hp * params.hpMultiplier;
       this.blocks.set(body.id, { hp: maxHp, maxHp, material: spec.material, part: spec.part, explosive: spec.material === 'powder' });
       // les créneaux se brisent (juteux) mais ne comptent PAS dans le % structurel
@@ -246,7 +251,7 @@ export class DemolitionEngine {
       const body = Bodies.circle(t.x, supportTop - t.r - 0.5, t.r, {
         label: 'target', density: 0.0008, friction: 0.5, restitution: 0.1,
       });
-      Sleeping.set(body, true);
+      Body.setStatic(body, true); // figé pendant la visée (anti-dérive), réveillé au 1er tir
       this.targets.add(body.id);
       Composite.add(world, body);
       // une torche de siège au pied de chaque étendard
@@ -332,7 +337,7 @@ export class DemolitionEngine {
    * si on vise la poudre).
    */
   private explode(x: number, y: number) {
-    const R = 140;             // rayon de souffle
+    const R = 105;             // rayon de souffle (calibré : ~1 tour, pas la moitié du fort)
     const blast = 0.9;         // intensité du souffle (force)
     // FX immédiats : grosse boule de feu, onde, secousse, son
     this.burst(x, y, '#f2c200', 30);
@@ -423,7 +428,11 @@ export class DemolitionEngine {
     // premier tir : la forteresse se réveille, les dégâts deviennent réels
     if (!this.armed) {
       this.armed = true;
-      for (const b of Composite.allBodies(this.engine.world)) Sleeping.set(b, false);
+      // la forteresse s'anime : on REND dynamiques uniquement les blocs + étendards
+      // (jamais le sol/les murs statiques, jamais le boulet) — ils étaient figés.
+      for (const b of Composite.allBodies(this.engine.world)) {
+        if (this.blocks.has(b.id) || this.targets.has(b.id)) Body.setStatic(b, false);
+      }
       // les tambours entrent en scène, plancher selon le palier
       this.sfx?.startMusic({ bronze: 0, silver: 0.22, gold: 0.45 }[this.tier]);
     }

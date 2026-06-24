@@ -279,27 +279,33 @@ export function StationScreen() {
         </div>
       </section>
 
-      {/* CLASSEMENT PAR STATION — couronne « Chef de Station » (podium, DEC-012) */}
-      {board.length > 0 && (
-        <section className="mt-5 rounded-xl border border-rail bg-plomb p-4">
-          <div className="flex items-baseline justify-between">
-            <h3 className="font-display text-sm font-bold">{t('station.leaderboard.title')}</h3>
-            <span className="font-mono text-[10px] uppercase tracking-wider" style={{ color: '#9c7d18' }}>
-              👑 {t('station.leaderboard.chef')} : {board[0].isMe ? t('leaderboard.you') : board[0].displayName}
-            </span>
+      {/* CLASSEMENT PAR STATION — couronne « Chef de Station » (DEC-012). TOUJOURS
+          présent (même vide → « sois le premier ») : ouvrir une station montre
+          toujours son trône, c'est le cœur de la compétition par station. */}
+      <section className="mt-5 rounded-xl border border-rail bg-plomb p-4">
+        <div className="flex items-baseline justify-between gap-2">
+          <h3 className="font-display text-sm font-bold">{t('station.leaderboard.title')}</h3>
+          <span className="truncate font-mono text-[10px] uppercase tracking-wider" style={{ color: '#9c7d18' }}>
+            👑 {t('station.leaderboard.chef')} : {board.length ? (board[0].isMe ? t('leaderboard.you') : board[0].displayName) : '—'}
+          </span>
+        </div>
+        {board.length > 0 && board[0].isMe && (
+          <div className="animate-pop mt-2 flex items-center gap-2 rounded-lg border border-laiton/60 bg-laiton/15 px-3 py-2">
+            <span className="text-lg" aria-hidden>👑</span>
+            <span className="font-display text-sm font-extrabold text-pierre">{t('station.leaderboard.sacre')}</span>
           </div>
-          {board[0].isMe && (
-            <div className="animate-pop mt-2 flex items-center gap-2 rounded-lg border border-laiton/60 bg-laiton/15 px-3 py-2">
-              <span className="text-lg" aria-hidden>👑</span>
-              <span className="font-display text-sm font-extrabold text-pierre">{t('station.leaderboard.sacre')}</span>
-            </div>
-          )}
-          <Leaderboard entries={board} className="mt-4" />
-          {!board.some((e) => e.isMe) && (
-            <p className="mt-3 font-mono text-[10px] text-pierre-faint">{t('station.leaderboard.joinHint')}</p>
-          )}
-        </section>
-      )}
+        )}
+        {board.length > 0 ? (
+          <>
+            <Leaderboard entries={board} className="mt-4" />
+            {!board.some((e) => e.isMe) && (
+              <p className="mt-3 font-mono text-[10px] text-pierre-faint">{t('station.leaderboard.joinHint')}</p>
+            )}
+          </>
+        ) : (
+          <p className="mt-3 text-xs text-pierre-dim">{t('station.leaderboard.joinHint')}</p>
+        )}
+      </section>
 
       {/* check-in — SUR-COUCHE optionnelle, jamais bloquante */}
       <section className="mt-5 rounded-xl border border-dashed border-rail bg-craie-2 p-4">

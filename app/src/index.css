@@ -297,3 +297,14 @@ body {
   .marc-idle, .marc-entree, .marc-salut, .marc-pointe,
   .marc-acquiesce, .marc-reconforte, .marc-celebre { animation: none; }
 }
+
+/* Attribution MapLibre/OpenStreetMap : obligatoire (licence ODbL) mais rendue
+   DISCRÈTE — petit « ⓘ » replié, fond/texte estompés. On ne la supprime jamais
+   (ce serait illégal), on la réduit au strict minimum visuel. */
+.maplibregl-ctrl-attrib.maplibregl-compact {
+  background: rgba(255, 253, 247, 0.55);
+  box-shadow: none;
+}
+.maplibregl-ctrl-attrib-inner { font-size: 9px; opacity: 0.55; }
+.maplibregl-ctrl-attrib:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-inner { display: none; }
+.maplibregl-ctrl-attrib-button { opacity: 0.5; transform: scale(0.85); }

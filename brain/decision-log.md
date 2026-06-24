@@ -362,3 +362,31 @@ gagne par la présence répétée — la présence EST le cœur de la couronne. 
 tout de suite (en démo le check-in est libre → preview 100 % jouable). Serveur = migration 0021
 prête, à appliquer délibérément (connecteur ou paste validé). NB préview live : tant que 0021 n'est
 pas appliquée, le scoring live reste inchangé (tout compté) — seule la démo montre le gate complet.
+
+---
+
+## DEC-016 — Correctifs jeu (Bastille physique/équilibre, quiz aléatoire, classement station) + note stratégie
+
+**Cause.** Retours fondateur (test live) : glissement Bastille NON résolu ; OR gagné en un coup
+(explosif tout devant) ; quiz « toujours les mêmes questions » ; classement station absent ; demande
+d'une note d'intention pour la conversation stratégie (connecteur Supabase).
+
+**Décisions.**
+- **Glissement Bastille — cause racine** : blocs créés dynamiques puis seulement `Sleeping.set` (avec
+  `enableSleeping:false`) → ils résolvaient les chevauchements et dérivaient. Correctif définitif :
+  **`Body.setStatic(true)` pendant la visée**, `setStatic(false)` (blocs + étendards uniquement, jamais
+  sol/murs) au 1er tir. + courtines dé-chevauchées (Ouest-Donjon 635→709, Donjon-Est 794→866).
+- **OR jouable mais pas trivial** : 2 barils « tout devant » → **1 baril dans le renfoncement derrière
+  le pont-levis** (à mériter) ; souffle **R 140→105**. ⚑ À PLAYTESTER (peut devenir trop dur).
+- **Quiz vraiment aléatoire** : le biais « illustrées d'abord » figeait le sous-ensemble. Tirage
+  **aléatoire pur + garantie d'≥1 illustrée**. Tests `drawBank` réécrits (variété + garantie).
+- **Classement station toujours visible** (même vide → « sois le premier ») ; la donnée/fonction
+  marchaient (Bastille/Louvre renvoient des rangs) — c'était l'affichage conditionnel qui masquait.
+- **Attribution OSM** rendue discrète (CSS) ; rappel : non supprimable (ODbL).
+- **Note d'intention stratégie** : `brain/note-intention-strategie.md` (handoff complet).
+
+**Reporté (noté pour la stratégie/boutique)** : titres géo intermédiaires (manque data quartier/
+arrondissement/rive), social (clic profil d'un joueur), titres→cosmétiques (skins boutique),
+déverrouillage séquentiel de la ligne, positions/couronnes au Profil.
+
+**Statut.** Appliqué (typecheck games+app + 71 tests + build verts). Migration 0021 confirmée en base.
