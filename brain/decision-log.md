@@ -275,3 +275,25 @@ de titres (Chef de Station → Roi de Ligne → Boss de Quartier → Maire d'Arr
 **Statut.** Architecture validée & documentée. Cœur algorithmique pur (`lib/titles.ts`) implémenté
 & testé (DB-agnostique). Reste : wiring serveur (station_best + classements) = migrations additives
 soignées (`fn_submit_attempt` signature intacte, `answer_key` jamais exposé) — prochain sprint DB.
+
+---
+
+## DEC-013 — Carte : direction visuelle « claque » (phare héros pulsant + halo des stations)
+
+**Cause.** Reprise du plan de bataille initial (#7 « beautification carte »). Objectif
+fondateur : échelle humaine type Pokémon GO, un point focal « tape-moi », la ligne jouable
+qui « respire ». Contrainte : travail à l'aveugle (le sandbox ne rend pas la WebGL) → additif,
+défensif, jugé en preview.
+
+**Décision.**
+- **Phare héros pulsant** sur la station d'entrée (`HERO_SLUG = louvre-rivoli`, alignée FTUE +
+  contenu) : `StyleImageInterface` canonique MapLibre (canvas, zéro asset) — cœur laiton (#c9a227)
+  cerclé d'ivoire + onde qui se propage en boucle. Couche `hero-beacon` au-dessus de tout,
+  tappable (ouvre la fiche station). `icon-size` dégressif au zoom.
+- **Halo chaud sous les stations jouables** (`stations-halo`, sous `stations`) : disque laiton flou,
+  opacité/rayon croissants au zoom → la ligne paraît « allumée », sans masquer les pastilles.
+- Tout en try/catch additif : aucune couche existante retirée, base `curate()` + lignes + pastilles
+  intactes. Si une couche manque dans le style tiers → no-op silencieux.
+
+**Statut.** Appliqué (typecheck + 71 tests + build verts). À valider visuellement en preview (PR #5).
+Suite possible : pulse sur la « prochaine station à conquérir » (état joueur), transitions de sélection.
