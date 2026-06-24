@@ -74,21 +74,23 @@ dans un **mode Maître score-chase + classement par station**, couronne contesta
 > ladder Clash Royale, Elo échecs, territoires Travian.
 
 ## La hiérarchie des titres (du plus atomique à l'apex)
-Gradient logique ASCENDANT (du plus modeste à l'apex), validé fondateur :
-| # | Titre | Périmètre | Détenteur = meilleur sur… |
-|---|------|-----------|---------------------------|
-| 1 | **Chef de Station** | 1 station | son meilleur score sur CETTE station |
-| 2 | **Maître de la Ligne** (« Maître de la 4 ») | 1 ligne | Σ de ses meilleurs scores sur les stations de la ligne |
-| 3 | **Baron du Quartier** *(ex-« Boss » — proposition gradient)* | quartier (Le Marais, Quartier latin…) inter-lignes | Σ sur les stations du quartier (clusters curatés) |
-| 4 | **Maire de l'Arrondissement** (1–20) | 1 arrondissement | Σ sur les stations de l'arrondissement |
-| 5 | **Roi de la Rive** (gauche / droite) | 1 rive — 2 titres seulement | Σ sur les stations de la rive |
-| 6 | **Empereur de Paris** | tout Paris | Σ sur toutes les stations |
+Gradient ASCENDANT, qui traverse TOUTE l'histoire de Paris (pas que la monarchie —
+on est en République : Antiquité → Révolution/République → Monarchie → Empire). Validé.
+| # | Titre | Époque évoquée | Périmètre | Détenteur = meilleur sur… |
+|---|------|----------------|-----------|---------------------------|
+| 1 | **Chef de Station** | intemporel | 1 station | son meilleur score sur CETTE station |
+| 2 | **Maître de la Ligne** (« Maître de la 4 ») | corporations/métiers | 1 ligne | Σ de ses meilleurs scores sur la ligne |
+| 3 | **Tribun du Quartier** | Antiquité + Révolution (défenseur du peuple) | quartier (Le Marais, Quartier latin…) | Σ sur les stations du quartier |
+| 4 | **Maire de l'Arrondissement** (1–20) | République | 1 arrondissement | Σ sur les stations de l'arrondissement |
+| 5 | **Roi de la Rive** (gauche / droite) | Monarchie | 1 rive (2 titres) | Σ sur les stations de la rive |
+| 6 | **Empereur de Paris** | Empire | tout Paris | Σ sur toutes les stations |
 
-Gradient de puissance : Chef → Maître → Baron → Maire → Roi → Empereur (ascension
-civique + féodale, ton parisien assumé). *NB : « Baron du Quartier » remplace « Boss »
-pour tenir le gradient — à confirmer fondateur.*
+Gradient : Chef → Maître → Tribun → Maire → Roi → Empereur. Spectre historique assumé
+(« Tribun » remplace « Baron/Boss » : plus républicain, défenseur du quartier). Libellés =
+i18n, donc faciles à ajuster. Alternatives possibles par saison (ex. saison Révolution →
+« Sans-culotte », « Citoyen », « Conventionnel » ; saison Commune → « Fédéré »…).
 
-### Idées créatives (à valider — enrichissements best-in-class)
+### Idées créatives (VALIDÉES fondateur « je prends tout ») — best-in-class
 - **LE SACRE** : micro-cérémonie de couronnement (sceau + Marseillaise feutrée + tricolore)
   quand on prend un titre — le « money shot » à partager (acquisition).
 - **PRIME DE DÉTRÔNEMENT** : prendre une couronne = bonus de points one-shot ; le détrôné reçoit
