@@ -18,12 +18,13 @@ Toute violation = régression. On ne les rouvre qu'avec une entrée explicite da
 - **Gating des paliers côté serveur** : silver/gold exigent le palier précédent
   (succès demolition, ou seuil de points atteint en banque v2). Le client ne peut
   pas forcer un palier verrouillé.
-- **Présence requise pour COMPTER (DEC-015, supersède l'« async-first »)** : toute
-  quête rattachée à une station n'est **comptabilisée** (points / XP / maîtrise /
-  lignes / classements) qu'avec un **check-in actif**. Sans présence, la partie reste
-  **jouable en entraînement** (journalisée `scored=false`, jamais créditée). Gate DOUX
-  côté serveur (`fn_submit_attempt` ne bloque plus, il ne crédite pas) + côté client
-  (flag `scored`). Décision fondateur (option « présence requise / géo-gate »).
+- **Présence = MULTIPLICATEUR derrière un FLAG, JAMAIS un gate (DEC-018, supersède DEC-015)** :
+  arbitrage board. Le jeu compte **partout** (play-from-anywhere) ; la présence ne bloque
+  jamais le score. Réglage runtime serveur `arcadia.presence_required` (**défaut false**) +
+  miroir client `lib/flags.ts → PRESENCE_REQUIRED` (défaut false). `fn_submit_attempt` lit le
+  flag : absent/false ⇒ `scored=true` toujours. La présence redeviendra un multiplicateur /
+  couronne « Vérifiée » plus tard, jamais un mur. (La colonne `quest_attempts.scored` + la
+  mécanique restent en place, dormantes.)
 
 ## Source de vérité des données de jeu
 
@@ -40,12 +41,12 @@ Toute violation = régression. On ne les rouvre qu'avec une entrée explicite da
 
 ## Source de vérité du code (une seule par sujet)
 
-- **DA = un seul endroit : le bloc `@theme` de `app/src/index.css`** (couleurs de
-  marque + Acier sombre + typos). Les composants référencent les **tokens**
-  (classes Tailwind `bg-email`/`text-pierre`… ou `var(--color-*)` en style inline).
-  **Aucun hex de marque en dur** dans le TSX. Exception tolérée : couleurs
-  d'illustration one-off (dégradés/ombres SVG d'un dessin précis) — pas des
-  couleurs de marque.
+- **DA : le SYSTÈME = la Bible v3.0 (`docs/BRAND_BOOK_V3.md`), source unique de la
+  direction artistique. Les TOKENS LIVE = le bloc `@theme` de `app/src/index.css`**
+  (qui doit refléter la Bible). Les composants référencent les **tokens** (classes
+  Tailwind `bg-email`/`text-pierre`… ou `var(--color-*)`), **aucun hex de marque en dur**
+  dans le TSX (exception : couleurs d'illustration one-off). En cas d'écart Bible↔index.css,
+  index.css s'aligne sur la Bible.
 - **FTUE = un seul composant : `components/ftue/Emergence.tsx`** (clé partagée
   `lib/ftue.ts → ONBOARDING_KEY`). L'ancien `Onboarding.tsx` est supprimé.
 - **Marc (mascotte 2D) = Rive** via `components/ftue/MarcGuide.tsx` + contrat
@@ -58,7 +59,13 @@ Toute violation = régression. On ne les rouvre qu'avec une entrée explicite da
   réservée au board ; affordance possible, retrait non).
 - Orientation : **portrait par défaut** ; Bastille (démolition) en **paysage**,
   positionné comme « boss » qu'on choisit, pas premier contact imposé.
-- DA « Paris Souterrain » (craie / papier chaud, plaques émaillées) conservée.
+- **DA = système DEUX COUCHES (Bible v3.0)** : (1) **Châssis** SOMBRE & premium —
+  Acier Obscur `#111115` + Laiton `#c9a227` — pour la marque / le métagame / la nuit
+  (menus profonds, boutique, classements, Acte 0 FTUE) ; (2) **Couche Ville « Métro
+  Clair »** CLAIRE — Craie `#f6f1e6` + Bleu Émail `#0a5a9e` + Vert Guimard `#3f6b4d` —
+  pour la carte / le jeu / le jour. Les labels « Paris Souterrain » et « Cyberpunk »
+  sont **PÉRIMÉS**. Tokens : `--color-acier*` (sombre) + `--color-craie/email/...` (clair)
+  déjà présents dans `index.css`.
 
 ## Snapshot de la zone interdite du sprint « Cerveau Augmenté » (2026-06-20)
 

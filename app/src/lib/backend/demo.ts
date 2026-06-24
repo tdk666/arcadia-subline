@@ -8,6 +8,7 @@
 import type { DifficultyTier, GameAnswers, QuizQuestion } from '@arcadia/games';
 import { getStationContent, isBankedQuiz, LINE, tierThreshold, type StationContent } from '../content';
 import { previewBankedQuizScore, previewDemolitionScore } from '../scoring';
+import { PRESENCE_REQUIRED } from '../flags';
 import type {
   ArcadiaBackend, AttemptResult, BackendUser, CheckInResult, LeaderboardEntry, QuestProgress, StationProgress,
 } from './types';
@@ -118,8 +119,9 @@ export class DemoBackend implements ArcadiaBackend {
     const station = loc?.content;
     const tier = loc?.tier ?? 'bronze';
     const params = station?.quests[tier]?.params ?? {};
-    // présence validée ? (si station introuvable : on ne pénalise pas → compté)
-    const scored = station ? this.hasActiveCheckIn(station.stationId) : true;
+    // présence validée ? Gate désactivé par défaut (PRESENCE_REQUIRED=false, DEC-018) :
+    // tout compte. Si réactivé : exige un check-in actif (station introuvable = compté).
+    const scored = !PRESENCE_REQUIRED || (station ? this.hasActiveCheckIn(station.stationId) : true);
 
     // ── Quiz BANQUE V2 : cumul vers le seuil, jamais re-créditer un item réussi ──
     if (station && station.game.archetype === 'quiz' && isBankedQuiz(station)) {

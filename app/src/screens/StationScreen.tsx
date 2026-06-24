@@ -6,6 +6,7 @@ import { backend } from '../lib/backend';
 import type { LeaderboardEntry } from '../lib/backend/types';
 import { getStationContent, isBankedQuiz, tierThreshold } from '../lib/content';
 import { presenceProviders } from '../lib/presence';
+import { PRESENCE_REQUIRED } from '../lib/flags';
 import { useArcadia } from '../store';
 import { AuthSheet } from '../components/AuthSheet';
 import { Leaderboard } from '../components/Leaderboard';
@@ -172,14 +173,17 @@ export function StationScreen() {
       {/* paliers */}
       <section className="mt-5">
         <h2 className="font-display text-lg font-bold">{pickText(content.game.title, locale)}</h2>
-        {/* gate de présence (DEC-015) : dire d'emblée si les parties comptent */}
-        <div
-          className={`mt-2 rounded-xl px-3 py-2 text-xs ${
-            checkInUntil ? 'border border-[#3f6b4d]/40 bg-[#3f6b4d]/10 text-[#3f6b4d]' : 'border border-ambre/40 bg-ambre/10 text-pierre-dim'
-          }`}
-        >
-          {checkInUntil ? `✓ ${t('station.presence.scored')}` : `🎯 ${t('station.presence.training')}`}
-        </div>
+        {/* bannière de présence : visible UNIQUEMENT si le gate est actif (DEC-018,
+            défaut off). Sinon elle mentirait (« sans points » alors que tout compte). */}
+        {PRESENCE_REQUIRED && (
+          <div
+            className={`mt-2 rounded-xl px-3 py-2 text-xs ${
+              checkInUntil ? 'border border-[#3f6b4d]/40 bg-[#3f6b4d]/10 text-[#3f6b4d]' : 'border border-ambre/40 bg-ambre/10 text-pierre-dim'
+            }`}
+          >
+            {checkInUntil ? `✓ ${t('station.presence.scored')}` : `🎯 ${t('station.presence.training')}`}
+          </div>
+        )}
         <div className="mt-3 flex flex-col gap-2.5">
           {TIER_ORDER.map((tier) => {
             const bp = bankProg[tier];

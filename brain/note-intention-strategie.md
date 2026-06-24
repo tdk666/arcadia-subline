@@ -17,12 +17,16 @@ et de refondre l'IA des classements. La tranche jouable = **Ligne 1**, 2 station
   Maire de l'Arrondissement → Roi de la Rive → Empereur de Paris.
 - **DEC-013/014** — Carte épurée (phares pulsants sur stations jouables) ; classements en **tableau
   vertical** ; page « Classement » du menu = **générale** (tout Paris), pas une ligne précise.
-- **DEC-015** — **PRÉSENCE REQUISE** (choix fondateur). Gate DOUX : on joue toujours, mais sans
-  check-in actif = **entraînement** (non comptabilisé). Supersède l'invariant « knowledge async ».
+- **DEC-018 (supersède DEC-015)** — **PRÉSENCE = FLAG, jamais un gate**. Arbitrage board :
+  play-from-anywhere compte ; `arcadia.presence_required` (défaut **false**) ⇒ tout compte. La
+  présence reviendra en multiplicateur / couronne « Vérifiée ». Migration **0022** (prête).
+- **DEC-017** — **DA deux couches**, Bible v3.0 (`docs/BRAND_BOOK_V3.md`) = source unique.
 
 ## 3. État LIVE (vérifiable au connecteur)
-- **Migration 0021 appliquée** ✓ (colonne `quest_attempts.scored` présente ; `fn_submit_attempt`
-  en gate doux ; `fn_station_leaderboard`/`fn_line_leaderboard` filtrent `scored`).
+- **Migration 0021 appliquée** ✓ (colonne `quest_attempts.scored` ; gate doux ; classements
+  filtrent `scored`). ⚠️ **0022 PAS encore appliquée** (connecteur déconnecté en fin de sprint) :
+  le live est donc encore en **présence requise** → le test J+1 n'est lisible qu'**après** 0022.
+  Le client est déjà aligné DEC-018 (flag off, surface présence éteinte).
 - Données actuelles : 2 joueurs (TDK666, Agathelabest), 29 tentatives (toutes `scored=true`, antérieures
   au gate), 3 check-ins. `fn_station_leaderboard` renvoie bien : Bastille (TDK666 1184, Agathe 351),
   Louvre (TDK666 40). Classement général = matview `leaderboard_entries` scope `global` (XP).
@@ -60,9 +64,14 @@ et de refondre l'IA des classements. La tranche jouable = **Ligne 1**, 2 station
 5. **Profil** : y afficher **tes positions/couronnes** (où tu es Chef de Station, ton rang global).
 
 ## 6. Garde-fous à NE PAS casser (invariants.md)
-- `fn_submit_attempt` = **unique porte du score**, `answer_key` jamais côté client, RLS owner-scoped.
+- `fn_submit_attempt` = **unique porte du score**, `answer_key` jamais côté client, RLS owner-scoped,
+  advisory lock, anti-triche durée, anti-farming (marge sur `scored`), DEFINER + search_path verrouillé.
 - Le **seed SQL/migrations** est la source de vérité des params de jeu ; `content/*.json` en est le miroir.
-- DA « Paris Souterrain » ; carte tilt 52° (décision board) ; Bastille en paysage = « boss » choisi.
+- **DA = système DEUX COUCHES (Bible v3.0 = source unique, `docs/BRAND_BOOK_V3.md`)** : Châssis SOMBRE
+  (Acier `#111115` + Laiton `#c9a227`, marque/métagame/nuit) + Couche Ville « Métro Clair » CLAIRE
+  (Craie `#f6f1e6` + Bleu Émail `#0a5a9e` + Vert Guimard `#3f6b4d`, carte/jeu/jour). Labels « Paris
+  Souterrain »/« Cyberpunk » = PÉRIMÉS. Tokens live = `index.css @theme` (Acier déjà présents).
+- Carte tilt 52° (décision board) ; Bastille en paysage = « boss » choisi.
 
 ## 7. Ce que le stratège peut vérifier au connecteur
 - `get_advisors` (sécurité/perf) après 0021 — vérifier RLS/policies, index manquants sur `scored`.

@@ -390,3 +390,45 @@ arrondissement/rive), social (clic profil d'un joueur), titres→cosmétiques (s
 déverrouillage séquentiel de la ligne, positions/couronnes au Profil.
 
 **Statut.** Appliqué (typecheck games+app + 71 tests + build verts). Migration 0021 confirmée en base.
+
+---
+
+## DEC-017 — DA = système DEUX COUCHES, Bible v3.0 source unique
+
+**Cause.** Labels DA flottants/périmés (« Paris Souterrain », « Cyberpunk ») vs la vérité de la
+Bible (`docs/BRAND_BOOK_V3.md`, v3.0). Le code et le brain devaient dire la même chose qu'elle.
+
+**Décision.**
+- **`docs/BRAND_BOOK_V3.md` = source unique de la DA.** `index.css @theme` = les tokens LIVE qui
+  la reflètent (en cas d'écart, index.css s'aligne sur la Bible).
+- **Deux couches** : (1) **Châssis** SOMBRE premium (Acier Obscur `#111115` + Laiton `#c9a227`) —
+  marque / métagame / nuit ; (2) **Couche Ville « Métro Clair »** CLAIRE (Craie `#f6f1e6` + Bleu
+  Émail `#0a5a9e` + Vert Guimard `#3f6b4d`) — carte / jeu / jour.
+- Tokens sombres (`--color-acier`, `-2`, `-hi`) **déjà présents** dans `index.css` (vérifié) :
+  rien à ajouter, l'Acte 0 de la FTUE les a. Labels « Paris Souterrain »/« Cyberpunk » périmés.
+
+**Statut.** Acté. invariants.md + note-intention §6 alignés sur la Bible.
+
+---
+
+## DEC-018 — Présence = flag runtime (multiplicateur futur), JAMAIS un gate (supersède DEC-015)
+
+**Cause.** DEC-015 avait fait de la présence un gate (check-in requis pour compter). Arbitrage
+board : c'est trop dur pour le test J+1 (play-from-anywhere doit compter) et philosophiquement
+la présence doit être un **bonus**, pas une barrière (cohérent avec le pitch d'origine).
+
+**Décision.**
+- `fn_submit_attempt` lit un réglage runtime **`arcadia.presence_required`** (défaut **false**) :
+  flag absent/false ⇒ `scored=true` toujours ⇒ **tout compte, partout**. Migration **0022**
+  (redéfinit la fonction à l'identique de 0021 SAUF le bloc présence, désormais conditionné).
+- Miroir client **`app/src/lib/flags.ts → PRESENCE_REQUIRED` (false)** : éteint la surface UI de
+  présence (bannière station, logique « entraînement ») tant que le gate est off — sinon elle
+  mentirait. Démo respecte le flag (tout compte). Code de présence conservé, dormant.
+- La présence reviendra comme **multiplicateur / couronne « Vérifiée »**, jamais un mur.
+- **Réactivation in-situ** (sans redeploy) : `ALTER DATABASE postgres SET arcadia.presence_required='true';`
+  + passer `PRESENCE_REQUIRED=true` dans `flags.ts`.
+
+**Statut.** Client LIVE (flag off, surface éteinte). Serveur : **migration 0022 prête** ; à appliquer
+via `apply_migration` quand le connecteur Supabase revient (déconnecté en fin de sprint) — PAS de
+SQL Editor. Tant que 0022 n'est pas appliquée, le live reste sur 0021 (présence requise) : **le test
+J+1 n'est pas lisible sans 0022**. Priorité fondateur.
