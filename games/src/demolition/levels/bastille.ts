@@ -62,6 +62,12 @@ const roofC = tower(902, 70, 5);   // tour de l'Est
 curtain(676, 80, 3);   // courtine Ouest–Donjon
 curtain(827, 78, 3);   // courtine Donjon–Est
 
+// ── Barils de poudre : la poudre que le peuple vint saisir le 14 juillet.
+//    Fragiles, ils EXPLOSENT en chaîne et soufflent la pierre alentour : la clé
+//    pour ouvrir la forteresse (et rendre le palier OR jouable en 3 boulets). ──
+blocks.push({ x: 648, y: GROUND - 19, w: 26, h: 38, material: 'powder' });
+blocks.push({ x: 800, y: GROUND - 19, w: 26, h: 38, material: 'powder' });
+
 // ── Renforts du palier OR : plaques de fer devant le donjon et la tour Est ──
 blocks.push({ x: 700, y: GROUND - 52, w: 18, h: 104, material: 'iron', reinforcement: true });
 blocks.push({ x: 856, y: GROUND - 52, w: 18, h: 104, material: 'iron', reinforcement: true });

@@ -12,7 +12,7 @@ export interface DemolitionParams {
   reinforced: boolean;
 }
 
-export type BlockMaterial = 'stone' | 'wood' | 'iron';
+export type BlockMaterial = 'stone' | 'wood' | 'iron' | 'powder';
 
 /** Rôle d'un bloc dans la forteresse → pilote le rendu (tour ronde, courtine,
  *  créneau, pont-levis, linteau). Les créneaux comptent comme décor : ils se

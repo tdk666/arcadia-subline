@@ -54,6 +54,7 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hud, setHud] = useState<HudState | null>(null);
   const [muted, setMuted] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   // ouverture cinématique : « 14 juillet 1789 » s'imprime, la foule gronde, les
   // torches montent — avant que la main rende le contrôle (sautée en reduced-motion).
   const [intro, setIntro] = useState(!ctx.reducedMotion);
@@ -112,6 +113,7 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
     sfx.setMuted(muted);
   }
 
+  const en = ctx.locale.startsWith('en');
   const urgent = hud?.timeLeftS != null && (hud.timeLeftS ?? 99) <= 10;
   const debug = typeof location !== 'undefined' && new URLSearchParams(location.search).has('debug');
   const maxShots = Number((ctx.params as Record<string, number>).maxShots ?? 5);
@@ -258,7 +260,55 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
         >
           {muted ? '🔇' : '🔊'}
         </button>
+        {/* aide : revoir l'objectif et les commandes à tout moment (façon Angry Birds) */}
+        <button
+          type="button"
+          onClick={() => setShowHelp(true)}
+          aria-label={en ? 'Help' : 'Aide'}
+          className="rounded-lg px-3.5 py-2 text-xs font-bold text-[#e3c463] active:scale-95"
+          style={{ background: 'rgba(15,11,7,0.74)', boxShadow: 'inset 0 0 0 1.5px #3a2f1e' }}
+        >
+          ?
+        </button>
       </div>
+
+      {/* ── OVERLAY D'AIDE : objectif + commandes, rappelable à tout moment ── */}
+      {showHelp && (
+        <div
+          className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 px-6"
+          onClick={() => setShowHelp(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border-2 p-5 text-left"
+            style={{ background: 'var(--color-plomb)', borderColor: '#c9a227' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="font-display text-lg font-extrabold text-pierre">{en ? 'Your objective' : 'Ton objectif'}</p>
+            <ul className="mt-2 space-y-1.5 text-sm text-pierre-dim">
+              <li>⚑ {en ? `Knock down the ${hud?.totalTargets ?? 3} royal standards` : `Abats les ${hud?.totalTargets ?? 3} étendards royaux`}</li>
+              {targetPct > 0 && <li>💥 {en ? `Destroy ${targetPct}% of the fortress` : `Détruis ${targetPct}% de la forteresse`}</li>}
+              <li>🪨 {en ? `${maxShots} cannonballs in all` : `${maxShots} boulets en tout`}</li>
+              {Number((ctx.params as Record<string, number>).timeLimitS ?? 0) > 0 && (
+                <li>⏱ {en ? `Before ${(ctx.params as Record<string, number>).timeLimitS}s` : `Avant ${(ctx.params as Record<string, number>).timeLimitS} s`}</li>
+              )}
+            </ul>
+            <p className="mt-3 border-t border-rail pt-3 text-sm text-pierre-dim">
+              {en ? 'Pull the cobblestone back, aim, release.' : 'Tire le pavé vers l’arrière, vise, relâche.'}
+            </p>
+            <p className="mt-1.5 text-sm font-semibold" style={{ color: '#9c5f30' }}>
+              {en ? '💣 Hit the powder kegs: they explode and blow away the stone around them.' : '💣 Vise les barils de poudre : ils explosent et soufflent la pierre autour.'}
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowHelp(false)}
+              className="mt-4 w-full rounded-xl py-3 font-display font-extrabold text-encre active:translate-y-[1px]"
+              style={{ background: 'var(--color-laiton)', boxShadow: '0 3px 0 rgba(0,0,0,0.2)' }}
+            >
+              {en ? 'Back to the assault' : 'Retour à l’assaut'}
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );

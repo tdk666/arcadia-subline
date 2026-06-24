@@ -152,8 +152,11 @@ export class DemolitionSfx {
     let t = 0;
     for (const [f, d] of seq) {
       if (f > 0) {
-        this.tone(f, d * beat * 0.96, 0.30, { type: 'square', delay: t * beat });
-        this.tone(f / 2, d * beat * 0.96, 0.18, { type: 'triangle', delay: t * beat });
+        // timbre plus chaud/cuivré (moins « chiptune ») : lead triangle mélodieux
+        // + nappe sawtooth légèrement désaccordée (chœur de cuivres) + sub sinus.
+        this.tone(f, d * beat * 0.96, 0.22, { type: 'triangle', delay: t * beat });
+        this.tone(f * 1.006, d * beat * 0.96, 0.12, { type: 'sawtooth', delay: t * beat });
+        this.tone(f / 2, d * beat * 0.96, 0.16, { type: 'sine', delay: t * beat });
       }
       t += d;
     }
