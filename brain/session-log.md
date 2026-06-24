@@ -18,6 +18,7 @@
 
 ## EN COURS
 
+- **TITRES Phase A+B LIVE** : `0019 fn_station_leaderboard` (Chef de Station, appliqué par le fondateur) + **`0020 fn_line_leaderboard`** (Maître de la Ligne, appliqué via MCP & REGISTRÉ — réconcilie un peu DEC-003). Chef de Station câblé côté client (StationScreen, démo+live). **Bug corrigé** : barils de poudre Bastille déplacés hors-chevauchement (x470/x548) → fin du glissement des briques. Reste : UI Maître de la Ligne, puis titres géo (Baron/Maire/Roi/Empereur) + mapping station→arrondissement/rive (IDFM).
 - **ARCHITECTURE DE JEU validée (DEC-012) — titres géographiques** : maîtrise sans fin = score-chase + classement (Geometry Dash), PAS niveaux Candy Crush. Hiérarchie de couronnes contestables (Chef de Station → Roi de Ligne → Boss de Quartier → Maire d'Arrondissement → Élu de Rive → Empereur), dérivées d'UNE source de vérité `station_best`. Présence vérifiée = âme des titres (multiplicateur + couronne « Vérifiée »), async jouable (plancher §5). Design complet : `brain/architecture-jeu.md`. **Cœur algorithmique pur livré** : `lib/titles.ts` (agrégation/classement par scope, 11 tests) — DB-agnostique, prêt à brancher au serveur. Reste : wiring DB (station_best + leaderboards, migrations additives) + mapping géo IDFM.
 - **✅ SÉCURITÉ — alerte Supabase « rls_disabled_in_public » = FAUX POSITIF** (DEC-010) :
   diagnostic confirmé — seule `public.spatial_ref_sys` (table système PostGIS, données EPSG
