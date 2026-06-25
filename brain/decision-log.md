@@ -499,3 +499,26 @@ géo = bonus futur, jamais un gate. i18n FR+EN. Test de compréhension à valide
 
 **Statut.** Appliqué. Verts. Tué : 7-actes, « métro boulot dodo », faux quiz/rang, « Mémoire n°002 »,
 fleur-de-lys ⚜ (sauf marqueur archive culturel), « Commencer sans compte » en gate.
+
+---
+
+## DEC-025 — Intro « colle au jeu » : vrais composants embarqués (MapLibre T1 + Bastille T2)
+
+**Cause.** Décision fondateur après l'audit board (qui recommandait de garder le WebGL hors du film) :
+« on prend le vrai jeu de Bastille + utilise MapLibre aussi, je veux que l'intro colle au jeu. »
+Risque assumé (rendu non vérifiable à l'aveugle) ; mitigé par fallbacks.
+
+**Décision.**
+- **T1 = vraie carte MapLibre** (`MapView`, lazy + Suspense) plein écran ; copie de compréhension +
+  CTA « Prends Bastille » par-dessus ; tap sur la station Bastille → assaut.
+- **T2 = vrai jeu Bastille** (`DemolitionGame` / Matter.js, lazy + Suspense) avec **ctx INDULGENT**
+  (maxShots 30, targetPct 0, hpMultiplier 0.5) → non-bloquant ; `onFinish`/`onQuit` → conquête
+  décernée (drapeau LIBÉRÉE + flash tradition). **onFinish N'EST PAS soumis au serveur** (zéro score
+  FTUE — invariant intact). NB : la fronde reste moins « tap-imperdable » que la version scriptée ;
+  filet « passer › » + ✕ du jeu = jamais coincé.
+- **Robustesse** : `IntroBoundary` (AppLayout) rattrape tout crash → dépose sur la carte + marqué vu ;
+  Suspense sur chaque embed ; « Passer » toujours visible. Un échec d'embed ne peut pas piéger un testeur.
+- T0/T3 restent SVG/CSS (apex = plateau Bastille conquise). « ta conquête » ; firstStation = copy.
+
+**Statut.** Appliqué. typecheck (games+app) + 71 tests + build verts. **Validation device obligatoire**
+(le board l'avait posée comme condition) : framing portrait du jeu, feel caméra MapLibre, rythme.
