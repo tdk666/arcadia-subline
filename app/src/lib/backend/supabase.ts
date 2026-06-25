@@ -79,6 +79,9 @@ export class SupabaseBackend implements ArcadiaBackend {
       flagged: !!data.flagged,
       pointsTotal: data.points_total ?? null,
       pointsThreshold: data.points_threshold ?? null,
+      // gate de présence (DEC-015) : le serveur renverra `scored` une fois le SQL
+      // appliqué ; tant qu'il ne le fait pas, on considère la partie comptabilisée.
+      scored: data.scored ?? true,
     };
   }
 
@@ -132,19 +135,50 @@ export class SupabaseBackend implements ArcadiaBackend {
   }
 
   async getLineLeaderboard(lineId: string): Promise<LeaderboardEntry[]> {
+    // « Maître de la Ligne » (DEC-012) : Σ des meilleurs scores par station de la
+    // ligne, via fn_line_leaderboard — source de vérité unique (station_best).
     const me = (await this.getUser())?.id;
-    const { data, error } = await this.sb.from('leaderboard_entries')
-      .select('player_id, display_name, rank, score')
-      .eq('scope', 'line')
-      .eq('line_id', lineId)
+    const { data, error } = await this.sb.rpc('fn_line_leaderboard', { p_line_id: lineId, p_limit: 50 });
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((r: { player_id: string; display_name: string; total_score: number; rank: number }) => ({
+      playerId: r.player_id,
+      displayName: r.display_name,
+      rank: Number(r.rank),
+      score: Number(r.total_score),
+      isMe: r.player_id === me,
+    }));
+  }
+
+  async getGlobalLeaderboard(): Promise<LeaderboardEntry[]> {
+    // Classement GÉNÉRAL (page « Classement » du menu) : scope 'global' de la matview
+    // leaderboard_entries (XP total, déjà rangée, rafraîchie par pg_cron). Lecture
+    // publique non sensible (pseudo + score). Aucun nouveau SQL requis (matview 0008).
+    const me = (await this.getUser())?.id;
+    const { data, error } = await this.sb
+      .from('leaderboard_entries')
+      .select('player_id, display_name, score, rank')
+      .eq('scope', 'global')
       .order('rank', { ascending: true })
       .limit(50);
     if (error) throw new Error(error.message);
-    return (data ?? []).map((r) => ({
+    return (data ?? []).map((r: { player_id: string; display_name: string; score: number; rank: number }) => ({
       playerId: r.player_id,
       displayName: r.display_name,
-      rank: r.rank,
-      score: r.score,
+      rank: Number(r.rank),
+      score: Number(r.score),
+      isMe: r.player_id === me,
+    }));
+  }
+
+  async getStationLeaderboard(stationId: string): Promise<LeaderboardEntry[]> {
+    const me = (await this.getUser())?.id;
+    const { data, error } = await this.sb.rpc('fn_station_leaderboard', { p_station_id: stationId, p_limit: 20 });
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((r: { player_id: string; display_name: string; best_score: number; rank: number }) => ({
+      playerId: r.player_id,
+      displayName: r.display_name,
+      rank: Number(r.rank),
+      score: r.best_score,
       isMe: r.player_id === me,
     }));
   }

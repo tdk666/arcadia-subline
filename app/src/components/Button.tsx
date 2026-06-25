@@ -5,8 +5,14 @@
  * ombre qui se réduit) et retour multi-sensoriel (clack + haptique) à chaque
  * appui. Hiérarchie brutale : un seul `primary` visible à la fois.
  */
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { tap } from '../lib/feedback';
+
+// Fenêtre anti-« ghost touch » : un collégien ne clique pas, il spamme l'écran
+// (DA Partie V, règle de Royal Match). On verrouille le double-déclenchement
+// instantanément pour protéger la porte de score (fn_submit_attempt) des doubles
+// soumissions, tout en gardant un retour visuel/sonore à chaque appui.
+const GHOST_MS = 350;
 
 type Variant = 'primary' | 'gold' | 'secondary' | 'tertiary';
 type Size = 'sm' | 'md' | 'lg';
@@ -51,12 +57,18 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   { variant = 'primary', size = 'md', block = true, className = '', onClick, children, ...rest },
   ref,
 ) {
+  const lastFire = useRef(0);
   return (
     <button
       ref={ref}
       type={rest.type ?? 'button'}
       onClick={(e) => {
+        const now = Date.now();
+        // le retour sensoriel répond à CHAQUE tap (juice) ; l'action, une seule
+        // fois par fenêtre (anti double-soumission)
         tap();
+        if (now - lastFire.current < GHOST_MS) return;
+        lastFire.current = now;
         onClick?.(e);
       }}
       className={[

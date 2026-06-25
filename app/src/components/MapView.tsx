@@ -12,20 +12,70 @@ import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import {
+  geoStation,
   lineFeatureCollection,
   playableBounds,
   stationFeatureCollection,
   stationsOnLines,
 } from '../lib/geo';
 import { auraColor } from '../lib/cosmetics';
+import { playableStations } from '../lib/content';
 import { useArcadia } from '../store';
 import type { AvatarHandle } from './avatar3d';
 
 // fond épuré (lignée CARTO Positron) — la base « Citymapper-clean »
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
 const PARIS: [number, number] = [2.3488, 48.8534];
+const HERO_RGB: [number, number, number] = [201, 162, 39]; // laiton maison (#c9a227)
 // la cinématique d'arrivée ne joue qu'UNE fois par session (pas à chaque onglet)
 let introPlayed = false;
+
+/**
+ * Point pulsant « plaque émaillée » (technique canonique MapLibre StyleImageInterface) :
+ * un cœur laiton cerclé d'ivoire + une onde qui se propage en boucle. Donne le
+ * « tape-moi » humain de Pokémon GO sur la station d'entrée, sans aucun asset.
+ */
+function makePulsingDot(map: maplibregl.Map, rgb: [number, number, number]) {
+  const size = 140;
+  return {
+    width: size,
+    height: size,
+    data: new Uint8ClampedArray(size * size * 4),
+    context: null as CanvasRenderingContext2D | null,
+    onAdd() {
+      const c = document.createElement('canvas');
+      c.width = size;
+      c.height = size;
+      this.context = c.getContext('2d');
+    },
+    render() {
+      const ctx = this.context;
+      if (!ctx) return false;
+      const duration = 1500;
+      const t = (performance.now() % duration) / duration; // 0→1 en boucle
+      const core = size * 0.16;
+      const wave = core + (size / 2 - core) * t;
+      const mid = size / 2;
+      ctx.clearRect(0, 0, size, size);
+      // onde qui se propage (fondu sortant)
+      ctx.beginPath();
+      ctx.arc(mid, mid, wave, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${0.45 * (1 - t)})`;
+      ctx.fill();
+      // cœur plein + liseré ivoire
+      ctx.beginPath();
+      ctx.arc(mid, mid, core, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},1)`;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,253,247,0.95)';
+      ctx.lineWidth = 3 + 2 * (1 - t);
+      ctx.stroke();
+      this.data = ctx.getImageData(0, 0, size, size).data;
+      map.triggerRepaint(); // garde l'animation vivante
+      return true;
+    },
+  } satisfies maplibregl.StyleImageInterface & { context: CanvasRenderingContext2D | null };
+}
 
 interface Props {
   playableCodes: Set<string>;
@@ -85,9 +135,15 @@ export function MapView({ playableCodes, onStation }: Props) {
       pitch: 0,
       bearing: -17,
       maxPitch: 72,
-      attributionControl: { compact: true },
+      // attribution réduite au minimum légal (OSM = obligatoire) : un simple « ⓘ »
+      // replié en bas, plutôt que le bandeau verbeux OpenFreeMap/OpenMapTiles.
+      attributionControl: false,
     });
 
+    map.addControl(
+      new maplibregl.AttributionControl({ compact: true, customAttribution: '© OpenStreetMap' }),
+      'bottom-right',
+    );
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
     const geo = new maplibregl.GeolocateControl({
       positionOptions: { enableHighAccuracy: true },
@@ -237,6 +293,40 @@ export function MapView({ playableCodes, onStation }: Props) {
         paint: { 'text-color': '#2a2118', 'text-halo-color': '#f6f1e6', 'text-halo-width': 1.5 },
       });
 
+      // ── PHARES « JOUABLE MAINTENANT » : pulse « tape-moi » sur les SEULES stations
+      // au contenu prêt (Louvre-Rivoli + Bastille aujourd'hui). Pas une station dorée
+      // arbitraire : on signale exactement ce que tu peux jouer tout de suite. ──
+      try {
+        const ready = playableStations()
+          .map((s) => geoStation(s.slug))
+          .filter((s): s is NonNullable<typeof s> => !!s);
+        if (ready.length && !map.hasImage('hero-pulse')) {
+          map.addImage('hero-pulse', makePulsingDot(map, HERO_RGB), { pixelRatio: 2 });
+          map.addSource('hero-beacon', {
+            type: 'geojson',
+            data: {
+              type: 'FeatureCollection',
+              features: ready.map((s) => ({
+                type: 'Feature',
+                properties: { slug: s.slug, name: s.name },
+                geometry: { type: 'Point', coordinates: [s.lon, s.lat] },
+              })),
+            },
+          });
+          map.addLayer({
+            id: 'hero-beacon',
+            source: 'hero-beacon',
+            type: 'symbol',
+            layout: {
+              'icon-image': 'hero-pulse',
+              'icon-allow-overlap': true,
+              'icon-ignore-placement': true,
+              'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.45, 15, 0.9],
+            },
+          });
+        }
+      } catch { /* beacon non bloquant */ }
+
       // ── CINÉMATIQUE D'ARRIVÉE : descente douce sur ta ligne (le « wow » d'entrée) ──
       // joue une seule fois par session ; aux visites suivantes, cadrage instantané.
       const dur = introPlayed ? 0 : 2600;
@@ -255,7 +345,7 @@ export function MapView({ playableCodes, onStation }: Props) {
         const props = f.properties as { slug?: string; name?: string };
         if (props.slug) onStationRef.current(props.slug, props.name ?? '');
       };
-      for (const layer of ['stations', 'stations-soon'] as const) {
+      for (const layer of ['stations', 'stations-soon', 'hero-beacon'] as const) {
         map.on('click', layer, pickStation);
         map.on('mouseenter', layer, () => { map.getCanvas().style.cursor = 'pointer'; });
         map.on('mouseleave', layer, () => { map.getCanvas().style.cursor = ''; });

@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n, type Locale } from '../i18n';
 import { backend } from '../lib/backend';
-import { LINE } from '../lib/content';
+import { LINE, playableStations } from '../lib/content';
 import { rankLabel, rankProgress } from '../lib/rank';
+import { liveStreak } from '../lib/daily';
+import { ACHIEVEMENTS, buildSnapshot, unlockedAchievements } from '../lib/achievements';
 import { useArcadia } from '../store';
 import { AuthSheet } from '../components/AuthSheet';
 import { Button } from '../components/Button';
@@ -14,11 +16,18 @@ export function ProfileScreen() {
   const navigate = useNavigate();
   const user = useArcadia((s) => s.user);
   const tiersWon = useArcadia((s) => s.tiersWon);
+  const storyUnlocked = useArcadia((s) => s.storyUnlocked);
+  const daily = useArcadia((s) => s.daily);
   const pending = useArcadia((s) => s.pending);
   const coins = useArcadia((s) => s.coins);
+
+  const unlocked = new Set(unlockedAchievements(buildSnapshot({
+    tiersWon, storyUnlocked, coins, streak: liveStreak(daily), playableTotal: playableStations().length,
+  })));
   const [stats, setStats] = useState<{ xpTotal: number; streak: number } | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [installEvt, setInstallEvt] = useState<Event | null>(null);
+  const [badge, setBadge] = useState<string | null>(null);
 
   const conquered = LINE.stations.filter((s) => (tiersWon[s.slug] ?? []).length > 0).length;
 
@@ -99,6 +108,61 @@ export function ProfileScreen() {
         </Button>
       </div>
 
+      {/* hauts faits — la collection de trophées (méta-progression). Tap = détail
+          (à quoi ça correspond, comment le gagner) — retour fondateur. */}
+      <div className="mt-4 rounded-2xl border border-rail bg-plomb px-5 py-4">
+        <div className="flex items-baseline justify-between">
+          <p className="text-sm font-semibold">{t('achievements.sectionTitle')}</p>
+          <p className="font-display text-sm font-extrabold tabular-nums text-laiton">
+            {unlocked.size}<span className="text-pierre-faint">/{ACHIEVEMENTS.length}</span>
+          </p>
+        </div>
+        <p className="mt-0.5 text-[11px] text-pierre-faint">{t('achievements.tapHint')}</p>
+        <div className="mt-3 grid grid-cols-4 gap-2">
+          {ACHIEVEMENTS.map((a) => {
+            const got = unlocked.has(a.id);
+            const active = badge === a.id;
+            return (
+              <button
+                key={a.id}
+                type="button"
+                onClick={() => setBadge(active ? null : a.id)}
+                className="flex flex-col items-center gap-1 text-center active:scale-95"
+              >
+                <span
+                  className={`flex h-12 w-12 items-center justify-center rounded-full border-2 text-xl transition ${got ? 'border-laiton' : 'border-rail grayscale'} ${active ? 'ring-2 ring-email ring-offset-2 ring-offset-plomb' : ''}`}
+                  style={{ background: got ? 'var(--color-laiton)' : 'var(--color-craie-2)', opacity: got ? 1 : 0.5 }}
+                >
+                  {got ? a.icon : '🔒'}
+                </span>
+                <span className="line-clamp-2 font-mono text-[8px] uppercase leading-tight tracking-wider text-pierre-faint">
+                  {t(`achievements.${a.id}.title` as Parameters<typeof t>[0])}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        {/* détail du haut fait sélectionné */}
+        {badge && (() => {
+          const a = ACHIEVEMENTS.find((x) => x.id === badge)!;
+          const got = unlocked.has(a.id);
+          return (
+            <div className="animate-slide-up mt-3 flex items-start gap-3 rounded-xl border px-3 py-2.5" style={{ borderColor: got ? 'var(--color-laiton)' : 'var(--color-rail)', background: got ? 'rgba(201,162,39,0.08)' : 'var(--color-craie-2)' }}>
+              <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full text-lg" style={{ background: got ? 'var(--color-laiton)' : 'var(--color-rail)' }}>
+                {got ? a.icon : '🔒'}
+              </span>
+              <div className="min-w-0">
+                <p className="font-display text-sm font-extrabold text-pierre">{t(`achievements.${a.id}.title` as Parameters<typeof t>[0])}</p>
+                <p className="text-xs text-pierre-dim">{t(`achievements.${a.id}.desc` as Parameters<typeof t>[0])}</p>
+                <p className="mt-0.5 font-mono text-[10px] font-bold uppercase tracking-wider" style={{ color: got ? '#3f6b4d' : 'var(--color-pierre-faint)' }}>
+                  {got ? t('achievements.earned') : t('achievements.locked')}
+                </p>
+              </div>
+            </div>
+          );
+        })()}
+      </div>
+
       {/* langue */}
       <div className="mt-4 flex items-center justify-between rounded-2xl border border-rail bg-plomb px-5 py-4">
         <span className="text-sm font-semibold">{t('profile.language')}</span>
@@ -158,7 +222,7 @@ export function ProfileScreen() {
 
       {backend.mode === 'demo' && (
         <p className="mt-4 text-center font-mono text-[11px] text-vermillon">
-          {t('demo.banner')} — {t('demo.detail')}
+          {t('demo.banner')} · {t('demo.detail')}
         </p>
       )}
 

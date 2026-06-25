@@ -73,6 +73,25 @@ describe('drawBank — tirage qui ne rejoue jamais un item réussi', () => {
     const drawn = drawBank(bank, 8, passed);
     expect(drawn).toHaveLength(8); // rejouabilité plutôt que blocage
   });
+
+  it('aléatoire : deux tirages successifs ne sont pas identiques (variété)', () => {
+    // retour fondateur : les questions ne doivent pas être « toujours les mêmes ».
+    // Sur une grande banque, deux tirages de 8 doivent quasi sûrement différer.
+    const a = drawBank(bank, 8).map((q) => q.stepId).join(',');
+    const b = drawBank(bank, 8).map((q) => q.stepId).join(',');
+    const c = drawBank(bank, 8).map((q) => q.stepId).join(',');
+    expect(a === b && b === c).toBe(false);
+  });
+
+  it('biais `prefer` : garantit AU MOINS une œuvre illustrée sans figer le reste', () => {
+    // nouveau contrat : tirage aléatoire pur + garantie d'≥1 préféré (le joueur voit
+    // de l'art) — PAS « toutes les préférées » (qui resélectionnait le même sous-ensemble).
+    const preferIds = new Set(bank.slice(0, 3).map((q) => q.stepId)); // seulement 3 illustrées
+    const drawn = drawBank(bank, 8, [], (q) => preferIds.has(q.stepId));
+    expect(drawn).toHaveLength(8);
+    expect(drawn.some((q) => preferIds.has(q.stepId))).toBe(true); // au moins une
+    expect(new Set(drawn.map((q) => q.stepId)).size).toBe(8);      // pas de doublon
+  });
 });
 
 describe('previewBankedQuizScore — succès par SEUIL cumulé', () => {

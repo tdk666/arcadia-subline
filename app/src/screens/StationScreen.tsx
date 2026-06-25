@@ -3,10 +3,13 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { TIER_ORDER, type DifficultyTier } from '@arcadia/games';
 import { pickText, useI18n } from '../i18n';
 import { backend } from '../lib/backend';
+import type { LeaderboardEntry } from '../lib/backend/types';
 import { getStationContent, isBankedQuiz, tierThreshold } from '../lib/content';
 import { presenceProviders } from '../lib/presence';
+import { PRESENCE_REQUIRED } from '../lib/flags';
 import { useArcadia } from '../store';
 import { AuthSheet } from '../components/AuthSheet';
+import { Leaderboard } from '../components/Leaderboard';
 import { track } from '../lib/analytics';
 import { tap } from '../lib/feedback';
 
@@ -47,6 +50,8 @@ export function StationScreen() {
   const [serverState, setServerState] = useState<'discovered' | 'visited' | 'mastered' | null>(null);
   // Banque V2 : points cumulés + déblocage par palier (clé = tier)
   const [bankProg, setBankProg] = useState<Record<string, { pointsTotal: number; threshold: number; unlocked: boolean }>>({});
+  // classement PAR STATION → titre « Chef de Station » (DEC-012)
+  const [board, setBoard] = useState<LeaderboardEntry[]>([]);
 
   useEffect(() => { track('station_open', { slug }); }, [slug]);
   const [storyOpen, setStoryOpen] = useState(false);
@@ -61,6 +66,7 @@ export function StationScreen() {
     ]);
     setCheckInUntil(ci?.expiresAt ?? null);
     setServerState(prog?.state ?? null);
+    backend.getStationLeaderboard(content.stationId).then(setBoard).catch(() => setBoard([]));
 
     if (isBankedQuiz(content)) {
       const ids = TIER_ORDER.map((tr) => content.quests[tr].questId);
@@ -167,6 +173,17 @@ export function StationScreen() {
       {/* paliers */}
       <section className="mt-5">
         <h2 className="font-display text-lg font-bold">{pickText(content.game.title, locale)}</h2>
+        {/* bannière de présence : visible UNIQUEMENT si le gate est actif (DEC-018,
+            défaut off). Sinon elle mentirait (« sans points » alors que tout compte). */}
+        {PRESENCE_REQUIRED && (
+          <div
+            className={`mt-2 rounded-xl px-3 py-2 text-xs ${
+              checkInUntil ? 'border border-[#3f6b4d]/40 bg-[#3f6b4d]/10 text-[#3f6b4d]' : 'border border-ambre/40 bg-ambre/10 text-pierre-dim'
+            }`}
+          >
+            {checkInUntil ? `✓ ${t('station.presence.scored')}` : `🎯 ${t('station.presence.training')}`}
+          </div>
+        )}
         <div className="mt-3 flex flex-col gap-2.5">
           {TIER_ORDER.map((tier) => {
             const bp = bankProg[tier];
@@ -264,6 +281,34 @@ export function StationScreen() {
             );
           })}
         </div>
+      </section>
+
+      {/* CLASSEMENT PAR STATION — couronne « Chef de Station » (DEC-012). TOUJOURS
+          présent (même vide → « sois le premier ») : ouvrir une station montre
+          toujours son trône, c'est le cœur de la compétition par station. */}
+      <section className="mt-5 rounded-xl border border-rail bg-plomb p-4">
+        <div className="flex items-baseline justify-between gap-2">
+          <h3 className="font-display text-sm font-bold">{t('station.leaderboard.title')}</h3>
+          <span className="truncate font-mono text-[10px] uppercase tracking-wider" style={{ color: '#9c7d18' }}>
+            👑 {t('station.leaderboard.chef')} : {board.length ? (board[0].isMe ? t('leaderboard.you') : board[0].displayName) : '—'}
+          </span>
+        </div>
+        {board.length > 0 && board[0].isMe && (
+          <div className="animate-pop mt-2 flex items-center gap-2 rounded-lg border border-laiton/60 bg-laiton/15 px-3 py-2">
+            <span className="text-lg" aria-hidden>👑</span>
+            <span className="font-display text-sm font-extrabold text-pierre">{t('station.leaderboard.sacre')}</span>
+          </div>
+        )}
+        {board.length > 0 ? (
+          <>
+            <Leaderboard entries={board} className="mt-4" />
+            {!board.some((e) => e.isMe) && (
+              <p className="mt-3 font-mono text-[10px] text-pierre-faint">{t('station.leaderboard.joinHint')}</p>
+            )}
+          </>
+        ) : (
+          <p className="mt-3 text-xs text-pierre-dim">{t('station.leaderboard.joinHint')}</p>
+        )}
       </section>
 
       {/* check-in — SUR-COUCHE optionnelle, jamais bloquante */}

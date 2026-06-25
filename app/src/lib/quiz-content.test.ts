@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import type { QuizQuestion } from '@arcadia/games';
+import { isUsableQuizImage, type QuizQuestion } from '@arcadia/games';
 
 /**
  * PARITÉ CLIENT ↔ SERVEUR (sans base) + invariants de la banque V2.
@@ -105,5 +105,16 @@ describe('Louvre v2 — invariants de banque', () => {
     // au moins une de chaque (le board annonce 37 verified / 113 to_verify)
     expect(verified.length).toBeGreaterThan(0);
     expect(toVerify.length).toBeGreaterThan(0);
+  });
+
+  it('TOUTE image `verified` est réellement affichable (anti-régression : URL directe, pas une page wiki)', () => {
+    // bug attrapé : des URLs de PAGE commons (/wiki/File:…) marquées verified mais
+    // rejetées par isUsableQuizImage → aucune image ne s'affichait. Le client n'affiche
+    // que isUsableQuizImage(image) === true ; un `verified` doit donc passer ce gate.
+    const verified = allItems.filter((q) => q.image?.status === 'verified');
+    expect(verified.length).toBeGreaterThan(0);
+    for (const q of verified) {
+      expect(isUsableQuizImage(q.image), `image non affichable: ${q.stepId} → ${q.image?.url}`).toBe(true);
+    }
   });
 });

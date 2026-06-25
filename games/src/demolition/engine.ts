@@ -15,6 +15,8 @@ const MATERIAL = {
   wood: { hp: 14, density: 0.0012, base: '#6b4a26', light: '#9a6e36', dark: '#36240f', rim: '#e0b070' },
   // fer / zinc — gris froid mesuré, reflet laiton (renforts)
   iron: { hp: Infinity, density: 0.005, base: '#4a525a', light: '#8a96a0', dark: '#262c33', rim: '#c9a227' },
+  // baril de poudre — fragile, EXPLOSE en chaîne (le peuple a pris la Bastille pour sa poudre)
+  powder: { hp: 7, density: 0.0014, base: '#5a3a1c', light: '#8a5a2c', dark: '#2a1808', rim: '#f2c200' },
 } as const satisfies Record<BlockMaterial, unknown>;
 
 const BALL_R = 15;
@@ -88,7 +90,7 @@ const LABELS = {
   en: { standard: 'STANDARD DOWN!', double: 'DOUBLE!', triple: 'TRIPLE!', liberty: 'LIBERTY!', cracks: 'IT CRACKS!', razed: 'FORTRESS RAZED!' },
 } as const;
 
-interface BlockMeta { hp: number; maxHp: number; material: BlockMaterial; part?: BlockPart }
+interface BlockMeta { hp: number; maxHp: number; material: BlockMaterial; part?: BlockPart; explosive?: boolean }
 
 export class DemolitionEngine {
   private engine = Engine.create({ enableSleeping: false });
@@ -225,9 +227,14 @@ export class DemolitionEngine {
       const body = Bodies.rectangle(spec.x, spec.y, spec.w, spec.h, {
         label: 'block', density: mat.density, friction: 0.7, restitution: 0.05,
       });
-      Sleeping.set(body, true); // la forteresse dort jusqu'au premier impact réel
+      // ANTI-DÉRIVE : on FIGE chaque bloc en statique pendant la visée. Un corps
+      // seulement « endormi » (enableSleeping=false) continue à résoudre les
+      // chevauchements (courtines/renforts) et GLISSE — bug fondateur. Statique =
+      // immobile au pixel. Le passage dynamique→statique capture `_original` ;
+      // setStatic(false) au 1er tir lui rend sa masse (sinon gravité nulle).
+      Body.setStatic(body, true);
       const maxHp = spec.material === 'iron' ? Infinity : mat.hp * params.hpMultiplier;
-      this.blocks.set(body.id, { hp: maxHp, maxHp, material: spec.material, part: spec.part });
+      this.blocks.set(body.id, { hp: maxHp, maxHp, material: spec.material, part: spec.part, explosive: spec.material === 'powder' });
       // les créneaux se brisent (juteux) mais ne comptent PAS dans le % structurel
       if (spec.material !== 'iron' && spec.part !== 'merlon') this.destructible++;
       Composite.add(world, body);
@@ -244,7 +251,7 @@ export class DemolitionEngine {
       const body = Bodies.circle(t.x, supportTop - t.r - 0.5, t.r, {
         label: 'target', density: 0.0008, friction: 0.5, restitution: 0.1,
       });
-      Sleeping.set(body, true);
+      Body.setStatic(body, true); // figé pendant la visée (anti-dérive), réveillé au 1er tir
       this.targets.add(body.id);
       Composite.add(world, body);
       // une torche de siège au pied de chaque étendard
@@ -315,8 +322,53 @@ export class DemolitionEngine {
       this.sfx?.blockDestroyed();
       this.haptic(30);
       this.pushHud();
+      // BARIL DE POUDRE : déflagration en chaîne (souffle + dégâts de zone)
+      if (meta.explosive) this.explode(body.position.x, body.position.y);
     } else {
       this.burst(body.position.x, body.position.y, '#b9ad92', 4); // poussière de pierre chaude
+    }
+  }
+
+  /**
+   * Déflagration d'un baril de poudre : souffle radial + gros dégâts de zone.
+   * Pousse et endommage tout bloc/étendard alentour (les barils proches sautent
+   * en chaîne — leur damageBlock rappelle explode). Le fer encaisse mais est
+   * soufflé. C'est l'outil qui rend le palier OR jouable (3 boulets suffisent
+   * si on vise la poudre).
+   */
+  private explode(x: number, y: number) {
+    const R = 105;             // rayon de souffle (calibré : ~1 tour, pas la moitié du fort)
+    const blast = 0.9;         // intensité du souffle (force)
+    // FX immédiats : grosse boule de feu, onde, secousse, son
+    this.burst(x, y, '#f2c200', 30);
+    this.burst(x, y, '#e0964a', 22);
+    this.rings.push({ x, y, r: 8, maxR: R * 1.6, life: 380, maxLife: 380, color: '#f2c200' });
+    this.addShake(16);
+    this.addHitstop(40);
+    this.zoomPulse = Math.min(this.zoomPulse + 0.05, 0.1);
+    this.sfx?.impact(1);
+    this.sfx?.blockDestroyed();
+    this.haptic([50, 30, 70]);
+
+    // cibles voisines : on instantanément abat les étendards pris dans le souffle
+    for (const body of Composite.allBodies(this.engine.world)) {
+      const dx = body.position.x - x, dy = body.position.y - y;
+      const dist = Math.hypot(dx, dy);
+      if (dist > R || dist < 0.001) continue;
+      const falloff = 1 - dist / R;            // plus près = plus fort
+      // souffle (toujours appliqué, même au fer)
+      const f = blast * falloff;
+      Body.setVelocity(body, {
+        x: body.velocity.x + (dx / dist) * f * 14,
+        y: body.velocity.y + (dy / dist) * f * 14 - f * 4, // léger soulèvement
+      });
+      Sleeping.set(body, false);
+      if (this.targets.has(body.id)) {
+        this.killTarget(body);
+      } else if (this.blocks.has(body.id)) {
+        // gros dégâts de zone (peut faire sauter un baril voisin → chaîne)
+        this.damageBlock(body, 60 * falloff + 18);
+      }
     }
   }
 
@@ -376,7 +428,11 @@ export class DemolitionEngine {
     // premier tir : la forteresse se réveille, les dégâts deviennent réels
     if (!this.armed) {
       this.armed = true;
-      for (const b of Composite.allBodies(this.engine.world)) Sleeping.set(b, false);
+      // la forteresse s'anime : on REND dynamiques uniquement les blocs + étendards
+      // (jamais le sol/les murs statiques, jamais le boulet) — ils étaient figés.
+      for (const b of Composite.allBodies(this.engine.world)) {
+        if (this.blocks.has(b.id) || this.targets.has(b.id)) Body.setStatic(b, false);
+      }
       // les tambours entrent en scène, plancher selon le palier
       this.sfx?.startMusic({ bronze: 0, silver: 0.22, gold: 0.45 }[this.tier]);
     }
@@ -1230,12 +1286,47 @@ export class DemolitionEngine {
       if (body.label === 'block') {
         const meta = this.blocks.get(body.id);
         if (!meta) continue;
-        this.drawStone(ctx, body, MATERIAL[meta.material], meta);
+        if (meta.material === 'powder') this.drawKeg(ctx, body, t);
+        else this.drawStone(ctx, body, MATERIAL[meta.material], meta);
       } else if (body.label === 'target') {
         this.drawStandard(ctx, body, t);
       } else if (body.label === 'ball') {
         this.drawPave(ctx, body);
       }
+    }
+  }
+
+  /** Baril de poudre : douves de bois cerclées + mèche qui crépite. Lisible
+   *  comme un explosif (façon TNT d'Angry Birds), habillé Bastille. */
+  private drawKeg(ctx: CanvasRenderingContext2D, body: Matter.Body, t: number) {
+    const vs = body.vertices;
+    const w = Math.hypot(vs[1].x - vs[0].x, vs[1].y - vs[0].y);
+    const h = Math.hypot(vs[2].x - vs[1].x, vs[2].y - vs[1].y);
+    const rw = w / 2, rh = h / 2;
+    ctx.save();
+    ctx.translate(body.position.x, body.position.y);
+    ctx.rotate(body.angle);
+    const g = ctx.createLinearGradient(-rw, 0, rw, 0);
+    g.addColorStop(0, '#321f0d'); g.addColorStop(0.5, '#7c4f26'); g.addColorStop(1, '#321f0d');
+    ctx.fillStyle = g; ctx.fillRect(-rw, -rh, w, h);
+    ctx.fillStyle = '#241608'; // cerclages métal
+    ctx.fillRect(-rw, -rh + h * 0.16, w, 3);
+    ctx.fillRect(-rw, rh - h * 0.16 - 3, w, 3);
+    ctx.fillRect(-rw, -2, w, 4);
+    ctx.fillStyle = 'rgba(255,225,160,0.16)'; ctx.fillRect(-rw + 3, -rh + 4, 2.5, h - 8);
+    ctx.strokeStyle = 'rgba(242,194,0,0.55)'; ctx.lineWidth = 1.5;
+    ctx.strokeRect(-rw + 0.75, -rh + 0.75, w - 1.5, h - 1.5);
+    ctx.restore();
+    // étincelle de mèche (clignote) au-dessus du baril
+    if (!this.reducedMotion) {
+      const flick = 0.55 + 0.45 * Math.sin(t / 55);
+      const sx = body.position.x, sy = body.position.y - rh - 3;
+      ctx.save();
+      ctx.fillStyle = '#ffd24a'; ctx.globalAlpha = flick;
+      ctx.beginPath(); ctx.arc(sx, sy, 2.6, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = flick * 0.4;
+      ctx.beginPath(); ctx.arc(sx, sy, 5.5, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
     }
   }
 

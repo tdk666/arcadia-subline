@@ -1,7 +1,7 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
-  getGame, TIER_ORDER,
+  getGame, isUsableQuizImage, TIER_ORDER,
   type DifficultyTier, type GameProps, type GameResult, type QuizQuestion,
 } from '@arcadia/games';
 import { pickText, useI18n } from '../i18n';
@@ -24,6 +24,7 @@ const TIER_INK: Record<DifficultyTier, string> = {
 
 export function GameScreen() {
   const { slug = '', tier = 'bronze' } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t, locale } = useI18n();
   const content = getStationContent(slug);
@@ -35,10 +36,20 @@ export function GameScreen() {
   const recordResult = useArcadia((s) => s.recordResult);
   const queuePending = useArcadia((s) => s.queuePending);
   const isTierUnlocked = useArcadia((s) => s.isTierUnlocked);
+  const tiersWonAll = useArcadia((s) => s.tiersWon);
+
+  // Mode EXPRESS (défi du jour, ?x=1) : on saute le briefing UNIQUEMENT pour une
+  // station déjà connue (un palier gagné) → on enseigne une fois, puis 1-tap pour
+  // toujours (réponse à « trop long » du playtest + loi UX #2). 1er contact = brief.
+  const knowsStation = (tiersWonAll[slug] ?? []).length > 0;
+  const wantsExpress = searchParams.get('x') === '1' && knowsStation;
 
   // brief → play → submitting → result ; runId force un moteur neuf au rejouer
   const [phase, setPhase] = useState<'brief' | 'play' | 'submitting' | 'result'>('brief');
   const [runId, setRunId] = useState(0);
+  // progression de banque chargée (gate du démarrage express : ne pas tirer une
+  // manche avant de connaître les items déjà réussis à exclure)
+  const [progressReady, setProgressReady] = useState(false);
   const [result, setResult] = useState<LastResult | null>(null);
   const [quitAsk, setQuitAsk] = useState(false);
   // Banque V2 : items tirés pour cette manche + progression cumulée (points/réussis)
@@ -52,15 +63,40 @@ export function GameScreen() {
 
   // Banque : on récupère les items déjà réussis (à exclure du tirage) + le cumul.
   useEffect(() => {
-    if (!banked || !questId) return;
+    if (!banked || !questId) { setProgressReady(true); return; } // rien à charger
     let live = true;
+    setProgressReady(false);
     void backend.getQuestProgress([questId]).then((list) => {
       if (!live) return;
       const p = list.find((x) => x.questId === questId);
       setBankProgress({ pointsTotal: p?.pointsTotal ?? 0, passed: p?.passedStepIds ?? [] });
+      setProgressReady(true);
     });
     return () => { live = false; };
   }, [banked, questId, runId]);
+
+  // DÉMARRAGE EXPRESS (défi du jour) : dès que la progression est prête, on lance
+  // directement la manche (mêmes effets que le CTA du briefing), brief sauté.
+  useEffect(() => {
+    if (!wantsExpress || !allowed || !content) return;
+    if (phase !== 'brief' || !progressReady) return;
+    const c = content;
+    const q = c.quests[difficulty];
+    try {
+      if (!localStorage.getItem('arcadia.firstplay.v1')) {
+        localStorage.setItem('arcadia.firstplay.v1', '1');
+        track('first_play', { slug, tier: difficulty });
+      }
+    } catch { /* noop */ }
+    track('game_start', { slug, tier: difficulty, express: true });
+    if (isBankedQuiz(c)) {
+      const p = q.params as Record<string, unknown>;
+      const b = (p.questions as QuizQuestion[] | undefined) ?? [];
+      setDrawn(drawBank(b, Number(p.draw ?? b.length), bankProgress.passed, (q) => isUsableQuizImage(q.image)));
+    }
+    setPhase('play');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wantsExpress, allowed, content, phase, progressReady]);
 
   // redirection HORS rendu (la naviguer pendant le rendu casse React Router)
   useEffect(() => {
@@ -93,7 +129,8 @@ export function GameScreen() {
   // Tirage de la manche : `draw` items au hasard, en excluant ceux déjà réussis.
   function drawRound(): QuizQuestion[] {
     const drawN = Number((quest.params as Record<string, unknown>).draw ?? bank.length);
-    return drawBank(bank, drawN, bankProgress.passed);
+    // privilégie les items à œuvre illustrée → le joueur voit l'art (retour fondateur)
+    return drawBank(bank, drawN, bankProgress.passed, (q) => isUsableQuizImage(q.image));
   }
 
   // params passés au moteur : pour la banque, on substitue les items tirés

@@ -17,6 +17,10 @@ export interface AttemptResult {
   pointsTotal?: number | null;
   /** Banque V2 : seuil de points du palier (null = quête non-banque). */
   pointsThreshold?: number | null;
+  /** Présence validée (check-in actif) ⇒ la partie COMPTE (points/maîtrise/classement).
+   *  false = partie d'entraînement (jouable, mais non comptabilisée). undefined =
+   *  ancien chemin/serveur sans gate ⇒ traité comme comptabilisé. (DEC-015) */
+  scored?: boolean;
 }
 
 /** Progression banque V2 par quête (lecture). Seuils/déblocage = autorité serveur. */
@@ -72,6 +76,10 @@ export interface ArcadiaBackend {
   checkIn(stationId: string, method: 'manual'): Promise<CheckInResult>;
   getActiveCheckIn(stationId: string): Promise<{ expiresAt: string } | null>;
   getLineLeaderboard(lineId: string): Promise<LeaderboardEntry[]>;
+  /** Classement GÉNÉRAL (tout Paris, tous joueurs) — page « Classement » du menu. */
+  getGlobalLeaderboard(): Promise<LeaderboardEntry[]>;
+  /** Classement PAR STATION (titre « Chef de Station ») : meilleur score/joueur. */
+  getStationLeaderboard(stationId: string): Promise<LeaderboardEntry[]>;
   getMyStationProgress(stationId: string): Promise<StationProgress | null>;
   getMyStats(): Promise<{ xpTotal: number; streak: number } | null>;
   /** Banque V2 : progression par quête (points cumulés, items réussis, déblocage). */

@@ -1,19 +1,32 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useEffect, useState, type ReactNode } from 'react';
+import { Component, Suspense, lazy, useEffect, useState, type ReactNode } from 'react';
 import { backend } from '../lib/backend';
 import { useI18n } from '../i18n';
 import { StatusBar } from './StatusBar';
 import { DailyReward } from './DailyReward';
-import { Onboarding, ONBOARDING_KEY } from './Onboarding';
+import { AchievementToast } from './AchievementToast';
+import { ONBOARDING_KEY } from '../lib/ftue';
 import { IconNetwork, IconCollection, IconLeague, IconProfile } from './icons';
 
+// FTUE « L'Émergence » : code-splittée (le runtime Rive ne charge qu'à la 1re run)
+const Emergence = lazy(() => import('./ftue/Emergence').then((m) => ({ default: m.Emergence })));
+
+/** Filet : si le chunk de l'intro échoue (chunk obsolète après déploiement, réseau),
+ *  on ne laisse JAMAIS un écran noir — on bascule sur l'app. */
+class IntroBoundary extends Component<{ onFail: () => void; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch() { this.props.onFail(); }
+  render() { return this.state.failed ? null : this.props.children; }
+}
+
 /**
- * Après l'intro on atterrit sur LA CARTE (plateau Ligne 1), jamais directement
- * dans un jeu. La carte met déjà en avant la 1re conquête (Louvre-Rivoli, quiz
- * portrait) via son « phare ». Bastille (boss landscape) devient un choix, plus
- * un premier contact imposé. (Playtest Agathe, 20/06.)
+ * Après l'intro on atterrit sur LA MÊME carte que l'onglet « Carte » (accueil `/`,
+ * NetworkScreen) : fini la double-carte incohérente entre l'intro et la nav.
+ * L'accueil met déjà en avant le « Défi du jour » (1-tap) ; Bastille (boss
+ * paysage) reste un choix, pas un premier contact imposé. (Playtest Agathe.)
  */
-const FIRST_MAP = '/line/M1';
+const FIRST_MAP = '/';
 
 function Tab({ to, label, icon }: { to: string; label: string; icon: ReactNode }) {
   return (
@@ -64,16 +77,20 @@ export function AppLayout() {
         <Tab to="/profile" label={t('nav.profile')} icon={<IconProfile size={22} />} />
       </nav>
       <DailyReward />
+      <AchievementToast />
       {showOnboarding && (
-        <Onboarding
-          onDone={() => setShowOnboarding(false)}
-          onStart={() => {
-            setShowOnboarding(false);
-            // on atterrit sur la carte vivante (Louvre-Rivoli mis en avant), jamais
-            // jeté de force dans le boss Bastille (paysage) — cf. playtest.
-            navigate(FIRST_MAP);
-          }}
-        />
+        <IntroBoundary onFail={() => { try { localStorage.setItem(ONBOARDING_KEY, '1'); } catch { /* noop */ } setShowOnboarding(false); navigate(FIRST_MAP); }}>
+          <Suspense fallback={<div className="fixed inset-0 z-[60]" style={{ background: 'var(--color-acier)' }} />}>
+            <Emergence
+              onDone={() => setShowOnboarding(false)}
+              onStart={() => {
+                setShowOnboarding(false);
+                // on atterrit sur l'accueil (même carte que la nav), pas dans le boss
+                navigate(FIRST_MAP);
+              }}
+            />
+          </Suspense>
+        </IntroBoundary>
       )}
     </div>
   );

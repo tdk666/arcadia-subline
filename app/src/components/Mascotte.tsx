@@ -10,7 +10,7 @@ interface Props {
   alt?: string;
 }
 
-export function Mascotte({ size = 120, className = '', alt = 'Le poinçonneur — guide d’Arcadia' }: Props) {
+export function Mascotte({ size = 120, className = '', alt = 'Le poinçonneur, guide d’Arcadia' }: Props) {
   return (
     <img
       src="/mascotte/poinconneur.png"

@@ -18,7 +18,10 @@ export default defineConfig({
         lang: 'fr',
         start_url: '/',
         display: 'standalone',
-        orientation: 'portrait',
+        // 'any' : l'app est portrait par défaut, MAIS le mini-jeu de démolition
+        // a besoin du paysage. 'portrait' verrouillait l'app installée → la
+        // Bastille restait coincée derrière l'écran « pivote ton téléphone ».
+        orientation: 'any',
         background_color: '#15110c',
         theme_color: '#15110c',
         icons: [

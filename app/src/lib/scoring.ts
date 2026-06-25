@@ -37,11 +37,23 @@ export function drawBank(
   bank: readonly QuizQuestion[],
   n: number,
   passed: readonly string[] = [],
+  prefer?: (q: QuizQuestion) => boolean,
 ): QuizQuestion[] {
   const set = new Set(passed);
   let pool = bank.filter((q) => !set.has(q.stepId));
   if (pool.length < n) pool = bank.slice();
-  return shuffle(pool).slice(0, n);
+  // VRAI ALÉATOIRE (retour fondateur : les questions étaient « toujours les mêmes »).
+  // L'ancien tri « illustrées d'abord » resélectionnait le même sous-ensemble à
+  // chaque manche. On tire au hasard pur ; on GARANTIT seulement qu'au moins une
+  // œuvre illustrée figure (si possible) sans figer le reste.
+  const pick = shuffle(pool).slice(0, n);
+  if (prefer && n > 0 && !pick.some(prefer)) {
+    const illustrated = pool.filter(prefer);
+    if (illustrated.length) {
+      pick[Math.floor(Math.random() * pick.length)] = illustrated[Math.floor(Math.random() * illustrated.length)];
+    }
+  }
+  return shuffle(pick);
 }
 
 export function scoreBankedRound(

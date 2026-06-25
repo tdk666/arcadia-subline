@@ -8,6 +8,7 @@
 import type { DifficultyTier, GameAnswers, QuizQuestion } from '@arcadia/games';
 import { getStationContent, isBankedQuiz, LINE, tierThreshold, type StationContent } from '../content';
 import { previewBankedQuizScore, previewDemolitionScore } from '../scoring';
+import { PRESENCE_REQUIRED } from '../flags';
 import type {
   ArcadiaBackend, AttemptResult, BackendUser, CheckInResult, LeaderboardEntry, QuestProgress, StationProgress,
 } from './types';
@@ -105,12 +106,22 @@ export class DemoBackend implements ArcadiaBackend {
     };
   }
 
+  /** Présence requise (DEC-015) : un check-in actif (non expiré) sur la station rend
+   *  la partie « officielle ». Sans présence, on joue en ENTRAÎNEMENT (non comptabilisé). */
+  private hasActiveCheckIn(stationId: string): boolean {
+    const now = Date.now();
+    return this.state.checkIns.some((c) => c.stationId === stationId && c.expiresAt > now);
+  }
+
   /** Réplique fidèle des formules serveur (0012 démolition / 0016 banque) — démo. */
   async submitAttempt(questId: string, answers: Record<string, unknown>, durationMs: number): Promise<AttemptResult> {
     const loc = locate(questId);
     const station = loc?.content;
     const tier = loc?.tier ?? 'bronze';
     const params = station?.quests[tier]?.params ?? {};
+    // présence validée ? Gate désactivé par défaut (PRESENCE_REQUIRED=false, DEC-018) :
+    // tout compte. Si réactivé : exige un check-in actif (station introuvable = compté).
+    const scored = !PRESENCE_REQUIRED || (station ? this.hasActiveCheckIn(station.stationId) : true);
 
     // ── Quiz BANQUE V2 : cumul vers le seuil, jamais re-créditer un item réussi ──
     if (station && station.game.archetype === 'quiz' && isBankedQuiz(station)) {
@@ -120,7 +131,9 @@ export class DemoBackend implements ArcadiaBackend {
       const r = previewBankedQuizScore(
         questions, tier, answers as GameAnswers, durationMs, threshold, prog.pointsTotal, prog.passed,
       );
-      if (!r.flagged) {
+      // ENTRAÎNEMENT (pas de présence) : on calcule le score pour le retour, mais on
+      // ne persiste RIEN (ni progression, ni XP, ni maîtrise) et le seuil n'avance pas.
+      if (!r.flagged && scored) {
         this.state.questProgress[questId] = {
           pointsTotal: r.pointsTotal,
           passed: Array.from(new Set([...prog.passed, ...r.newPassed])),
@@ -131,8 +144,9 @@ export class DemoBackend implements ArcadiaBackend {
         this.save();
       }
       return {
-        attemptId: null, score: r.score, success: r.success, xpGained: r.xpGained,
-        mastery: r.mastery, flagged: r.flagged, pointsTotal: r.pointsTotal, pointsThreshold: threshold,
+        attemptId: null, score: r.score, success: r.success, xpGained: scored ? r.xpGained : 0,
+        mastery: r.mastery, flagged: r.flagged,
+        pointsTotal: scored ? r.pointsTotal : prog.pointsTotal, pointsThreshold: threshold, scored,
       };
     }
 
@@ -141,7 +155,9 @@ export class DemoBackend implements ArcadiaBackend {
     const { score, success, xpGained, mastery, flagged } =
       previewDemolitionScore(params, tier, (Object.values(answers)[0] ?? {}) as GameAnswers, durationMs, best);
 
-    if (!flagged) {
+    // ENTRAÎNEMENT (pas de présence) : score affiché pour le retour, mais rien n'est
+    // persisté (ni meilleur score, ni XP, ni maîtrise) → pas de conquête sans présence.
+    if (!flagged && scored) {
       this.state.bestScores[questId] = Math.max(best, score);
       this.state.xpTotal += xpGained;
       this.state.streak = Math.max(1, this.state.streak);
@@ -149,7 +165,7 @@ export class DemoBackend implements ArcadiaBackend {
       this.save();
     }
 
-    return { attemptId: null, score, success, xpGained, mastery, flagged };
+    return { attemptId: null, score, success, xpGained: scored ? xpGained : 0, mastery, flagged, scored };
   }
 
   async getQuestProgress(questIds: string[]): Promise<QuestProgress[]> {
@@ -216,6 +232,45 @@ export class DemoBackend implements ArcadiaBackend {
     return all
       .sort((a, b) => b.score - a.score)
       .map((e, i) => ({ ...e, rank: i + 1 }));
+  }
+
+  async getGlobalLeaderboard(): Promise<LeaderboardEntry[]> {
+    // Classement général « tout Paris » : rivaux prestige (XP total) + TOI dès que
+    // tu as joué. Le live (Supabase) lit la matview leaderboard_entries scope=global.
+    const rivals = [
+      { displayName: 'EmpereurDesQuais', score: 18420 },
+      { displayName: 'MaestroM1', score: 14210 },
+      { displayName: 'ReineDeBastille', score: 12880 },
+      { displayName: 'BaronDuMarais', score: 9650 },
+      { displayName: 'Guimard1900', score: 7340 },
+      { displayName: 'TunnelRunner', score: 5120 },
+      { displayName: 'PendulaireX', score: 3460 },
+      { displayName: 'QuaiNuit', score: 1980 },
+    ];
+    const all = rivals.map((r) => ({ ...r, isMe: false, playerId: r.displayName }));
+    if (this.state.xpTotal > 0) {
+      all.push({ displayName: this.state.user?.displayName ?? 'Toi', score: this.state.xpTotal, isMe: true, playerId: 'demo-user' });
+    }
+    return all.sort((a, b) => b.score - a.score).map((e, i) => ({ ...e, rank: i + 1 }));
+  }
+
+  async getStationLeaderboard(stationId: string): Promise<LeaderboardEntry[]> {
+    // démo : rivaux déterministes PAR station (mêmes pour une station donnée) + TOI
+    // dès que tu as un score. Le live (Supabase) lira fn_station_leaderboard.
+    const NAMES = ['MaîtreDuQuai', 'CitoyenneM', 'TribunDuMarais', 'Guimard1900', 'ReineDeNuit', 'Sans-culotte89', 'PendulaireX'];
+    let seed = 0;
+    for (let i = 0; i < stationId.length; i++) seed = (seed * 31 + stationId.charCodeAt(i)) | 0;
+    seed = Math.abs(seed);
+    const rivals = NAMES.slice(0, 5 + (seed % 3)).map((displayName, i) => ({
+      displayName, playerId: `npc-${i}-${displayName}`, isMe: false,
+      score: 420 + ((seed >> (i + 1)) % 900) + i * 25,
+    }));
+    const myScore = Object.values(this.state.bestScores).reduce((m, v) => Math.max(m, v), 0);
+    const all = rivals.slice();
+    if (myScore > 0) {
+      all.push({ displayName: this.state.user?.displayName ?? 'Toi', playerId: 'demo-user', isMe: true, score: myScore });
+    }
+    return all.sort((a, b) => b.score - a.score).map((e, i) => ({ ...e, rank: i + 1 }));
   }
 
   async getMyStationProgress(stationId: string) {

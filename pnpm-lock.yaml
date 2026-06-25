@@ -17,6 +17,9 @@ importers:
       '@arcadia/games':
         specifier: workspace:*
         version: link:../games
+      '@rive-app/react-canvas':
+        specifier: ^4.29.1
+        version: 4.29.1(react@19.2.7)
       '@supabase/supabase-js':
         specifier: ^2.49.0
         version: 2.108.1
@@ -836,6 +839,14 @@ packages:
 
   '@maplibre/vt-pbf@4.3.2':
     resolution: {integrity: sha512-j6p0AdjvAR19Z3XaCysle7A4ZSo08tYOzxD0Y9NQylwPAkwJJeYub5b2eVucdeDh7erhv69DahoLOevDRERRUw==}
+
+  '@rive-app/canvas@2.38.1':
+    resolution: {integrity: sha512-iK5HH2N1ZtkgbGV9nkIEyTv6j7Zbx6tVns/y6a8Yk+hPPnQl8XO5RS6gMM4V2NNmyvQ9PnAmnZDNaZCJUtaU8g==}
+
+  '@rive-app/react-canvas@4.29.1':
+    resolution: {integrity: sha512-DvXoiw4yah3kbKXmzQoifrEn+PiKrI9SEITTwMTgqHDNkwx0Eu3KTqjmLqYcmcaX3cK3o4uvUlQbkQouSVbv7A==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0
 
   '@rolldown/pluginutils@1.0.0-beta.27':
     resolution: {integrity: sha512-+d0F4MKMCbeVUJwG96uQ4SgAznZNSq93I3V+9NHA4OpvqG8mRCpGdKmK8l/dl02h2CCDHwW2FqilnTyDcAnqjA==}
@@ -3334,6 +3345,13 @@ snapshots:
       '@mapbox/point-geometry': 1.1.0
       '@types/geojson': 7946.0.16
       pbf: 5.1.0
+
+  '@rive-app/canvas@2.38.1': {}
+
+  '@rive-app/react-canvas@4.29.1(react@19.2.7)':
+    dependencies:
+      '@rive-app/canvas': 2.38.1
+      react: 19.2.7
 
   '@rolldown/pluginutils@1.0.0-beta.27': {}
 

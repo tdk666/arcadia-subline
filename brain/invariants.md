@@ -18,14 +18,23 @@ Toute violation = régression. On ne les rouvre qu'avec une entrée explicite da
 - **Gating des paliers côté serveur** : silver/gold exigent le palier précédent
   (succès demolition, ou seuil de points atteint en banque v2). Le client ne peut
   pas forcer un palier verrouillé.
-- **Check-in actif requis** pour les quêtes `exploration` (les quêtes `knowledge`
-  restent jouables sans présence — async-first).
+- **Présence = MULTIPLICATEUR derrière un FLAG, JAMAIS un gate (DEC-018, supersède DEC-015)** :
+  arbitrage board. Le jeu compte **partout** (play-from-anywhere) ; la présence ne bloque
+  jamais le score. Réglage runtime serveur `arcadia.presence_required` (**défaut false**) +
+  miroir client `lib/flags.ts → PRESENCE_REQUIRED` (défaut false). `fn_submit_attempt` lit le
+  flag : absent/false ⇒ `scored=true` toujours. La présence redeviendra un multiplicateur /
+  couronne « Vérifiée » plus tard, jamais un mur. (La colonne `quest_attempts.scored` + la
+  mécanique restent en place, dormantes.)
 
 ## Source de vérité des données de jeu
 
 - **Le seed SQL (`supabase/seed.sql` + `migrations/**`) est la source de vérité des
   paramètres de jeu. `content/*.json` en est le MIROIR.** En cas d'écart, le JSON
   s'aligne sur le seed (cf. DEC-001), jamais l'inverse sans migration.
+- **JAMAIS `supabase db push`** (le registre 0001-0012 est driftant → un push rejouerait
+  des corps anciens et RÉGRESSERAIT les fonctions live, ex. `fn_submit_attempt`). Les
+  migrations passent **uniquement par `apply_migration` / MCP, dans l'ordre chronologique**,
+  en finissant par la plus récente (la dernière def d'une fonction gagne). Réf. DEC-019.
 
 ## Produit / stratégie
 
@@ -34,13 +43,33 @@ Toute violation = régression. On ne les rouvre qu'avec une entrée explicite da
 - **Drive = vitrine / sas de contenu, jamais l'état de vérité.** L'état vit dans
   `/brain` (git).
 
+## Source de vérité du code (une seule par sujet)
+
+- **DA : le SYSTÈME = la Bible v3.0 (`docs/BRAND_BOOK_V3.md`), source unique de la
+  direction artistique. Les TOKENS LIVE = le bloc `@theme` de `app/src/index.css`**
+  (qui doit refléter la Bible). Les composants référencent les **tokens** (classes
+  Tailwind `bg-email`/`text-pierre`… ou `var(--color-*)`), **aucun hex de marque en dur**
+  dans le TSX (exception : couleurs d'illustration one-off). En cas d'écart Bible↔index.css,
+  index.css s'aligne sur la Bible.
+- **FTUE = un seul composant : `components/ftue/Emergence.tsx`** (clé partagée
+  `lib/ftue.ts → ONBOARDING_KEY`). L'ancien `Onboarding.tsx` est supprimé.
+- **Marc (mascotte 2D) = Rive** via `components/ftue/MarcGuide.tsx` + contrat
+  d'inputs (`brain/marc-rive-agent-prompt.md`). Le `marc.glb`/`avatar3d.ts` est
+  l'**avatar 3D du joueur sur la carte** (rôle distinct), pas la mascotte.
+
 ## Direction artistique / UX (ne pas trancher seul)
 
 - Carte : **tilt 52°** conservé (désorientation signalée au playtest = décision DA
   réservée au board ; affordance possible, retrait non).
 - Orientation : **portrait par défaut** ; Bastille (démolition) en **paysage**,
   positionné comme « boss » qu'on choisit, pas premier contact imposé.
-- DA « Paris Souterrain » (craie / papier chaud, plaques émaillées) conservée.
+- **DA = système DEUX COUCHES (Bible v3.0)** : (1) **Châssis** SOMBRE & premium —
+  Acier Obscur `#111115` + Laiton `#c9a227` — pour la marque / le métagame / la nuit
+  (menus profonds, boutique, classements, Acte 0 FTUE) ; (2) **Couche Ville « Métro
+  Clair »** CLAIRE — Craie `#f6f1e6` + Bleu Émail `#0a5a9e` + Vert Guimard `#3f6b4d` —
+  pour la carte / le jeu / le jour. Les labels « Paris Souterrain » et « Cyberpunk »
+  sont **PÉRIMÉS**. Tokens : `--color-acier*` (sombre) + `--color-craie/email/...` (clair)
+  déjà présents dans `index.css`.
 
 ## Snapshot de la zone interdite du sprint « Cerveau Augmenté » (2026-06-20)
 

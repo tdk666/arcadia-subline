@@ -5,9 +5,11 @@ import { useI18n } from '../i18n';
 import { backend } from '../lib/backend';
 import type { StationContent } from '../lib/content';
 import { useArcadia, type LastResult } from '../store';
-import { tap } from '../lib/feedback';
+import { tap, victory } from '../lib/feedback';
+import { share } from '../lib/share';
 import { AuthSheet } from './AuthSheet';
 import { ArchiveCard } from './ArchiveCard';
+import { Confetti } from './Confetti';
 import { Button } from './Button';
 
 /** Compteur animé (le "juice" du score). */
@@ -43,8 +45,31 @@ export function ResultView({
   const user = useArcadia((s) => s.user);
   const [authOpen, setAuthOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
-  // point de conversion : APRÈS la victoire, si invité en mode Supabase
-  const showGuestSave = result.success && !user && backend.mode === 'supabase';
+  const [shareMsg, setShareMsg] = useState(false);
+
+  // Le climax : la conquête « explose » (confettis tricolores + fanfare). Une
+  // seule fois, à l'arrivée d'un résultat gagnant (tricolore = victoire only).
+  useEffect(() => {
+    if (result.success) victory();
+  }, [result.success]);
+
+  async function onShare() {
+    tap();
+    const res = await share(
+      {
+        title: t('result.shareTitle'),
+        text: t('result.shareText', { station: station.name, score: result.score }),
+      },
+      'result',
+    );
+    if (res === 'copied') { setShareMsg(true); window.setTimeout(() => setShareMsg(false), 2200); }
+  }
+  // Présence requise (DEC-015) : sans check-in, la partie est un ENTRAÎNEMENT
+  // (jouable, non comptabilisée). On l'affiche clairement plutôt que de laisser
+  // croire à un bug « score non sauvé ».
+  const isTraining = result.scored === false;
+  // point de conversion : APRÈS la victoire comptabilisée, si invité en mode Supabase
+  const showGuestSave = result.success && !isTraining && !user && backend.mode === 'supabase';
 
   const archiveSeenKey = `arcadia.archive.seen.${station.slug}`;
   const archiveIsNew = result.success && !localStorage.getItem(archiveSeenKey);
@@ -79,6 +104,7 @@ export function ResultView({
 
   return (
     <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 overflow-y-auto bg-craie/95 px-6 py-8 text-center">
+      {result.success && <Confetti />}
       <div className="animate-pop">
         <p className="font-mono text-xs uppercase tracking-widest text-pierre-faint">
           {station.name} · {t(`station.tiers.${result.tier}`)}
@@ -102,6 +128,20 @@ export function ResultView({
           !result.success && <p className="mt-2 text-sm text-pierre-dim">{t('result.defeatHint')}</p>
         )}
       </div>
+
+      {isTraining && (
+        <div className="animate-slide-up w-full max-w-xs rounded-2xl border border-ambre/50 bg-ambre/10 px-4 py-3 text-left">
+          <p className="font-display text-sm font-extrabold text-ambre">🎯 {t('result.training')}</p>
+          <p className="mt-1 text-xs leading-relaxed text-pierre-dim">{t('result.trainingHint')}</p>
+          <Link
+            to={`/station/${result.slug}`}
+            onClick={() => tap()}
+            className="mt-2 inline-block font-mono text-[11px] font-bold text-laiton underline-offset-2 active:underline"
+          >
+            → {t('result.trainingCta')}
+          </Link>
+        </div>
+      )}
 
       <div className="animate-slide-up flex w-full max-w-xs flex-col gap-2.5">
         {isBanked ? (
@@ -174,7 +214,7 @@ export function ResultView({
               {archiveIsNew ? `★ ${t('archive.unlocked')}` : t('station.story.title')}
             </span>
             <span className="block font-mono text-[10px] text-pierre-faint">
-              {t('archive.number', { n: station.archive.number })} — {t('archive.open')}
+              {t('archive.number', { n: station.archive.number })} · {t('archive.open')}
             </span>
           </span>
           <span className="text-pierre-faint">›</span>
@@ -199,6 +239,13 @@ export function ResultView({
         ) : (
           <Button variant="gold" size="md" onClick={onReplay}>
             ↻ {t('result.replay')}
+          </Button>
+        )}
+        {/* Partage = vecteur d'acquisition organique #1 (vanité du joueur). En
+            « thumb zone », réservé à la victoire (on ne partage pas une défaite). */}
+        {result.success && (
+          <Button variant="secondary" size="md" onClick={onShare}>
+            ↗ {shareMsg ? t('result.shareCopied') : t('result.share')}
           </Button>
         )}
         <div className="flex gap-2">

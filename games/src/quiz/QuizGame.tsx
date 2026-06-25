@@ -12,9 +12,10 @@
  * `answer` sert UNIQUEMENT au ressenti local. Image + explication révélées
  * APRÈS la réponse uniquement (jamais avant — décision board).
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GameProps } from '../contract';
 import { isUsableQuizImage, type QuizParams } from './types';
+import { QuizAudio } from './audio';
 
 const TIER_LABEL = { bronze: 'BRONZE', silver: 'ARGENT', gold: 'OR' } as const;
 // teintes encrées lisibles sur fond clair (la couleur médaille pure est trop pâle)
@@ -45,6 +46,12 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
   const [revealed, setRevealed] = useState(false);
   const [streak, setStreak] = useState(0);
   const [timeLeft, setTimeLeft] = useState(params.timerS);
+  const [muted, setMuted] = useState(false);
+
+  // ambiance « Cabinet des Merveilles » — débloquée au 1er geste, libérée au démontage
+  const audio = useMemo(() => new QuizAudio(), []);
+  useEffect(() => () => audio.dispose(), [audio]);
+  const unlockAudio = useCallback(() => { audio.unlock(); audio.setMuted(muted); }, [audio, muted]);
 
   const answersRef = useRef<Record<string, string>>({});
   const startRef = useRef(0);
@@ -119,9 +126,19 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
   return (
     <div
       className="relative flex h-full w-full select-none flex-col overflow-hidden"
-      style={{ fontFamily: "'Work Sans', system-ui, sans-serif", background: 'var(--color-craie)', color: INK }}
+      style={{
+        fontFamily: "'Work Sans', system-ui, sans-serif",
+        color: INK,
+        // « Cabinet des Merveilles » : profondeur chaude (lumière de galerie en haut,
+        // ombre froide émail en bas) sur fond craie — plus de surface plate.
+        background:
+          'radial-gradient(120% 58% at 50% -12%, rgba(227,196,99,0.20), transparent 62%),' +
+          'radial-gradient(120% 50% at 50% 112%, rgba(10,90,158,0.07), transparent 60%),' +
+          'var(--color-craie)',
+      }}
+      onPointerDown={unlockAudio}
     >
-      {/* ── BARRE HAUTE : quitter · progression · vies ── */}
+      {/* ── BARRE HAUTE : quitter · progression · vies · son ── */}
       <div className="flex items-center gap-3 px-4 pt-[max(env(safe-area-inset-top),0.7rem)]">
         <button
           type="button"
@@ -130,6 +147,14 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
           className="flex h-9 w-9 flex-none items-center justify-center rounded-lg border border-rail bg-plomb text-sm font-semibold text-pierre-dim active:scale-95"
         >
           ✕
+        </button>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); const m = !muted; setMuted(m); audio.setMuted(m); }}
+          aria-label={tr('Son', 'Sound')}
+          className="flex h-9 w-9 flex-none items-center justify-center rounded-lg border border-rail bg-plomb text-sm active:scale-95"
+        >
+          {muted ? '🔇' : '🔊'}
         </button>
         <div className="flex flex-1 gap-1.5">
           {questions.map((qq, i) => (
@@ -173,10 +198,17 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
         )}
       </div>
 
-      {/* ── CHRONO (paliers argent/or) ── */}
+      {/* ── CHRONO (paliers argent/or) : compte à rebours CHIFFRÉ + barre ── */}
       {params.timerS > 0 && (
-        <div className="mt-3 px-4">
-          <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: 'var(--color-rail)' }}>
+        <div className="mt-3 flex items-center gap-2.5 px-4">
+          <span
+            className={`flex-none font-mono text-sm font-extrabold tabular-nums ${urgent && !ctx.reducedMotion ? 'animate-pop' : ''}`}
+            style={{ color: urgent ? KO : ink, minWidth: 30 }}
+            aria-label={tr('Temps restant', 'Time left')}
+          >
+            ⏱ {picked === null ? timeLeft : 0}s
+          </span>
+          <div className="h-2 flex-1 overflow-hidden rounded-full" style={{ background: 'var(--color-rail)' }}>
             <div
               className="h-full rounded-full"
               style={{
@@ -189,18 +221,28 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
         </div>
       )}
 
-      {/* ── QUESTION ── */}
-      <div className="flex flex-1 flex-col justify-center px-5 py-4">
-        <p className="font-mono text-[10px] uppercase tracking-[0.25em]" style={{ color: INK_DIM }}>
-          {tr('Question', 'Question')} {index + 1}/{questions.length}
-        </p>
-        <h1
+      {/* ── QUESTION (cartel de musée — zone flexible/scrollable, choix jamais rognés) ── */}
+      <div className="flex min-h-0 flex-1 flex-col justify-center overflow-y-auto px-4 py-3">
+        <div
           key={q.stepId}
-          className={`mt-2 font-display text-[clamp(1.35rem,5.5vw,2rem)] font-extrabold leading-tight ${ctx.reducedMotion ? '' : 'animate-slide-up'}`}
-          style={{ color: INK }}
+          className={`relative overflow-hidden rounded-3xl border bg-plomb/80 px-5 pb-6 pt-5 ${ctx.reducedMotion ? '' : 'animate-slide-up'}`}
+          style={{ borderColor: 'var(--color-rail)', boxShadow: '0 6px 22px rgba(42,33,24,0.08), inset 0 1px 0 rgba(255,255,255,0.6)' }}
         >
-          {q.question[L] ?? q.question.fr}
-        </h1>
+          {/* filet doré en tête (signature laiton) */}
+          <span className="absolute inset-x-0 top-0 h-[3px]" style={{ background: 'linear-gradient(90deg, transparent, #e3c45a, #c9a227, #e3c45a, transparent)' }} />
+          {/* motif filigrane (rosace de musée), discret */}
+          <span aria-hidden className="pointer-events-none absolute -right-5 -top-6 select-none font-display text-[120px] leading-none" style={{ color: 'var(--color-email)', opacity: 0.05 }}>❖</span>
+          <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.28em]" style={{ color: ink }}>
+            <span>{tr('Question', 'Question')} {index + 1}/{questions.length}</span>
+            <span className="h-px flex-1" style={{ background: 'linear-gradient(90deg, currentColor, transparent)', opacity: 0.4 }} />
+          </p>
+          <h1
+            className="relative mt-2.5 font-display text-[clamp(1.3rem,5.3vw,1.95rem)] font-extrabold leading-tight"
+            style={{ color: INK }}
+          >
+            {q.question[L] ?? q.question.fr}
+          </h1>
+        </div>
       </div>
 
       {/* ── CHOIX ── */}
@@ -241,51 +283,60 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
         })}
       </div>
 
-      {/* ── CARTE DE REVEAL (image + explication + feedback) — APRÈS la réponse ── */}
+      {/* ── CARTE DE REVEAL — APRÈS la réponse. Contenu SCROLLABLE + bouton Continuer
+           STICKY : le joueur n'est JAMAIS bloqué, même image + texte longs (retour fondateur). ── */}
       {revealed && (
-        <div className="absolute inset-0 z-30 flex flex-col justify-end bg-black/30" onClick={next}>
+        <div className="absolute inset-0 z-30 flex flex-col justify-end bg-black/40" onClick={next}>
           <div
-            className={`rounded-t-3xl border-t-4 bg-plomb px-5 pb-[max(env(safe-area-inset-bottom),1.1rem)] pt-4 ${ctx.reducedMotion ? '' : 'animate-slide-up'}`}
+            className={`flex max-h-[90vh] flex-col rounded-t-3xl border-t-4 bg-plomb ${ctx.reducedMotion ? '' : 'animate-slide-up'}`}
             style={{ borderColor: correct ? OK : timedOut ? '#c9a227' : KO }}
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="flex items-center gap-2 font-display text-lg font-extrabold" style={{ color: correct ? OK : timedOut ? '#9c7d18' : KO }}>
-              <span>{correct ? '✓' : timedOut ? '⏱' : '✕'}</span>
-              {correct ? tr('Bonne réponse !', 'Correct!') : timedOut ? tr('Temps écoulé', "Time's up") : tr('Mauvaise réponse', 'Wrong answer')}
-            </p>
+            {/* zone défilable */}
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 pt-4">
+              <p className="flex items-center gap-2 font-display text-lg font-extrabold" style={{ color: correct ? OK : timedOut ? '#9c7d18' : KO }}>
+                <span>{correct ? '✓' : timedOut ? '⏱' : '✕'}</span>
+                {correct ? tr('Bonne réponse !', 'Correct!') : timedOut ? tr('Temps écoulé', "Time's up") : tr('Mauvaise réponse', 'Wrong answer')}
+              </p>
 
-            {showImage && (
-              <figure className="mt-3">
-                <img
-                  src={q.image!.url}
-                  alt=""
-                  loading="lazy"
-                  className="max-h-44 w-full rounded-xl object-cover"
-                  style={{ background: 'var(--color-craie-2)' }}
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
-                {(q.image!.attribution || q.image!.license) && (
-                  <figcaption className="mt-1 font-mono text-[9px] leading-tight text-pierre-faint">
-                    {[q.image!.source, q.image!.license, q.image!.attribution].filter(Boolean).join(' · ')}
-                  </figcaption>
-                )}
-              </figure>
-            )}
+              {showImage && (
+                <figure className="mt-3">
+                  <img
+                    src={q.image!.url}
+                    alt=""
+                    loading="lazy"
+                    // hauteur bornée au viewport : même une œuvre en portrait ne
+                    // peut JAMAIS pousser le bouton hors de l'écran (+ pied sticky)
+                    className="max-h-[26vh] w-full rounded-xl object-cover"
+                    style={{ background: 'var(--color-craie-2)' }}
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                  {(q.image!.attribution || q.image!.license) && (
+                    <figcaption className="mt-1 font-mono text-[9px] leading-tight text-pierre-faint">
+                      {[q.image!.source, q.image!.license, q.image!.attribution].filter(Boolean).join(' · ')}
+                    </figcaption>
+                  )}
+                </figure>
+              )}
 
-            {q.explain && (
-              <p className="mt-3 text-sm leading-relaxed" style={{ color: INK_DIM }}>{q.explain[L] ?? q.explain.fr}</p>
-            )}
+              {q.explain && (
+                <p className="mt-3 text-sm leading-relaxed" style={{ color: INK_DIM }}>{q.explain[L] ?? q.explain.fr}</p>
+              )}
+            </div>
 
-            <button
-              type="button"
-              onClick={next}
-              className="mt-4 w-full rounded-2xl py-3.5 font-display text-base font-extrabold text-encre active:translate-y-[2px]"
-              style={{ background: 'var(--color-laiton)', boxShadow: '0 4px 0 rgba(0,0,0,0.18)' }}
-            >
-              {index + 1 >= questions.length || livesAtPickRef.current <= 0
-                ? tr('Voir le résultat', 'See result')
-                : tr('Continuer', 'Continue')}
-            </button>
+            {/* pied STICKY : le CTA reste toujours atteignable */}
+            <div className="flex-none border-t px-5 pb-[max(env(safe-area-inset-bottom),1.1rem)] pt-3" style={{ borderColor: 'var(--color-rail)', background: 'var(--color-plomb)' }}>
+              <button
+                type="button"
+                onClick={next}
+                className="w-full rounded-2xl py-3.5 font-display text-base font-extrabold text-encre active:translate-y-[2px]"
+                style={{ background: 'var(--color-laiton)', boxShadow: '0 4px 0 rgba(0,0,0,0.18)' }}
+              >
+                {index + 1 >= questions.length || livesAtPickRef.current <= 0
+                  ? tr('Voir le résultat', 'See result')
+                  : tr('Continuer ›', 'Continue ›')}
+              </button>
+            </div>
           </div>
         </div>
       )}

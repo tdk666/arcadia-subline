@@ -2,7 +2,7 @@
   "slug": "louvre-rivoli",
   "stationId": "4fef6355-d059-4534-b36f-2a6df868fe1a",
   "lineId": "22222222-2222-4222-8222-222222222222",
-  "name": "Louvre — Rivoli",
+  "name": "Louvre-Rivoli",
   "schemaVersion": 2,
   "game": {
     "archetype": "quiz",
@@ -64,14 +64,14 @@
               }
             ],
             "explain": {
-              "fr": "Une copie du Scribe accroupi veille à l'entrée — l'original égyptien (~2600 av. J.-C.) est tout près, au Louvre.",
-              "en": "A copy of the Seated Scribe stands guard — the Egyptian original (~2600 BC) sits nearby in the Louvre."
+              "fr": "Une copie du Scribe accroupi veille à l'entrée, l'original égyptien (~2600 av. J.-C.) est tout près, au Louvre.",
+              "en": "A copy of the Seated Scribe stands guard, the Egyptian original (~2600 BC) sits nearby in the Louvre."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:The_seated_scribe.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/The_seated_scribe.jpg",
               "source": "Wikimedia Commons",
               "license": "CC BY-SA 2.0",
-              "attribution": "Photo : Ivo Jansch — Le Scribe accroupi, Louvre E 3023 (sculpture 3D : licence du photographe)",
+              "attribution": "Photo : Ivo Jansch, Le Scribe accroupi, Louvre E 3023 (sculpture 3D : licence du photographe)",
               "status": "verified"
             }
           },
@@ -119,7 +119,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — portrait d'André Malraux (PD/licence libre)",
+              "target": "Wikimedia Commons, portrait d'André Malraux (PD/licence libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -165,14 +165,14 @@
               }
             ],
             "explain": {
-              "fr": "Aphrodite — Vénus chez les Romains. Trouvée en 1820 sur l'île de Milos, déjà sans ses bras.",
-              "en": "Aphrodite — Venus to the Romans. Found on Milos in 1820, already armless."
+              "fr": "Aphrodite, Vénus chez les Romains. Trouvée en 1820 sur l'île de Milos, déjà sans ses bras.",
+              "en": "Aphrodite, Venus to the Romans. Found on Milos in 1820, already armless."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Front_views_of_the_Venus_de_Milo.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Front_views_of_the_Venus_de_Milo.jpg",
               "source": "Wikimedia Commons",
               "license": "CC BY-SA 4.0",
-              "attribution": "Photo : Livioandronico2013 — Vénus de Milo, Louvre Ma 399 (sculpture 3D : licence du photographe)",
+              "attribution": "Photo : Livioandronico2013, Vénus de Milo, Louvre Ma 399 (sculpture 3D : licence du photographe)",
               "status": "verified"
             }
           },
@@ -216,13 +216,13 @@
             ],
             "explain": {
               "fr": "Léonard, vers 1503-1519. Il l'a gardée jusqu'en France : voilà pourquoi elle est au Louvre, pas à Florence.",
-              "en": "Leonardo, c. 1503-1519. He kept it with him to France — which is why it's in the Louvre, not Florence."
+              "en": "Leonardo, c. 1503-1519. He kept it with him to France, which is why it's in the Louvre, not Florence."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
               "source": "Wikimedia Commons",
               "license": "Public Domain (PD-Art)",
-              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre — repro fidèle 2D du domaine public",
+              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre, repro fidèle 2D du domaine public",
               "status": "verified"
             }
           },
@@ -270,7 +270,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — plaque nominative de la station Louvre-Rivoli (photo libre)",
+              "target": "Wikimedia Commons, plaque nominative de la station Louvre-Rivoli (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -321,7 +321,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — vestiges du Louvre médiéval / fossés (photo libre)",
+              "target": "Wikimedia Commons, vestiges du Louvre médiéval / fossés (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -368,11 +368,11 @@
             ],
             "explain": {
               "fr": "Le 10 août 1793, en pleine Révolution : les collections royales, devenues nationales, s'ouvrent au peuple.",
-              "en": "On 10 August 1793, mid-Revolution: the royal—now national—collections opened to the people."
+              "en": "On 10 August 1793, mid-Revolution: the royal, now national, collections opened to the people."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Hubert Robert, Grande Galerie du Louvre (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Hubert Robert, Grande Galerie du Louvre (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -423,7 +423,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — quais en pierre de Bourgogne, Louvre-Rivoli (photo libre)",
+              "target": "Wikimedia Commons, quais en pierre de Bourgogne, Louvre-Rivoli (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -474,7 +474,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — aile Lescot / Cour Carrée (architecture PD ⇒ ⚠ éviter photo cadrée sur la pyramide, droit Pei)",
+              "target": "Wikimedia Commons, aile Lescot / Cour Carrée (architecture PD ⇒ ⚠ éviter photo cadrée sur la pyramide, droit Pei)",
               "url": "",
               "source": "",
               "license": "",
@@ -520,12 +520,12 @@
               }
             ],
             "explain": {
-              "fr": "1989, sous François Mitterrand — l'année même où la station perd son rôle d'accès au musée.",
-              "en": "1989, under François Mitterrand — the very year the station lost its role as the museum's access."
+              "fr": "1989, sous François Mitterrand, l'année même où la station perd son rôle d'accès au musée.",
+              "en": "1989, under François Mitterrand, the very year the station lost its role as the museum's access."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Cour Napoléon, substitut PD (gravure XIXe) ; ⚠ pas de photo cadrée sur la pyramide",
+              "target": "Wikimedia Commons, Cour Napoléon, substitut PD (gravure XIXe) ; ⚠ pas de photo cadrée sur la pyramide",
               "url": "",
               "source": "",
               "license": "",
@@ -571,14 +571,14 @@
               }
             ],
             "explain": {
-              "fr": "« La Joconde », d'après Lisa Gherardini, épouse de Francesco del Giocondo — « la Gioconda » en italien.",
-              "en": "'La Joconde', after Lisa Gherardini, wife of Francesco del Giocondo — 'la Gioconda' in Italian."
+              "fr": "« La Joconde », d'après Lisa Gherardini, épouse de Francesco del Giocondo, « la Gioconda » en italien.",
+              "en": "'La Joconde', after Lisa Gherardini, wife of Francesco del Giocondo, 'la Gioconda' in Italian."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
               "source": "Wikimedia Commons",
               "license": "Public Domain (PD-Art)",
-              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre — repro fidèle 2D du domaine public",
+              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre, repro fidèle 2D du domaine public",
               "status": "verified"
             }
           },
@@ -625,10 +625,10 @@
               "en": "Both her arms, lost. Scholars still debate her original gesture: an apple, a mirror?"
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Front_views_of_the_Venus_de_Milo.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Front_views_of_the_Venus_de_Milo.jpg",
               "source": "Wikimedia Commons",
               "license": "CC BY-SA 4.0",
-              "attribution": "Photo : Livioandronico2013 — Vénus de Milo, Louvre Ma 399 (sculpture 3D : licence du photographe)",
+              "attribution": "Photo : Livioandronico2013, Vénus de Milo, Louvre Ma 399 (sculpture 3D : licence du photographe)",
               "status": "verified"
             }
           },
@@ -676,7 +676,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — façade du Louvre côté Seine (architecture PD, photo libre)",
+              "target": "Wikimedia Commons, façade du Louvre côté Seine (architecture PD, photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -722,12 +722,12 @@
               }
             ],
             "explain": {
-              "fr": "Le musée le plus visité au monde — la Joconde attire à elle seule des millions de visiteurs par an.",
-              "en": "The most-visited museum on Earth — the Mona Lisa alone draws millions of visitors a year."
+              "fr": "Le musée le plus visité au monde, la Joconde attire à elle seule des millions de visiteurs par an.",
+              "en": "The most-visited museum on Earth, the Mona Lisa alone draws millions of visitors a year."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — foule devant la Joconde, Salle des États (photo libre)",
+              "target": "Wikimedia Commons, foule devant la Joconde, Salle des États (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -773,12 +773,12 @@
               }
             ],
             "explain": {
-              "fr": "La pyramide — et surtout la « pyramide inversée », où Dan Brown imagine caché le tombeau de Marie-Madeleine.",
-              "en": "The pyramid — and the 'inverted pyramid', where Dan Brown imagines Mary Magdalene's tomb is hidden."
+              "fr": "La pyramide, et surtout la « pyramide inversée », où Dan Brown imagine caché le tombeau de Marie-Madeleine.",
+              "en": "The pyramid, and the 'inverted pyramid', where Dan Brown imagines Mary Magdalene's tomb is hidden."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Carrousel du Louvre, pyramide inversée (⚠ vérifier licence ; substitut PD possible)",
+              "target": "Wikimedia Commons, Carrousel du Louvre, pyramide inversée (⚠ vérifier licence ; substitut PD possible)",
               "url": "",
               "source": "",
               "license": "",
@@ -829,7 +829,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Grand Sphinx de Tanis, Louvre (photo libre, sculpture 3D)",
+              "target": "Wikimedia Commons, Grand Sphinx de Tanis, Louvre (photo libre, sculpture 3D)",
               "url": "",
               "source": "",
               "license": "",
@@ -880,7 +880,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — rame MP05 ligne 1 / quai Louvre-Rivoli (photo libre)",
+              "target": "Wikimedia Commons, rame MP05 ligne 1 / quai Louvre-Rivoli (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -926,12 +926,12 @@
               }
             ],
             "explain": {
-              "fr": "Les Tuileries, dessinées par Le Nôtre — le palais qui les fermait a brûlé sous la Commune en 1871.",
-              "en": "The Tuileries, designed by Le Nôtre — the palace that closed them burned during the Commune in 1871."
+              "fr": "Les Tuileries, dessinées par Le Nôtre, le palais qui les fermait a brûlé sous la Commune en 1871.",
+              "en": "The Tuileries, designed by Le Nôtre, the palace that closed them burned during the Commune in 1871."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Jardin des Tuileries (photo libre)",
+              "target": "Wikimedia Commons, Jardin des Tuileries (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -981,10 +981,10 @@
               "en": "Old Kingdom Egypt. His rock-crystal eyes give him an unsettlingly lifelike gaze."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:The_seated_scribe.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/The_seated_scribe.jpg",
               "source": "Wikimedia Commons",
               "license": "CC BY-SA 2.0",
-              "attribution": "Photo : Ivo Jansch — Le Scribe accroupi, Louvre E 3023 (sculpture 3D : licence du photographe)",
+              "attribution": "Photo : Ivo Jansch, Le Scribe accroupi, Louvre E 3023 (sculpture 3D : licence du photographe)",
               "status": "verified"
             }
           },
@@ -1027,12 +1027,12 @@
               }
             ],
             "explain": {
-              "fr": "Paris, 1er arrondissement, sur la rive droite de la Seine — au cœur historique de la ville.",
-              "en": "Paris, 1st arrondissement, on the Seine's right bank — the city's historic heart."
+              "fr": "Paris, 1er arrondissement, sur la rive droite de la Seine, au cœur historique de la ville.",
+              "en": "Paris, 1st arrondissement, on the Seine's right bank, the city's historic heart."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — vue aérienne du Louvre dans Paris (photo libre)",
+              "target": "Wikimedia Commons, vue aérienne du Louvre dans Paris (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -1078,12 +1078,12 @@
               }
             ],
             "explain": {
-              "fr": "Du verre — des centaines de losanges et triangles. Une légende leur prête un nombre « diabolique »…",
-              "en": "Glass — hundreds of diamonds and triangles. A legend gives them a 'diabolical' number…"
+              "fr": "Du verre, des centaines de losanges et triangles. Une légende leur prête un nombre « diabolique »…",
+              "en": "Glass, hundreds of diamonds and triangles. A legend gives them a 'diabolical' number…"
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — détail vitrage Cour Napoléon (⚠ licence ; éviter cadrage sur l'œuvre Pei)",
+              "target": "Wikimedia Commons, détail vitrage Cour Napoléon (⚠ licence ; éviter cadrage sur l'œuvre Pei)",
               "url": "",
               "source": "",
               "license": "",
@@ -1129,14 +1129,14 @@
               }
             ],
             "explain": {
-              "fr": "Une vitre blindée climatisée — depuis qu'elle a été agressée plusieurs fois (acide, pierre, gâteau…).",
-              "en": "Climate-controlled bulletproof glass — after she was attacked several times (acid, a rock, cake…)."
+              "fr": "Une vitre blindée climatisée, depuis qu'elle a été agressée plusieurs fois (acide, pierre, gâteau…).",
+              "en": "Climate-controlled bulletproof glass, after she was attacked several times (acid, a rock, cake…)."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
               "source": "Wikimedia Commons",
               "license": "Public Domain (PD-Art)",
-              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre — repro fidèle 2D du domaine public",
+              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre, repro fidèle 2D du domaine public",
               "status": "verified"
             }
           },
@@ -1179,12 +1179,12 @@
               }
             ],
             "explain": {
-              "fr": "Un palais des rois de France, de François Iᵉʳ à Louis XIV — qui le délaisse pour Versailles en 1682.",
-              "en": "A palace of the French kings, from François I to Louis XIV — who abandoned it for Versailles in 1682."
+              "fr": "Un palais des rois de France, de François Iᵉʳ à Louis XIV, qui le délaisse pour Versailles en 1682.",
+              "en": "A palace of the French kings, from François I to Louis XIV, who abandoned it for Versailles in 1682."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Cour Carrée du Louvre (architecture PD, photo libre)",
+              "target": "Wikimedia Commons, Cour Carrée du Louvre (architecture PD, photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -1235,7 +1235,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Cour Napoléon (⚠ choisir un cadrage où la pyramide n'est pas le sujet, ou gravure PD)",
+              "target": "Wikimedia Commons, Cour Napoléon (⚠ choisir un cadrage où la pyramide n'est pas le sujet, ou gravure PD)",
               "url": "",
               "source": "",
               "license": "",
@@ -1281,12 +1281,12 @@
               }
             ],
             "explain": {
-              "fr": "Le 1er arrondissement, le cœur historique — la station Louvre-Rivoli est juste sous la rue de Rivoli.",
-              "en": "The 1st arrondissement, the historic core — Louvre-Rivoli station sits right under Rue de Rivoli."
+              "fr": "Le 1er arrondissement, le cœur historique, la station Louvre-Rivoli est juste sous la rue de Rivoli.",
+              "en": "The 1st arrondissement, the historic core, Louvre-Rivoli station sits right under Rue de Rivoli."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — plan/situation du 1er arrondissement (libre)",
+              "target": "Wikimedia Commons, plan/situation du 1er arrondissement (libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -1337,7 +1337,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Hubert Robert, projet d'aménagement de la Grande Galerie (PD-Art)",
+              "target": "Wikimedia Commons, Hubert Robert, projet d'aménagement de la Grande Galerie (PD-Art)",
               "url": "",
               "source": "",
               "license": "",
@@ -1383,12 +1383,12 @@
               }
             ],
             "explain": {
-              "fr": "1900, avec la première ligne 1 — c'est l'une des plus anciennes stations du métro parisien.",
-              "en": "1900, with the first Line 1 — one of the oldest stations on the Paris metro."
+              "fr": "1900, avec la première ligne 1, c'est l'une des plus anciennes stations du métro parisien.",
+              "en": "1900, with the first Line 1, one of the oldest stations on the Paris metro."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — entourage Guimard / métro 1900 (PD)",
+              "target": "Wikimedia Commons, entourage Guimard / métro 1900 (PD)",
               "url": "",
               "source": "",
               "license": "",
@@ -1434,12 +1434,12 @@
               }
             ],
             "explain": {
-              "fr": "Philippe Auguste, vers 1190, avant de partir en croisade — pour verrouiller Paris côté ouest.",
-              "en": "Philippe Auguste, around 1190, before leaving on crusade — to lock down Paris's western side."
+              "fr": "Philippe Auguste, vers 1190, avant de partir en croisade, pour verrouiller Paris côté ouest.",
+              "en": "Philippe Auguste, around 1190, before leaving on crusade, to lock down Paris's western side."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — maquette/plan du Louvre de Philippe Auguste (libre)",
+              "target": "Wikimedia Commons, maquette/plan du Louvre de Philippe Auguste (libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -1485,14 +1485,14 @@
               }
             ],
             "explain": {
-              "fr": "La Grèce hellénistique, vers 100 av. J.-C. — un sommet de l'idéal grec de la beauté.",
-              "en": "Hellenistic Greece, c. 100 BC — a peak of the Greek ideal of beauty."
+              "fr": "La Grèce hellénistique, vers 100 av. J.-C., un sommet de l'idéal grec de la beauté.",
+              "en": "Hellenistic Greece, c. 100 BC, a peak of the Greek ideal of beauty."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Front_views_of_the_Venus_de_Milo.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Front_views_of_the_Venus_de_Milo.jpg",
               "source": "Wikimedia Commons",
               "license": "CC BY-SA 4.0",
-              "attribution": "Photo : Livioandronico2013 — Vénus de Milo, Louvre Ma 399 (sculpture 3D : licence du photographe)",
+              "attribution": "Photo : Livioandronico2013, Vénus de Milo, Louvre Ma 399 (sculpture 3D : licence du photographe)",
               "status": "verified"
             }
           },
@@ -1535,14 +1535,14 @@
               }
             ],
             "explain": {
-              "fr": "La Victoire de Samothrace — Niké, déesse de la victoire, posée sur une proue de navire.",
-              "en": "The Winged Victory — Nike, goddess of victory, alighting on a ship's prow."
+              "fr": "La Victoire de Samothrace, Niké, déesse de la victoire, posée sur une proue de navire.",
+              "en": "The Winged Victory, Nike, goddess of victory, alighting on a ship's prow."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
               "source": "Wikimedia Commons",
               "license": "CC0 (domaine public volontaire)",
-              "attribution": "Photo : Gary Todd (CC0) — La Victoire de Samothrace, Louvre",
+              "attribution": "Photo : Gary Todd (CC0), La Victoire de Samothrace, Louvre",
               "status": "verified"
             }
           }
@@ -1600,10 +1600,10 @@
               "en": "A Hellenistic naval victory (~190 BC): Nike alighting on a ship's prow."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
               "source": "Wikimedia Commons",
               "license": "CC0 (domaine public volontaire)",
-              "attribution": "Photo : Gary Todd (CC0) — La Victoire de Samothrace, Louvre",
+              "attribution": "Photo : Gary Todd (CC0), La Victoire de Samothrace, Louvre",
               "status": "verified"
             }
           },
@@ -1650,10 +1650,10 @@
               "en": "Its theft by Vincenzo Peruggia. Apollinaire was arrested, Picasso questioned: the scandal made it an icon."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
               "source": "Wikimedia Commons",
               "license": "Public Domain (PD-Art)",
-              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre — repro fidèle 2D du domaine public",
+              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre, repro fidèle 2D du domaine public",
               "status": "verified"
             }
           },
@@ -1701,7 +1701,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — moulages des quais de Louvre-Rivoli, 2016 (photo libre)",
+              "target": "Wikimedia Commons, moulages des quais de Louvre-Rivoli, 2016 (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -1752,7 +1752,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Rigaud, portrait de Louis XIV (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Rigaud, portrait de Louis XIV (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -1798,12 +1798,12 @@
               }
             ],
             "explain": {
-              "fr": "Géricault, 1819 — un vrai naufrage transformé en scandale. Le jeune Delacroix a posé pour un naufragé.",
-              "en": "Géricault, 1819 — a real shipwreck turned scandal. A young Delacroix modelled for one of the castaways."
+              "fr": "Géricault, 1819, un vrai naufrage transformé en scandale. Le jeune Delacroix a posé pour un naufragé.",
+              "en": "Géricault, 1819, a real shipwreck turned scandal. A young Delacroix modelled for one of the castaways."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Le Radeau de la Méduse (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Le Radeau de la Méduse (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -1849,14 +1849,14 @@
               }
             ],
             "explain": {
-              "fr": "Au Louvre, devant la Joconde et la Victoire de Samothrace — le musée en a tiré un parcours « Apeshit ».",
-              "en": "At the Louvre, before the Mona Lisa and Winged Victory — the museum even made an 'Apeshit' visitor trail."
+              "fr": "Au Louvre, devant la Joconde et la Victoire de Samothrace, le musée en a tiré un parcours « Apeshit ».",
+              "en": "At the Louvre, before the Mona Lisa and Winged Victory, the museum even made an 'Apeshit' visitor trail."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
               "source": "Wikimedia Commons",
               "license": "CC0 (domaine public volontaire)",
-              "attribution": "Photo : Gary Todd (CC0) — La Victoire de Samothrace, Louvre",
+              "attribution": "Photo : Gary Todd (CC0), La Victoire de Samothrace, Louvre",
               "status": "verified"
             }
           },
@@ -1904,7 +1904,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — aile Lescot, Cour Carrée (architecture PD, photo libre)",
+              "target": "Wikimedia Commons, aile Lescot, Cour Carrée (architecture PD, photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -1955,7 +1955,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — lamassu de Khorsabad, Louvre (photo libre, 3D)",
+              "target": "Wikimedia Commons, lamassu de Khorsabad, Louvre (photo libre, 3D)",
               "url": "",
               "source": "",
               "license": "",
@@ -2001,14 +2001,14 @@
               }
             ],
             "explain": {
-              "fr": "L'île de Milos (Mélos), en 1820 — d'où son nom. Un paysan l'aurait déterrée dans son champ.",
-              "en": "The island of Milos (Melos), in 1820 — hence the name. A farmer reportedly dug her up in his field."
+              "fr": "L'île de Milos (Mélos), en 1820, d'où son nom. Un paysan l'aurait déterrée dans son champ.",
+              "en": "The island of Milos (Melos), in 1820, hence the name. A farmer reportedly dug her up in his field."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Front_views_of_the_Venus_de_Milo.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Front_views_of_the_Venus_de_Milo.jpg",
               "source": "Wikimedia Commons",
               "license": "CC BY-SA 4.0",
-              "attribution": "Photo : Livioandronico2013 — Vénus de Milo, Louvre Ma 399 (sculpture 3D : licence du photographe)",
+              "attribution": "Photo : Livioandronico2013, Vénus de Milo, Louvre Ma 399 (sculpture 3D : licence du photographe)",
               "status": "verified"
             }
           },
@@ -2051,12 +2051,12 @@
               }
             ],
             "explain": {
-              "fr": "Une stèle de basalte gravée de l'un des plus anciens codes de lois — « œil pour œil » y figure.",
-              "en": "A basalt stele carved with one of the oldest law codes — 'an eye for an eye' is written on it."
+              "fr": "Une stèle de basalte gravée de l'un des plus anciens codes de lois, « œil pour œil » y figure.",
+              "en": "A basalt stele carved with one of the oldest law codes, 'an eye for an eye' is written on it."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Code de Hammurabi, Louvre Sb 8 (photo libre, 3D)",
+              "target": "Wikimedia Commons, Code de Hammurabi, Louvre Sb 8 (photo libre, 3D)",
               "url": "",
               "source": "",
               "license": "",
@@ -2102,12 +2102,12 @@
               }
             ],
             "explain": {
-              "fr": "David, 1807, près de 10 m de large : Napoléon s'y couronne lui-même — et David y a glissé sa mère, absente.",
-              "en": "David, 1807, nearly 10 m wide: Napoleon crowns himself — and David slipped in his mother, who wasn't there."
+              "fr": "David, 1807, près de 10 m de large : Napoléon s'y couronne lui-même, et David y a glissé sa mère, absente.",
+              "en": "David, 1807, nearly 10 m wide: Napoleon crowns himself, and David slipped in his mother, who wasn't there."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Le Sacre de Napoléon, David (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Le Sacre de Napoléon, David (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -2158,7 +2158,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — ruines des Tuileries après 1871 (PD)",
+              "target": "Wikimedia Commons, ruines des Tuileries après 1871 (PD)",
               "url": "",
               "source": "",
               "license": "",
@@ -2204,14 +2204,14 @@
               }
             ],
             "explain": {
-              "fr": "L'escalier Daru, dans l'aile Denon — l'une des entrées en scène les plus spectaculaires d'un musée.",
-              "en": "The Daru staircase, in the Denon wing — one of the most theatrical entrances in any museum."
+              "fr": "L'escalier Daru, dans l'aile Denon, l'une des entrées en scène les plus spectaculaires d'un musée.",
+              "en": "The Daru staircase, in the Denon wing, one of the most theatrical entrances in any museum."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
               "source": "Wikimedia Commons",
               "license": "CC0 (domaine public volontaire)",
-              "attribution": "Photo : Gary Todd (CC0) — La Victoire de Samothrace, Louvre",
+              "attribution": "Photo : Gary Todd (CC0), La Victoire de Samothrace, Louvre",
               "status": "verified"
             }
           },
@@ -2254,14 +2254,14 @@
               }
             ],
             "explain": {
-              "fr": "Lisa Gherardini, épouse du marchand florentin Francesco del Giocondo — d'où « la Gioconda ».",
-              "en": "Lisa Gherardini, wife of Florentine merchant Francesco del Giocondo — hence 'la Gioconda'."
+              "fr": "Lisa Gherardini, épouse du marchand florentin Francesco del Giocondo, d'où « la Gioconda ».",
+              "en": "Lisa Gherardini, wife of Florentine merchant Francesco del Giocondo, hence 'la Gioconda'."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
               "source": "Wikimedia Commons",
               "license": "Public Domain (PD-Art)",
-              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre — repro fidèle 2D du domaine public",
+              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre, repro fidèle 2D du domaine public",
               "status": "verified"
             }
           },
@@ -2309,7 +2309,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — vitrage de la pyramide (⚠ licence ; préférer gravure/substitut PD)",
+              "target": "Wikimedia Commons, vitrage de la pyramide (⚠ licence ; préférer gravure/substitut PD)",
               "url": "",
               "source": "",
               "license": "",
@@ -2359,10 +2359,10 @@
               "en": "An allegory: Liberty herself, bare-breasted and in a Phrygian cap, leading the people over the barricades."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Eug%C3%A8ne_Delacroix_-_La_libert%C3%A9_guidant_le_peuple.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Eug%C3%A8ne_Delacroix_-_La_libert%C3%A9_guidant_le_peuple.jpg",
               "source": "Wikimedia Commons",
               "license": "Public Domain (PD-Art)",
-              "attribution": "Eugène Delacroix, La Liberté guidant le peuple (1830), Louvre — repro fidèle 2D du domaine public",
+              "attribution": "Eugène Delacroix, La Liberté guidant le peuple (1830), Louvre, repro fidèle 2D du domaine public",
               "status": "verified"
             }
           },
@@ -2410,7 +2410,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — cour Visconti, département des Arts de l'Islam (photo libre)",
+              "target": "Wikimedia Commons, cour Visconti, département des Arts de l'Islam (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -2456,12 +2456,12 @@
               }
             ],
             "explain": {
-              "fr": "Les Tuileries — début du « Grand Dessein », ce rêve de relier les deux palais, achevé sous Napoléon III.",
-              "en": "The Tuileries — the start of the 'Grand Dessein', the dream of joining both palaces, finished under Napoleon III."
+              "fr": "Les Tuileries, début du « Grand Dessein », ce rêve de relier les deux palais, achevé sous Napoléon III.",
+              "en": "The Tuileries, the start of the 'Grand Dessein', the dream of joining both palaces, finished under Napoleon III."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Grande Galerie du Louvre, intérieur (photo libre / Hubert Robert PD-Art)",
+              "target": "Wikimedia Commons, Grande Galerie du Louvre, intérieur (photo libre / Hubert Robert PD-Art)",
               "url": "",
               "source": "",
               "license": "",
@@ -2507,12 +2507,12 @@
               }
             ],
             "explain": {
-              "fr": "« La Dentellière » — à peine 24 cm, l'un des plus petits tableaux de Vermeer, d'une précision hypnotique.",
-              "en": "'The Lacemaker' — barely 24 cm, one of Vermeer's smallest paintings, hypnotically precise."
+              "fr": "« La Dentellière », à peine 24 cm, l'un des plus petits tableaux de Vermeer, d'une précision hypnotique.",
+              "en": "'The Lacemaker', barely 24 cm, one of Vermeer's smallest paintings, hypnotically precise."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Vermeer, La Dentellière (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Vermeer, La Dentellière (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -2558,12 +2558,12 @@
               }
             ],
             "explain": {
-              "fr": "Belphégor, « le fantôme du Louvre » — un feuilleton qui a vidé les rues de France chaque soir de diffusion.",
-              "en": "Belphégor, 'the phantom of the Louvre' — a serial that emptied France's streets each night it aired."
+              "fr": "Belphégor, « le fantôme du Louvre », un feuilleton qui a vidé les rues de France chaque soir de diffusion.",
+              "en": "Belphégor, 'the phantom of the Louvre', a serial that emptied France's streets each night it aired."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — façade nocturne du Louvre, ambiance (photo libre)",
+              "target": "Wikimedia Commons, façade nocturne du Louvre, ambiance (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -2614,7 +2614,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Code de Hammurabi, sommet (photo libre, 3D)",
+              "target": "Wikimedia Commons, Code de Hammurabi, sommet (photo libre, 3D)",
               "url": "",
               "source": "",
               "license": "",
@@ -2665,7 +2665,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — quais décorés de Louvre-Rivoli (photo libre)",
+              "target": "Wikimedia Commons, quais décorés de Louvre-Rivoli (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -2716,7 +2716,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Hubert Robert, Grande Galerie (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Hubert Robert, Grande Galerie (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -2767,7 +2767,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — portrait de Vivant Denon, 1er directeur (PD-Art)",
+              "target": "Wikimedia Commons, portrait de Vivant Denon, 1er directeur (PD-Art)",
               "url": "",
               "source": "",
               "license": "",
@@ -2813,12 +2813,12 @@
               }
             ],
             "explain": {
-              "fr": "Ingres, 1814 — une odalisque au dos « trop long » : on lui compta des vertèbres en trop, pour la grâce de la ligne.",
-              "en": "Ingres, 1814 — an odalisque with a 'too-long' back: critics counted extra vertebrae, all for the line."
+              "fr": "Ingres, 1814, une odalisque au dos « trop long » : on lui compta des vertèbres en trop, pour la grâce de la ligne.",
+              "en": "Ingres, 1814, an odalisque with a 'too-long' back: critics counted extra vertebrae, all for the line."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Ingres, La Grande Odalisque (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Ingres, La Grande Odalisque (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -2864,12 +2864,12 @@
               }
             ],
             "explain": {
-              "fr": "Le naufrage réel de la frégate Méduse (1816) : 147 abandonnés sur un radeau, 15 survivants — un scandale d'État.",
-              "en": "The real 1816 wreck of the frigate Méduse: 147 abandoned on a raft, 15 survivors — a state scandal."
+              "fr": "Le naufrage réel de la frégate Méduse (1816) : 147 abandonnés sur un radeau, 15 survivants, un scandale d'État.",
+              "en": "The real 1816 wreck of the frigate Méduse: 147 abandoned on a raft, 15 survivors, a state scandal."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Le Radeau de la Méduse (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Le Radeau de la Méduse (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -2920,7 +2920,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Véronèse, Les Noces de Cana (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Véronèse, Les Noces de Cana (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -2967,11 +2967,11 @@
             ],
             "explain": {
               "fr": "Sino-américain : né à Canton, formé aux États-Unis. Mitterrand l'a choisi sans concours, ce qui fit scandale.",
-              "en": "Chinese-American: born in Guangzhou, trained in the US. Mitterrand picked him with no competition — a scandal."
+              "en": "Chinese-American: born in Guangzhou, trained in the US. Mitterrand picked him with no competition, a scandal."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — portrait d'I. M. Pei (vérifier licence)",
+              "target": "Wikimedia Commons, portrait d'I. M. Pei (vérifier licence)",
               "url": "",
               "source": "",
               "license": "",
@@ -3017,14 +3017,14 @@
               }
             ],
             "explain": {
-              "fr": "La Salle des États, aile Denon — le tableau le plus visité du monde face au plus grand du musée.",
-              "en": "The Salle des États, Denon wing — the world's most-visited painting facing the museum's largest."
+              "fr": "La Salle des États, aile Denon, le tableau le plus visité du monde face au plus grand du musée.",
+              "en": "The Salle des États, Denon wing, the world's most-visited painting facing the museum's largest."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
               "source": "Wikimedia Commons",
               "license": "Public Domain (PD-Art)",
-              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre — repro fidèle 2D du domaine public",
+              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre, repro fidèle 2D du domaine public",
               "status": "verified"
             }
           },
@@ -3071,10 +3071,10 @@
               "en": "1913: Peruggia tried to sell it in Florence, believing he was 'returning' it to Italy. Arrested, he became almost a hero."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
               "source": "Wikimedia Commons",
               "license": "Public Domain (PD-Art)",
-              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre — repro fidèle 2D du domaine public",
+              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre, repro fidèle 2D du domaine public",
               "status": "verified"
             }
           }
@@ -3133,7 +3133,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — aile Lescot, Cour Carrée (architecture PD, photo libre — substitut sûr à la pyramide)",
+              "target": "Wikimedia Commons, aile Lescot, Cour Carrée (architecture PD, photo libre, substitut sûr à la pyramide)",
               "url": "",
               "source": "",
               "license": "",
@@ -3184,7 +3184,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — salle des Caryatides, Louvre (photo libre)",
+              "target": "Wikimedia Commons, salle des Caryatides, Louvre (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -3230,12 +3230,12 @@
               }
             ],
             "explain": {
-              "fr": "Claude Perrault — son projet l'emporta sur celui du Bernin, pourtant venu exprès de Rome pour Louis XIV.",
-              "en": "Claude Perrault — his design beat Bernini's, even though Bernini had come from Rome for Louis XIV."
+              "fr": "Claude Perrault, son projet l'emporta sur celui du Bernin, pourtant venu exprès de Rome pour Louis XIV.",
+              "en": "Claude Perrault, his design beat Bernini's, even though Bernini had come from Rome for Louis XIV."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Colonnade du Louvre, Perrault (architecture PD, photo libre)",
+              "target": "Wikimedia Commons, Colonnade du Louvre, Perrault (architecture PD, photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -3281,12 +3281,12 @@
               }
             ],
             "explain": {
-              "fr": "Catherine de Médicis, sur un ancien site de fabriques de tuiles — d'où le nom « Tuileries ».",
-              "en": "Catherine de' Medici, on a former tile-works site — hence the name 'Tuileries'."
+              "fr": "Catherine de Médicis, sur un ancien site de fabriques de tuiles, d'où le nom « Tuileries ».",
+              "en": "Catherine de' Medici, on a former tile-works site, hence the name 'Tuileries'."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — palais des Tuileries avant 1871 (PD)",
+              "target": "Wikimedia Commons, palais des Tuileries avant 1871 (PD)",
               "url": "",
               "source": "",
               "license": "",
@@ -3337,7 +3337,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Nouveau Louvre, Napoléon III (photo libre)",
+              "target": "Wikimedia Commons, Nouveau Louvre, Napoléon III (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -3388,7 +3388,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Grande Galerie du Louvre (photo libre / Hubert Robert PD-Art)",
+              "target": "Wikimedia Commons, Grande Galerie du Louvre (photo libre / Hubert Robert PD-Art)",
               "url": "",
               "source": "",
               "license": "",
@@ -3401,7 +3401,7 @@
             "answer": "a",
             "question": {
               "fr": "Comment appelait-on le donjon médiéval, cœur du premier Louvre ?",
-              "en": "What was the medieval keep — heart of the first Louvre — called?"
+              "en": "What was the medieval keep, heart of the first Louvre, called?"
             },
             "choices": [
               {
@@ -3439,7 +3439,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — maquette du Louvre médiéval (photo libre)",
+              "target": "Wikimedia Commons, maquette du Louvre médiéval (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -3490,7 +3490,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Louvre de Charles V, enluminure des Très Riches Heures (PD)",
+              "target": "Wikimedia Commons, Louvre de Charles V, enluminure des Très Riches Heures (PD)",
               "url": "",
               "source": "",
               "license": "",
@@ -3541,7 +3541,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — buste/portrait du Bernin (PD-Art)",
+              "target": "Wikimedia Commons, buste/portrait du Bernin (PD-Art)",
               "url": "",
               "source": "",
               "license": "",
@@ -3592,7 +3592,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — pavillon de l'Horloge, Cour Carrée (photo libre)",
+              "target": "Wikimedia Commons, pavillon de l'Horloge, Cour Carrée (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -3643,7 +3643,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — pavillons Napoléon III, Louvre (photo libre)",
+              "target": "Wikimedia Commons, pavillons Napoléon III, Louvre (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -3656,7 +3656,7 @@
             "answer": "a",
             "question": {
               "fr": "Où le roi Charles V installa-t-il sa librairie, ancêtre de la BnF, vers 1368 ?",
-              "en": "Where did Charles V house his library — ancestor of the BnF — around 1368?"
+              "en": "Where did Charles V house his library, ancestor of the BnF, around 1368?"
             },
             "choices": [
               {
@@ -3694,7 +3694,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Louvre de Charles V (enluminure PD)",
+              "target": "Wikimedia Commons, Louvre de Charles V (enluminure PD)",
               "url": "",
               "source": "",
               "license": "",
@@ -3740,12 +3740,12 @@
               }
             ],
             "explain": {
-              "fr": "1871. Les ruines resteront debout jusqu'en 1883, puis seront rasées — ouvrant la perspective vers l'Arc de Triomphe.",
-              "en": "1871. The ruins stood until 1883, then were cleared — opening the vista toward the Arc de Triomphe."
+              "fr": "1871. Les ruines resteront debout jusqu'en 1883, puis seront rasées, ouvrant la perspective vers l'Arc de Triomphe.",
+              "en": "1871. The ruins stood until 1883, then were cleared, opening the vista toward the Arc de Triomphe."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Tuileries incendiées, 1871 (PD)",
+              "target": "Wikimedia Commons, Tuileries incendiées, 1871 (PD)",
               "url": "",
               "source": "",
               "license": "",
@@ -3796,7 +3796,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — signalétique Louvre-Rivoli (photo libre)",
+              "target": "Wikimedia Commons, signalétique Louvre-Rivoli (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -3847,7 +3847,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — quais décorés de Louvre-Rivoli (photo libre)",
+              "target": "Wikimedia Commons, quais décorés de Louvre-Rivoli (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -3898,7 +3898,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — portrait d'André Malraux (PD/licence libre)",
+              "target": "Wikimedia Commons, portrait d'André Malraux (PD/licence libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -3949,7 +3949,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — moulages des quais, Louvre-Rivoli 2016 (photo libre)",
+              "target": "Wikimedia Commons, moulages des quais, Louvre-Rivoli 2016 (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -4000,7 +4000,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — métro parisien 1900, Exposition universelle (PD)",
+              "target": "Wikimedia Commons, métro parisien 1900, Exposition universelle (PD)",
               "url": "",
               "source": "",
               "license": "",
@@ -4051,7 +4051,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — rue de Rivoli, arcades (photo libre)",
+              "target": "Wikimedia Commons, rue de Rivoli, arcades (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -4097,12 +4097,12 @@
               }
             ],
             "explain": {
-              "fr": "Château de Vincennes à La Défense — automatisée depuis 2012, elle traverse Paris d'est en ouest par le Louvre.",
-              "en": "Château de Vincennes to La Défense — driverless since 2012, it crosses Paris east-west via the Louvre."
+              "fr": "Château de Vincennes à La Défense, automatisée depuis 2012, elle traverse Paris d'est en ouest par le Louvre.",
+              "en": "Château de Vincennes to La Défense, driverless since 2012, it crosses Paris east-west via the Louvre."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — plan de la ligne 1 (libre)",
+              "target": "Wikimedia Commons, plan de la ligne 1 (libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -4152,10 +4152,10 @@
               "en": "Rock crystal set in copper: that gives his gaze its living presence, 4,500 years on."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:The_seated_scribe.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/The_seated_scribe.jpg",
               "source": "Wikimedia Commons",
               "license": "CC BY-SA 2.0",
-              "attribution": "Photo : Ivo Jansch — Le Scribe accroupi, Louvre E 3023 (sculpture 3D : licence du photographe)",
+              "attribution": "Photo : Ivo Jansch, Le Scribe accroupi, Louvre E 3023 (sculpture 3D : licence du photographe)",
               "status": "verified"
             }
           },
@@ -4202,10 +4202,10 @@
               "en": "Saqqara, the necropolis of Memphis. The exact identity of this strikingly lifelike official is still unknown."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:The_seated_scribe.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/The_seated_scribe.jpg",
               "source": "Wikimedia Commons",
               "license": "CC BY-SA 2.0",
-              "attribution": "Photo : Ivo Jansch — Le Scribe accroupi, Louvre E 3023 (sculpture 3D : licence du photographe)",
+              "attribution": "Photo : Ivo Jansch, Le Scribe accroupi, Louvre E 3023 (sculpture 3D : licence du photographe)",
               "status": "verified"
             }
           },
@@ -4252,10 +4252,10 @@
               "en": "Vincenzo Peruggia, an Italian glazier at the museum: he lifted it under his smock on a closed Monday."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
               "source": "Wikimedia Commons",
               "license": "Public Domain (PD-Art)",
-              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre — repro fidèle 2D du domaine public",
+              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre, repro fidèle 2D du domaine public",
               "status": "verified"
             }
           },
@@ -4303,7 +4303,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — portrait de Guillaume Apollinaire (PD)",
+              "target": "Wikimedia Commons, portrait de Guillaume Apollinaire (PD)",
               "url": "",
               "source": "",
               "license": "",
@@ -4353,10 +4353,10 @@
               "en": "1820: a farmer and a French officer unearth her; France presents her to Louis XVIII, who gives her to the Louvre."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Front_views_of_the_Venus_de_Milo.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Front_views_of_the_Venus_de_Milo.jpg",
               "source": "Wikimedia Commons",
               "license": "CC BY-SA 4.0",
-              "attribution": "Photo : Livioandronico2013 — Vénus de Milo, Louvre Ma 399 (sculpture 3D : licence du photographe)",
+              "attribution": "Photo : Livioandronico2013, Vénus de Milo, Louvre Ma 399 (sculpture 3D : licence du photographe)",
               "status": "verified"
             }
           },
@@ -4403,10 +4403,10 @@
               "en": "Charles Champoiseau, diplomat-archaeologist, on Samothrace. The ship's prow was only found in 1879."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
               "source": "Wikimedia Commons",
               "license": "CC0 (domaine public volontaire)",
-              "attribution": "Photo : Gary Todd (CC0) — La Victoire de Samothrace, Louvre",
+              "attribution": "Photo : Gary Todd (CC0), La Victoire de Samothrace, Louvre",
               "status": "verified"
             }
           },
@@ -4449,12 +4449,12 @@
               }
             ],
             "explain": {
-              "fr": "Letizia Bonaparte, « Madame Mère », trône au centre — alors qu'elle avait boudé la cérémonie.",
-              "en": "Letizia Bonaparte, 'Madame Mère', sits enthroned at the centre — though she had snubbed the ceremony."
+              "fr": "Letizia Bonaparte, « Madame Mère », trône au centre, alors qu'elle avait boudé la cérémonie.",
+              "en": "Letizia Bonaparte, 'Madame Mère', sits enthroned at the centre, though she had snubbed the ceremony."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Le Sacre de Napoléon, détail (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Le Sacre de Napoléon, détail (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -4505,7 +4505,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Le Radeau de la Méduse, détail (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Le Radeau de la Méduse, détail (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -4556,7 +4556,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Véronèse, Les Noces de Cana (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Véronèse, Les Noces de Cana (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -4607,7 +4607,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Véronèse, Les Noces de Cana (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Véronèse, Les Noces de Cana (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -4653,12 +4653,12 @@
               }
             ],
             "explain": {
-              "fr": "À Suse (Iran), où des Élamites l'avaient emportée comme trophée — l'expédition de Jacques de Morgan l'y trouva.",
-              "en": "At Susa (Iran), where Elamites had carried it off as a trophy — Jacques de Morgan's dig found it there."
+              "fr": "À Suse (Iran), où des Élamites l'avaient emportée comme trophée, l'expédition de Jacques de Morgan l'y trouva.",
+              "en": "At Susa (Iran), where Elamites had carried it off as a trophy, Jacques de Morgan's dig found it there."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Code de Hammurabi, Louvre Sb 8 (photo libre, 3D)",
+              "target": "Wikimedia Commons, Code de Hammurabi, Louvre Sb 8 (photo libre, 3D)",
               "url": "",
               "source": "",
               "license": "",
@@ -4709,7 +4709,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — sommet de la stèle de Hammurabi (photo libre)",
+              "target": "Wikimedia Commons, sommet de la stèle de Hammurabi (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -4755,14 +4755,14 @@
               }
             ],
             "explain": {
-              "fr": "Les Trois Glorieuses de juillet 1830, qui chassèrent Charles X — Delacroix s'y peignit peut-être en haut-de-forme.",
-              "en": "The 'Trois Glorieuses' of July 1830 that ousted Charles X — Delacroix may have painted himself in the top hat."
+              "fr": "Les Trois Glorieuses de juillet 1830, qui chassèrent Charles X, Delacroix s'y peignit peut-être en haut-de-forme.",
+              "en": "The 'Trois Glorieuses' of July 1830 that ousted Charles X, Delacroix may have painted himself in the top hat."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Eug%C3%A8ne_Delacroix_-_La_libert%C3%A9_guidant_le_peuple.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Eug%C3%A8ne_Delacroix_-_La_libert%C3%A9_guidant_le_peuple.jpg",
               "source": "Wikimedia Commons",
               "license": "Public Domain (PD-Art)",
-              "attribution": "Eugène Delacroix, La Liberté guidant le peuple (1830), Louvre — repro fidèle 2D du domaine public",
+              "attribution": "Eugène Delacroix, La Liberté guidant le peuple (1830), Louvre, repro fidèle 2D du domaine public",
               "status": "verified"
             }
           },
@@ -4809,10 +4809,10 @@
               "en": "Deemed too inflammatory, it was returned to Delacroix then stored away: a Liberty too free for those in power."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Eug%C3%A8ne_Delacroix_-_La_libert%C3%A9_guidant_le_peuple.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Eug%C3%A8ne_Delacroix_-_La_libert%C3%A9_guidant_le_peuple.jpg",
               "source": "Wikimedia Commons",
               "license": "Public Domain (PD-Art)",
-              "attribution": "Eugène Delacroix, La Liberté guidant le peuple (1830), Louvre — repro fidèle 2D du domaine public",
+              "attribution": "Eugène Delacroix, La Liberté guidant le peuple (1830), Louvre, repro fidèle 2D du domaine public",
               "status": "verified"
             }
           },
@@ -4859,10 +4859,10 @@
               "en": "The Old Kingdom (4th-5th dynasty, ~2600-2350 BC), the age of the great pyramids."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:The_seated_scribe.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/The_seated_scribe.jpg",
               "source": "Wikimedia Commons",
               "license": "CC BY-SA 2.0",
-              "attribution": "Photo : Ivo Jansch — Le Scribe accroupi, Louvre E 3023 (sculpture 3D : licence du photographe)",
+              "attribution": "Photo : Ivo Jansch, Le Scribe accroupi, Louvre E 3023 (sculpture 3D : licence du photographe)",
               "status": "verified"
             }
           },
@@ -4909,10 +4909,10 @@
               "en": "Hellenistic (~100 BC), though she quotes the Classical ideal: a nostalgic classicism."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Front_views_of_the_Venus_de_Milo.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Front_views_of_the_Venus_de_Milo.jpg",
               "source": "Wikimedia Commons",
               "license": "CC BY-SA 4.0",
-              "attribution": "Photo : Livioandronico2013 — Vénus de Milo, Louvre Ma 399 (sculpture 3D : licence du photographe)",
+              "attribution": "Photo : Livioandronico2013, Vénus de Milo, Louvre Ma 399 (sculpture 3D : licence du photographe)",
               "status": "verified"
             }
           },
@@ -4955,14 +4955,14 @@
               }
             ],
             "explain": {
-              "fr": "La statue est en marbre blanc de Paros ; sa base-proue, en marbre gris de Rhodes — deux pierres, un seul élan.",
-              "en": "The statue is white Parian marble; her ship's-prow base, grey Rhodian — two stones, one surge of movement."
+              "fr": "La statue est en marbre blanc de Paros ; sa base-proue, en marbre gris de Rhodes, deux pierres, un seul élan.",
+              "en": "The statue is white Parian marble; her ship's-prow base, grey Rhodian, two stones, one surge of movement."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
               "source": "Wikimedia Commons",
               "license": "CC0 (domaine public volontaire)",
-              "attribution": "Photo : Gary Todd (CC0) — La Victoire de Samothrace, Louvre",
+              "attribution": "Photo : Gary Todd (CC0), La Victoire de Samothrace, Louvre",
               "status": "verified"
             }
           },
@@ -5010,7 +5010,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — plan des départements du Louvre (libre)",
+              "target": "Wikimedia Commons, plan des départements du Louvre (libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -5056,12 +5056,12 @@
               }
             ],
             "explain": {
-              "fr": "Les diamants de la Couronne, dont le Régent (140 carats) — la galerie fut un manifeste du goût de Louis XIV.",
-              "en": "The Crown Jewels, including the 140-carat Regent — the gallery was a manifesto of Louis XIV's taste."
+              "fr": "Les diamants de la Couronne, dont le Régent (140 carats), la galerie fut un manifeste du goût de Louis XIV.",
+              "en": "The Crown Jewels, including the 140-carat Regent, the gallery was a manifesto of Louis XIV's taste."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — galerie d'Apollon, Louvre (photo libre)",
+              "target": "Wikimedia Commons, galerie d'Apollon, Louvre (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -5107,12 +5107,12 @@
               }
             ],
             "explain": {
-              "fr": "Delacroix, 1851 : « Apollon vainqueur du serpent Python » — la lumière terrassant les ténèbres.",
-              "en": "Delacroix, 1851: 'Apollo Vanquishing the Serpent Python' — light striking down darkness."
+              "fr": "Delacroix, 1851 : « Apollon vainqueur du serpent Python », la lumière terrassant les ténèbres.",
+              "en": "Delacroix, 1851: 'Apollo Vanquishing the Serpent Python', light striking down darkness."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — plafond galerie d'Apollon, Delacroix (PD-Art / photo libre)",
+              "target": "Wikimedia Commons, plafond galerie d'Apollon, Delacroix (PD-Art / photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -5163,7 +5163,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — portrait de Champollion (PD-Art)",
+              "target": "Wikimedia Commons, portrait de Champollion (PD-Art)",
               "url": "",
               "source": "",
               "license": "",
@@ -5214,7 +5214,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — verrière des Arts de l'Islam, cour Visconti (photo libre)",
+              "target": "Wikimedia Commons, verrière des Arts de l'Islam, cour Visconti (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -5260,12 +5260,12 @@
               }
             ],
             "explain": {
-              "fr": "2017, sous le dôme « pluie de lumière » de Jean Nouvel — le nom « Louvre » loué pour trente ans.",
-              "en": "2017, under Jean Nouvel's 'rain of light' dome — the 'Louvre' name leased for thirty years."
+              "fr": "2017, sous le dôme « pluie de lumière » de Jean Nouvel, le nom « Louvre » loué pour trente ans.",
+              "en": "2017, under Jean Nouvel's 'rain of light' dome, the 'Louvre' name leased for thirty years."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — dôme du Louvre Abou Dabi, Jean Nouvel (vérifier licence ; ⚠ droit d'auteur récent)",
+              "target": "Wikimedia Commons, dôme du Louvre Abou Dabi, Jean Nouvel (vérifier licence ; ⚠ droit d'auteur récent)",
               "url": "",
               "source": "",
               "license": "",
@@ -5311,14 +5311,14 @@
               }
             ],
             "explain": {
-              "fr": "Antiquités grecques, étrusques et romaines — l'un des huit départements, et l'un des plus visités.",
-              "en": "Greek, Etruscan and Roman Antiquities — one of the eight departments, and among the most visited."
+              "fr": "Antiquités grecques, étrusques et romaines, l'un des huit départements, et l'un des plus visités.",
+              "en": "Greek, Etruscan and Roman Antiquities, one of the eight departments, and among the most visited."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
               "source": "Wikimedia Commons",
               "license": "CC0 (domaine public volontaire)",
-              "attribution": "Photo : Gary Todd (CC0) — La Victoire de Samothrace, Louvre",
+              "attribution": "Photo : Gary Todd (CC0), La Victoire de Samothrace, Louvre",
               "status": "verified"
             }
           },
@@ -5361,12 +5361,12 @@
               }
             ],
             "explain": {
-              "fr": "Jean Goujon, 1550 : quatre femmes de pierre portant la tribune des musiciens — la plus vieille salle du Louvre.",
-              "en": "Jean Goujon, 1550: four stone women bearing the musicians' gallery — the oldest room in the Louvre."
+              "fr": "Jean Goujon, 1550 : quatre femmes de pierre portant la tribune des musiciens, la plus vieille salle du Louvre.",
+              "en": "Jean Goujon, 1550: four stone women bearing the musicians' gallery, the oldest room in the Louvre."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — salle des Caryatides, Louvre (photo libre)",
+              "target": "Wikimedia Commons, salle des Caryatides, Louvre (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -5417,7 +5417,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Hubert Robert, Grande Galerie (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Hubert Robert, Grande Galerie (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -5463,12 +5463,12 @@
               }
             ],
             "explain": {
-              "fr": "Dominique-Vivant Denon : il remplit le « Musée Napoléon » du butin d'Europe — d'où l'aile Denon.",
-              "en": "Dominique-Vivant Denon: he filled the 'Musée Napoléon' with Europe's loot — hence the Denon wing."
+              "fr": "Dominique-Vivant Denon : il remplit le « Musée Napoléon » du butin d'Europe, d'où l'aile Denon.",
+              "en": "Dominique-Vivant Denon: he filled the 'Musée Napoléon' with Europe's loot, hence the Denon wing."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — portrait de Vivant Denon (PD-Art)",
+              "target": "Wikimedia Commons, portrait de Vivant Denon (PD-Art)",
               "url": "",
               "source": "",
               "license": "",
@@ -5514,12 +5514,12 @@
               }
             ],
             "explain": {
-              "fr": "Restituée aux pays spoliés. Mais bien des pièces restèrent — Les Noces de Cana, jugées trop fragiles à déplacer.",
-              "en": "Returned to the looted nations. Yet many stayed — The Wedding at Cana, deemed too fragile to move."
+              "fr": "Restituée aux pays spoliés. Mais bien des pièces restèrent, Les Noces de Cana, jugées trop fragiles à déplacer.",
+              "en": "Returned to the looted nations. Yet many stayed, The Wedding at Cana, deemed too fragile to move."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Grande Galerie du Louvre (PD-Art / photo libre)",
+              "target": "Wikimedia Commons, Grande Galerie du Louvre (PD-Art / photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -5565,12 +5565,12 @@
               }
             ],
             "explain": {
-              "fr": "L'Académie royale exposait dans le Salon Carré du Louvre — d'où « le Salon », faiseur et tombeur de réputations.",
-              "en": "The Royal Academy exhibited in the Louvre's Salon Carré — hence 'the Salon', maker and breaker of reputations."
+              "fr": "L'Académie royale exposait dans le Salon Carré du Louvre, d'où « le Salon », faiseur et tombeur de réputations.",
+              "en": "The Royal Academy exhibited in the Louvre's Salon Carré, hence 'the Salon', maker and breaker of reputations."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — vue d'un Salon au Louvre, gravure XVIIIe (PD)",
+              "target": "Wikimedia Commons, vue d'un Salon au Louvre, gravure XVIIIe (PD)",
               "url": "",
               "source": "",
               "license": "",
@@ -5621,7 +5621,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Tuileries en flammes, 1871 (PD)",
+              "target": "Wikimedia Commons, Tuileries en flammes, 1871 (PD)",
               "url": "",
               "source": "",
               "license": "",
@@ -5667,12 +5667,12 @@
               }
             ],
             "explain": {
-              "fr": "« Bande à part » : le trio bat le record de traversée du Louvre — un sprint culte recopié par Bertolucci.",
-              "en": "'Band of Outsiders': the trio beats the record for crossing the Louvre — a cult dash later echoed by Bertolucci."
+              "fr": "« Bande à part » : le trio bat le record de traversée du Louvre, un sprint culte recopié par Bertolucci.",
+              "en": "'Band of Outsiders': the trio beats the record for crossing the Louvre, a cult dash later echoed by Bertolucci."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Grande Galerie du Louvre (photo libre)",
+              "target": "Wikimedia Commons, Grande Galerie du Louvre (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -5723,7 +5723,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — pyramide la nuit (⚠ droit d'auteur Pei + éclairage ; préférer substitut PD)",
+              "target": "Wikimedia Commons, pyramide la nuit (⚠ droit d'auteur Pei + éclairage ; préférer substitut PD)",
               "url": "",
               "source": "",
               "license": "",
@@ -5769,14 +5769,14 @@
               }
             ],
             "explain": {
-              "fr": "La Victoire de Samothrace, en haut de l'escalier Daru — l'un des plans les plus emblématiques du clip.",
-              "en": "The Winged Victory, atop the Daru staircase — one of the video's most iconic shots."
+              "fr": "La Victoire de Samothrace, en haut de l'escalier Daru, l'un des plans les plus emblématiques du clip.",
+              "en": "The Winged Victory, atop the Daru staircase, one of the video's most iconic shots."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
               "source": "Wikimedia Commons",
               "license": "CC0 (domaine public volontaire)",
-              "attribution": "Photo : Gary Todd (CC0) — La Victoire de Samothrace, Louvre",
+              "attribution": "Photo : Gary Todd (CC0), La Victoire de Samothrace, Louvre",
               "status": "verified"
             }
           },
@@ -5819,14 +5819,14 @@
               }
             ],
             "explain": {
-              "fr": "Un homme déguisé l'a barbouillée de gâteau — sa vitre blindée a tout encaissé, comme un projectile en 1956 déjà.",
-              "en": "A man in disguise smeared it with cake — its bulletproof glass took the hit, as it had a thrown object back in 1956."
+              "fr": "Un homme déguisé l'a barbouillée de gâteau, sa vitre blindée a tout encaissé, comme un projectile en 1956 déjà.",
+              "en": "A man in disguise smeared it with cake, its bulletproof glass took the hit, as it had a thrown object back in 1956."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
               "source": "Wikimedia Commons",
               "license": "Public Domain (PD-Art)",
-              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre — repro fidèle 2D du domaine public",
+              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre, repro fidèle 2D du domaine public",
               "status": "verified"
             }
           },
@@ -5869,12 +5869,12 @@
               }
             ],
             "explain": {
-              "fr": "Le tombeau de Marie-Madeleine — pure fiction de Dan Brown, mais qui draine des curieux sous la verrière inversée.",
-              "en": "Mary Magdalene's tomb — pure Dan Brown fiction, yet it draws the curious beneath the inverted skylight."
+              "fr": "Le tombeau de Marie-Madeleine, pure fiction de Dan Brown, mais qui draine des curieux sous la verrière inversée.",
+              "en": "Mary Magdalene's tomb, pure Dan Brown fiction, yet it draws the curious beneath the inverted skylight."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — pyramide inversée, Carrousel du Louvre (⚠ vérifier licence)",
+              "target": "Wikimedia Commons, pyramide inversée, Carrousel du Louvre (⚠ vérifier licence)",
               "url": "",
               "source": "",
               "license": "",
@@ -5920,14 +5920,14 @@
               }
             ],
             "explain": {
-              "fr": "Une pierre, qui écailla un peu de peinture près du coude — depuis, la dame est intouchable derrière sa vitre.",
-              "en": "A rock, which chipped a little paint near her elbow — ever since, the lady is untouchable behind glass."
+              "fr": "Une pierre, qui écailla un peu de peinture près du coude, depuis, la dame est intouchable derrière sa vitre.",
+              "en": "A rock, which chipped a little paint near her elbow, ever since, the lady is untouchable behind glass."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
               "source": "Wikimedia Commons",
               "license": "Public Domain (PD-Art)",
-              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre — repro fidèle 2D du domaine public",
+              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre, repro fidèle 2D du domaine public",
               "status": "verified"
             }
           },
@@ -5975,7 +5975,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Michel-Ange, Esclaves, Louvre (photo libre, 3D)",
+              "target": "Wikimedia Commons, Michel-Ange, Esclaves, Louvre (photo libre, 3D)",
               "url": "",
               "source": "",
               "license": "",
@@ -6021,12 +6021,12 @@
               }
             ],
             "explain": {
-              "fr": "Jules II, le pape guerrier — projet démesuré, jamais achevé ; les Esclaves échouèrent finalement à Paris.",
-              "en": "Julius II, the warrior pope — a vast, unfinished project; the Slaves eventually ended up in Paris."
+              "fr": "Jules II, le pape guerrier, projet démesuré, jamais achevé ; les Esclaves échouèrent finalement à Paris.",
+              "en": "Julius II, the warrior pope, a vast, unfinished project; the Slaves eventually ended up in Paris."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Esclave mourant, Michel-Ange (photo libre, 3D)",
+              "target": "Wikimedia Commons, Esclave mourant, Michel-Ange (photo libre, 3D)",
               "url": "",
               "source": "",
               "license": "",
@@ -6077,7 +6077,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Canova, Psyché ranimée, Louvre (photo libre, 3D)",
+              "target": "Wikimedia Commons, Canova, Psyché ranimée, Louvre (photo libre, 3D)",
               "url": "",
               "source": "",
               "license": "",
@@ -6128,7 +6128,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Chevaux de Marly, cour Marly, Louvre (photo libre, 3D)",
+              "target": "Wikimedia Commons, Chevaux de Marly, cour Marly, Louvre (photo libre, 3D)",
               "url": "",
               "source": "",
               "license": "",
@@ -6174,12 +6174,12 @@
               }
             ],
             "explain": {
-              "fr": "L'école de Fontainebleau : la maîtresse d'Henri IV, le sein pincé — une annonce de grossesse codée, énigmatique.",
-              "en": "The Fontainebleau school: Henri IV's mistress, a nipple pinched — a cryptic, coded announcement of pregnancy."
+              "fr": "L'école de Fontainebleau : la maîtresse d'Henri IV, le sein pincé, une annonce de grossesse codée, énigmatique.",
+              "en": "The Fontainebleau school: Henri IV's mistress, a nipple pinched, a cryptic, coded announcement of pregnancy."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Gabrielle d'Estrées…, école de Fontainebleau (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Gabrielle d'Estrées…, école de Fontainebleau (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -6225,12 +6225,12 @@
               }
             ],
             "explain": {
-              "fr": "Georges de La Tour, peintre lorrain de l'ombre et de la bougie — une leçon de regards et de duperie.",
-              "en": "Georges de La Tour, the Lorraine painter of shadow and candlelight — a masterclass in glances and deceit."
+              "fr": "Georges de La Tour, peintre lorrain de l'ombre et de la bougie, une leçon de regards et de duperie.",
+              "en": "Georges de La Tour, the Lorraine painter of shadow and candlelight, a masterclass in glances and deceit."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Georges de La Tour, Le Tricheur (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Georges de La Tour, Le Tricheur (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -6276,12 +6276,12 @@
               }
             ],
             "explain": {
-              "fr": "Albrecht Dürer, tenant un chardon (eryngium) — l'un des premiers autoportraits autonomes de l'art occidental.",
-              "en": "Albrecht Dürer, holding a thistle (eryngium) — one of the first standalone self-portraits in Western art."
+              "fr": "Albrecht Dürer, tenant un chardon (eryngium), l'un des premiers autoportraits autonomes de l'art occidental.",
+              "en": "Albrecht Dürer, holding a thistle (eryngium), one of the first standalone self-portraits in Western art."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Dürer, autoportrait au chardon (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Dürer, autoportrait au chardon (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -6332,7 +6332,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Léonard, La Belle Ferronnière (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Léonard, La Belle Ferronnière (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -6378,12 +6378,12 @@
               }
             ],
             "explain": {
-              "fr": "David, 1784 : trois frères jurant de mourir pour Rome — austérité républicaine annonçant la Révolution.",
-              "en": "David, 1784: three brothers swearing to die for Rome — a republican austerity foretelling the Revolution."
+              "fr": "David, 1784 : trois frères jurant de mourir pour Rome, austérité républicaine annonçant la Révolution.",
+              "en": "David, 1784: three brothers swearing to die for Rome, a republican austerity foretelling the Revolution."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — David, Le Serment des Horaces (PD-Art, 2D)",
+              "target": "Wikimedia Commons, David, Le Serment des Horaces (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -6429,12 +6429,12 @@
               }
             ],
             "explain": {
-              "fr": "Delacroix, 1827 : un roi qui fait tout détruire avant de mourir — couleur, violence et orientalisme à leur comble.",
-              "en": "Delacroix, 1827: a king who has everything destroyed before he dies — colour, violence and Orientalism at full blast."
+              "fr": "Delacroix, 1827 : un roi qui fait tout détruire avant de mourir, couleur, violence et orientalisme à leur comble.",
+              "en": "Delacroix, 1827: a king who has everything destroyed before he dies, colour, violence and Orientalism at full blast."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Delacroix, La Mort de Sardanapale (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Delacroix, La Mort de Sardanapale (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -6485,7 +6485,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Ingres, La Grande Odalisque (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Ingres, La Grande Odalisque (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -6536,7 +6536,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — lamassu de Khorsabad, Louvre (photo libre, 3D)",
+              "target": "Wikimedia Commons, lamassu de Khorsabad, Louvre (photo libre, 3D)",
               "url": "",
               "source": "",
               "license": "",
@@ -6587,7 +6587,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — chantier du Grand Louvre / aile Richelieu (photo libre)",
+              "target": "Wikimedia Commons, chantier du Grand Louvre / aile Richelieu (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -6638,7 +6638,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — aile Richelieu, Louvre (photo libre)",
+              "target": "Wikimedia Commons, aile Richelieu, Louvre (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -6689,7 +6689,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — vitrage de la pyramide, substitut PD (⚠ éviter cadrage sur l'œuvre Pei)",
+              "target": "Wikimedia Commons, vitrage de la pyramide, substitut PD (⚠ éviter cadrage sur l'œuvre Pei)",
               "url": "",
               "source": "",
               "license": "",
@@ -6735,12 +6735,12 @@
               }
             ],
             "explain": {
-              "fr": "Sous la rue de Rivoli, à l'ouest de son croisement avec la rue du Louvre — d'où son double nom depuis 1989.",
-              "en": "Under Rue de Rivoli, west of its junction with Rue du Louvre — hence the double name since 1989."
+              "fr": "Sous la rue de Rivoli, à l'ouest de son croisement avec la rue du Louvre, d'où son double nom depuis 1989.",
+              "en": "Under Rue de Rivoli, west of its junction with Rue du Louvre, hence the double name since 1989."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — rue de Rivoli et ses arcades (photo libre)",
+              "target": "Wikimedia Commons, rue de Rivoli et ses arcades (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -6786,12 +6786,12 @@
               }
             ],
             "explain": {
-              "fr": "On entrait par l'arrière de la Cour Carrée, tout près. La pyramide (1990) déplaça l'accès vers Palais-Royal.",
-              "en": "Entry was at the rear of the Cour Carrée, right nearby. The pyramid (1990) shifted access to Palais-Royal."
+              "fr": "On entrait par l'arrière de la Cour Carrée, tout près. La pyramide (1989) déplaça l'accès vers Palais-Royal.",
+              "en": "Entry was at the rear of the Cour Carrée, right nearby. The pyramid (1989) shifted access to Palais-Royal."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Cour Carrée, accès historique (photo libre)",
+              "target": "Wikimedia Commons, Cour Carrée, accès historique (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -6841,10 +6841,10 @@
               "en": "The Seated Scribe: placed there by Malraux, he became the station's unofficial emblem."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:The_seated_scribe.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/The_seated_scribe.jpg",
               "source": "Wikimedia Commons",
               "license": "CC BY-SA 2.0",
-              "attribution": "Photo : Ivo Jansch — Le Scribe accroupi, Louvre E 3023 (sculpture 3D : licence du photographe)",
+              "attribution": "Photo : Ivo Jansch, Le Scribe accroupi, Louvre E 3023 (sculpture 3D : licence du photographe)",
               "status": "verified"
             }
           },
@@ -6887,14 +6887,14 @@
               }
             ],
             "explain": {
-              "fr": "Un panneau de peuplier — d'où les fissures, et la vitrine climatisée qui veille sur son fragile sourire.",
-              "en": "A poplar panel — hence its cracks, and the climate cabinet that watches over its fragile smile."
+              "fr": "Un panneau de peuplier, d'où les fissures, et la vitrine climatisée qui veille sur son fragile sourire.",
+              "en": "A poplar panel, hence its cracks, and the climate cabinet that watches over its fragile smile."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
               "source": "Wikimedia Commons",
               "license": "Public Domain (PD-Art)",
-              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre — repro fidèle 2D du domaine public",
+              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre, repro fidèle 2D du domaine public",
               "status": "verified"
             }
           },
@@ -6941,10 +6941,10 @@
               "en": "Nike, who crowns the victors: here she alights on a prow, an offering for a naval victory."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
               "source": "Wikimedia Commons",
               "license": "CC0 (domaine public volontaire)",
-              "attribution": "Photo : Gary Todd (CC0) — La Victoire de Samothrace, Louvre",
+              "attribution": "Photo : Gary Todd (CC0), La Victoire de Samothrace, Louvre",
               "status": "verified"
             }
           },
@@ -6987,12 +6987,12 @@
               }
             ],
             "explain": {
-              "fr": "Chardin : raie, brioche, verre d'eau — il a fait de l'humble cuisine bourgeoise une méditation sur la lumière.",
-              "en": "Chardin: a skate, a brioche, a glass of water — he made humble kitchen life a meditation on light."
+              "fr": "Chardin : raie, brioche, verre d'eau, il a fait de l'humble cuisine bourgeoise une méditation sur la lumière.",
+              "en": "Chardin: a skate, a brioche, a glass of water, he made humble kitchen life a meditation on light."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Chardin, nature morte, Louvre (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Chardin, nature morte, Louvre (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -7043,7 +7043,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Watteau, Embarquement pour Cythère (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Watteau, Embarquement pour Cythère (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -7089,12 +7089,12 @@
               }
             ],
             "explain": {
-              "fr": "Rigaud, 1701 : le Roi-Soleil en majesté, mollet tendu — l'image officielle de la monarchie absolue.",
-              "en": "Rigaud, 1701: the Sun King in majesty, calf flexed — the official image of absolute monarchy."
+              "fr": "Rigaud, 1701 : le Roi-Soleil en majesté, mollet tendu, l'image officielle de la monarchie absolue.",
+              "en": "Rigaud, 1701: the Sun King in majesty, calf flexed, the official image of absolute monarchy."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Rigaud, Louis XIV (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Rigaud, Louis XIV (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -7145,7 +7145,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Le Concert champêtre, Louvre (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Le Concert champêtre, Louvre (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -7196,7 +7196,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Léonard, Sainte Anne (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Léonard, Sainte Anne (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -7242,14 +7242,14 @@
               }
             ],
             "explain": {
-              "fr": "Cinq — le plus grand ensemble au monde : la Joconde, deux Vierges, sainte Anne et la Belle Ferronnière.",
-              "en": "Five — the largest group on Earth: the Mona Lisa, two Virgins, St Anne and La Belle Ferronnière."
+              "fr": "Cinq, le plus grand ensemble au monde : la Joconde, deux Vierges, sainte Anne et la Belle Ferronnière.",
+              "en": "Five, the largest group on Earth: the Mona Lisa, two Virgins, St Anne and La Belle Ferronnière."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
               "source": "Wikimedia Commons",
               "license": "Public Domain (PD-Art)",
-              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre — repro fidèle 2D du domaine public",
+              "attribution": "Léonard de Vinci, La Joconde (v.1503-1519), Louvre, repro fidèle 2D du domaine public",
               "status": "verified"
             }
           },
@@ -7292,12 +7292,12 @@
               }
             ],
             "explain": {
-              "fr": "Rembrandt, 1655 : une carcasse de bœuf comme une crucifixion — il fascina Soutine et Bacon, des siècles plus tard.",
-              "en": "Rembrandt, 1655: an ox carcass like a crucifixion — it would fascinate Soutine and Bacon centuries later."
+              "fr": "Rembrandt, 1655 : une carcasse de bœuf comme une crucifixion, il fascina Soutine et Bacon, des siècles plus tard.",
+              "en": "Rembrandt, 1655: an ox carcass like a crucifixion, it would fascinate Soutine and Bacon centuries later."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — Rembrandt, Le Bœuf écorché (PD-Art, 2D)",
+              "target": "Wikimedia Commons, Rembrandt, Le Bœuf écorché (PD-Art, 2D)",
               "url": "",
               "source": "",
               "license": "",
@@ -7343,12 +7343,12 @@
               }
             ],
             "explain": {
-              "fr": "Hathor, déesse de l'amour et de la musique — souvent figurée protégeant un pharaon de ses cornes-lyre.",
-              "en": "Hathor, goddess of love and music — often shown shielding a pharaoh within her lyre-shaped horns."
+              "fr": "Hathor, déesse de l'amour et de la musique, souvent figurée protégeant un pharaon de ses cornes-lyre.",
+              "en": "Hathor, goddess of love and music, often shown shielding a pharaoh within her lyre-shaped horns."
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — relief/statue d'Hathor, Louvre (photo libre, 3D)",
+              "target": "Wikimedia Commons, relief/statue d'Hathor, Louvre (photo libre, 3D)",
               "url": "",
               "source": "",
               "license": "",
@@ -7399,7 +7399,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — cour Khorsabad, Louvre (photo libre, 3D)",
+              "target": "Wikimedia Commons, cour Khorsabad, Louvre (photo libre, 3D)",
               "url": "",
               "source": "",
               "license": "",
@@ -7449,10 +7449,10 @@
               "en": "The Daru staircase, Denon wing: since 1884, the goddess seems to surge toward visitors climbing up."
             },
             "image": {
-              "url": "https://commons.wikimedia.org/wiki/File:Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
+              "url": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Louvre_Victoire_de_Samothrace_(Winged_Victory)_(9812038073).jpg",
               "source": "Wikimedia Commons",
               "license": "CC0 (domaine public volontaire)",
-              "attribution": "Photo : Gary Todd (CC0) — La Victoire de Samothrace, Louvre",
+              "attribution": "Photo : Gary Todd (CC0), La Victoire de Samothrace, Louvre",
               "status": "verified"
             }
           },
@@ -7500,7 +7500,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — vase de l'abbé Suger, Louvre (photo libre, 3D)",
+              "target": "Wikimedia Commons, vase de l'abbé Suger, Louvre (photo libre, 3D)",
               "url": "",
               "source": "",
               "license": "",
@@ -7551,7 +7551,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — le Régent, diamant de la Couronne, Louvre (photo libre)",
+              "target": "Wikimedia Commons, le Régent, diamant de la Couronne, Louvre (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -7602,7 +7602,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — ligne 1, quai Louvre-Rivoli (photo libre)",
+              "target": "Wikimedia Commons, ligne 1, quai Louvre-Rivoli (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -7653,7 +7653,7 @@
             },
             "image": {
               "status": "to_verify",
-              "target": "Wikimedia Commons — quais-vitrines de Louvre-Rivoli (photo libre)",
+              "target": "Wikimedia Commons, quais-vitrines de Louvre-Rivoli (photo libre)",
               "url": "",
               "source": "",
               "license": "",
@@ -7734,8 +7734,8 @@
       "en": "Louvre-Rivoli is the only station that became a museum the very day it lost one."
     },
     "body": {
-      "fr": "Ouverte en 1900 sous le nom de « Louvre », la station longe la rue de Rivoli à deux pas du palais. En 1968, André Malraux la métamorphose en « vitrine du musée » : pierre de Bourgogne, niches, copies d'œuvres, et le Scribe accroupi en gardien du seuil. Ironie de l'histoire : vingt ans plus tard, la pyramide de Pei (1989) déplace l'entrée du musée vers Palais-Royal. Pour ne plus égarer les touristes, « Louvre » devient « Louvre-Rivoli ». La station reste alors ce qu'elle est : non pas la porte du musée, mais son rêve souterrain — un cabinet de moulages enrichi de neuf nouvelles pièces en 2016.",
-      "en": "Opened in 1900 as 'Louvre', the station runs along Rue de Rivoli, steps from the palace. In 1968 André Malraux remade it as a 'shop-window of the museum': Burgundy stone, niches, replica works, and the Seated Scribe as gatekeeper. History's irony: twenty years on, Pei's pyramid (1989) shifted the museum entrance to Palais-Royal. To stop misdirecting tourists, 'Louvre' became 'Louvre-Rivoli'. The station settled into what it truly is — not the museum's door, but its underground dream: a cast gallery enriched with nine new pieces in 2016."
+      "fr": "Ouverte en 1900 sous le nom de « Louvre », la station longe la rue de Rivoli à deux pas du palais. En 1968, André Malraux la métamorphose en « vitrine du musée » : pierre de Bourgogne, niches, copies d'œuvres, et le Scribe accroupi en gardien du seuil. Ironie de l'histoire : vingt ans plus tard, la pyramide de Pei (1989) déplace l'entrée du musée vers Palais-Royal. Pour ne plus égarer les touristes, « Louvre » devient « Louvre-Rivoli ». La station reste alors ce qu'elle est : non pas la porte du musée, mais son rêve souterrain, un cabinet de moulages enrichi de neuf nouvelles pièces en 2016.",
+      "en": "Opened in 1900 as 'Louvre', the station runs along Rue de Rivoli, steps from the palace. In 1968 André Malraux remade it as a 'shop-window of the museum': Burgundy stone, niches, replica works, and the Seated Scribe as gatekeeper. History's irony: twenty years on, Pei's pyramid (1989) shifted the museum entrance to Palais-Royal. To stop misdirecting tourists, 'Louvre' became 'Louvre-Rivoli'. The station settled into what it truly is, not the museum's door, but its underground dream: a cast gallery enriched with nine new pieces in 2016."
     },
     "facts": {
       "fr": [

@@ -91,6 +91,13 @@ export function isPlayable(slug: string): boolean {
   return slug in STATION_CONTENT;
 }
 
+/** Stations jouables de la ligne héros, dans l'ordre du tracé (pour le défi du jour). */
+export function playableStations(): { slug: string; name: string }[] {
+  return LINE.stations
+    .filter((s) => isPlayable(s.slug))
+    .map((s) => ({ slug: s.slug, name: getStationContent(s.slug)?.name ?? s.name }));
+}
+
 /** Quiz « banque V2 » = un tirage `draw` est défini sur le palier bronze. */
 export function isBankedQuiz(content: StationContent): boolean {
   return content.game.archetype === 'quiz'
