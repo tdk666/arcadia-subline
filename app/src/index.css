@@ -1,4 +1,9 @@
 @import 'tailwindcss';
+/* Le package des mini-jeux est résolu via node_modules (workspace) → exclu de
+   l'auto-détection Tailwind : sans cette directive, toute classe utilisée
+   UNIQUEMENT dans games/ manque du CSS final (ex. le voile + l'ancrage bas de
+   la carte de reveal du quiz). Scan explicite : */
+@source '../../games/src';
 
 /* ════════════════════════════════════════════════════════════════════
    DESIGN TOKENS — « Métro Clair » (plan de métro parisien, lumineux)
@@ -311,6 +316,11 @@ body {
   background: rgba(255, 253, 247, 0.55);
   box-shadow: none;
 }
+/* le « ⓘ » ne chevauche jamais le CTA héros ancré en bas de la carte
+   (défi du jour / « Prends Bastille ») : remonté au-dessus de la thumb-zone.
+   !important : la feuille maplibre-gl.css arrive APRÈS (chunk lazy) et posait
+   bottom:0 — sans ça, la règle maison perdait la cascade. */
+.maplibregl-ctrl-bottom-right { bottom: 92px !important; }
 .maplibregl-ctrl-attrib-inner { font-size: 9px; opacity: 0.55; }
 .maplibregl-ctrl-attrib:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-inner { display: none; }
 .maplibregl-ctrl-attrib-button { opacity: 0.5; transform: scale(0.85); }
@@ -353,7 +363,13 @@ body {
 @keyframes film-shake { 0%,100% { transform: translate(0,0); } 20% { transform: translate(-3px,2px); } 40% { transform: translate(3px,-2px); } 60% { transform: translate(-2px,-2px); } 80% { transform: translate(2px,2px); } }
 .film-shake { animation: film-shake 0.5s ease-in-out; }
 
+/* caméra du plateau (T2b → T3) : le MÊME plateau persiste, seul le cadrage
+   change — gros plan sur Bastille au drapeau, pull-out vers la ligne à l'apex.
+   La coupe devient un mouvement (règle : chaque transition CONTINUE). */
+.board-cam { transition: transform 1.25s var(--ease-authority); will-change: transform; }
+
 @media (prefers-reduced-motion: reduce) {
   .flag-plant, .apex-letter, .crown-radiate, .flame-flicker, .film-shake { animation: none; }
   .apex-letter { opacity: 1; transform: none; }
+  .board-cam { transition: none; }
 }
