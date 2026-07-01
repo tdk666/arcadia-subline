@@ -4,6 +4,7 @@ import { getStationContent, isPlayable, LINE, type StationContent } from '../lib
 import { useArcadia } from '../store';
 import { ArchiveCard } from '../components/ArchiveCard';
 import { track } from '../lib/analytics';
+import { IconLock, IconSeal } from '../components/icons';
 
 /**
  * LA COLLECTION — les « mémoires de Paris » qu'on gagne en conquérant les stations.
@@ -52,7 +53,7 @@ export function CollectionScreen() {
                   <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-guimard">
                     {pickText(content.archive.collection, locale)}
                   </p>
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full border border-laiton/70 text-sm text-laiton">⚜</span>
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full border border-laiton/70 text-laiton"><IconSeal size={15} /></span>
                 </div>
                 <h2 className="mt-2 font-display text-base font-extrabold leading-tight tracking-tight text-pierre">
                   {station.name}
@@ -76,7 +77,7 @@ export function CollectionScreen() {
                   {playable ? t('collection.sealed') : t('collection.comingSoon')}
                 </p>
                 <span className="flex h-7 w-7 items-center justify-center rounded-full border border-rail text-sm text-pierre-faint">
-                  {playable ? '⚿' : '·'}
+                  {playable ? <IconLock size={13} /> : '·'}
                 </span>
               </div>
               <h2 className="mt-2 font-display text-base font-extrabold leading-tight tracking-tight text-pierre-dim">

@@ -12,6 +12,7 @@ import { AuthSheet } from '../components/AuthSheet';
 import { Leaderboard } from '../components/Leaderboard';
 import { track } from '../lib/analytics';
 import { tap } from '../lib/feedback';
+import { IconCrown, IconLock, IconPlay, IconSeal, IconStar } from '../components/icons';
 
 const EMPTY_TIERS: DifficultyTier[] = [];
 
@@ -165,8 +166,8 @@ export function StationScreen() {
         </span>
       </div>
       {isMastered && (
-        <p className="animate-pop mt-2 text-center font-mono text-xs text-[#3f6b4d]">
-          ★ {t('station.master.earned')}
+        <p className="animate-pop mt-2 flex items-center justify-center gap-1.5 text-center font-mono text-xs text-[#3f6b4d]">
+          <IconStar size={13} /> {t('station.master.earned')}
         </p>
       )}
 
@@ -181,7 +182,7 @@ export function StationScreen() {
               checkInUntil ? 'border border-[#3f6b4d]/40 bg-[#3f6b4d]/10 text-[#3f6b4d]' : 'border border-ambre/40 bg-ambre/10 text-pierre-dim'
             }`}
           >
-            {checkInUntil ? `✓ ${t('station.presence.scored')}` : `🎯 ${t('station.presence.training')}`}
+            {checkInUntil ? `✓ ${t('station.presence.scored')}` : t('station.presence.training')}
           </div>
         )}
         <div className="mt-3 flex flex-col gap-2.5">
@@ -221,8 +222,8 @@ export function StationScreen() {
                     {style.roman}
                   </span>
                   {won && (
-                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-laiton text-[10px] text-encre shadow">
-                      ★
+                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-laiton text-encre shadow">
+                      <IconStar size={11} />
                     </span>
                   )}
                 </span>
@@ -272,9 +273,9 @@ export function StationScreen() {
                   {won ? (
                     <span className="font-semibold text-laiton">{t('station.tierDone')}</span>
                   ) : unlocked ? (
-                    <span className={`font-semibold ${style.text}`}>▶</span>
+                    <span className={style.text}><IconPlay size={16} /></span>
                   ) : (
-                    <span className="text-pierre-faint">🔒</span>
+                    <span className="text-pierre-faint"><IconLock size={15} /></span>
                   )}
                 </span>
               </button>
@@ -290,12 +291,12 @@ export function StationScreen() {
         <div className="flex items-baseline justify-between gap-2">
           <h3 className="font-display text-sm font-bold">{t('station.leaderboard.title')}</h3>
           <span className="truncate font-mono text-[10px] uppercase tracking-wider" style={{ color: '#9c7d18' }}>
-            👑 {t('station.leaderboard.chef')} : {board.length ? (board[0].isMe ? t('leaderboard.you') : board[0].displayName) : '—'}
+            {t('station.leaderboard.chef')} : {board.length ? (board[0].isMe ? t('leaderboard.you') : board[0].displayName) : '—'}
           </span>
         </div>
         {board.length > 0 && board[0].isMe && (
           <div className="animate-pop mt-2 flex items-center gap-2 rounded-lg border border-laiton/60 bg-laiton/15 px-3 py-2">
-            <span className="text-lg" aria-hidden>👑</span>
+            <span className="text-laiton" aria-hidden><IconCrown size={18} /></span>
             <span className="font-display text-sm font-extrabold text-pierre">{t('station.leaderboard.sacre')}</span>
           </div>
         )}
@@ -354,7 +355,7 @@ export function StationScreen() {
                 <ul className="mt-3 flex flex-col gap-1.5">
                   {(content.story.facts[locale] ?? content.story.facts.fr).map((f) => (
                     <li key={f} className="flex gap-2 text-xs text-pierre-dim">
-                      <span className="text-[#3f6b4d]">⚜</span>{f}
+                      <span className="mt-0.5 flex-none text-[#3f6b4d]"><IconSeal size={12} /></span>{f}
                     </li>
                   ))}
                 </ul>
@@ -369,7 +370,7 @@ export function StationScreen() {
             </button>
           </>
         ) : (
-          <p className="mt-2 font-mono text-[10px] text-pierre-faint">🔒 {t('station.story.lockedHint')}</p>
+          <p className="mt-2 flex items-center gap-1.5 font-mono text-[10px] text-pierre-faint"><IconLock size={12} /> {t('station.story.lockedHint')}</p>
         )}
       </section>
 

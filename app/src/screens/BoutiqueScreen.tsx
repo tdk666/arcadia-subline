@@ -89,7 +89,7 @@ export function BoutiqueScreen() {
         })}
       </div>
 
-      <p className="mt-6 text-center font-mono text-[11px] text-pierre-faint">🧥 {t('shop.soon')}</p>
+      <p className="mt-6 text-center font-mono text-[11px] text-pierre-faint">{t('shop.soon')}</p>
     </div>
   );
 }

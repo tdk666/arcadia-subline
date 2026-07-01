@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { pickText, useI18n } from '../i18n';
 import type { StationContent } from '../lib/content';
 import { reveal } from '../lib/feedback';
+import { IconSeal } from './icons';
 
 /* ── LE PAYOFF CULTUREL : l'archive comme objet de collection ───────── */
 /** Carte d'archive plein écran (parchemin clair, sceau + récit + faits).
@@ -32,8 +33,8 @@ export function ArchiveCard({ station, onClose }: { station: StationContent; onC
             </p>
           </div>
           {/* sceau */}
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#3f6b4d]/70 font-display text-xl text-[#3f6b4d]">
-            ⚜
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#3f6b4d]/70 text-[#3f6b4d]">
+            <IconSeal size={24} />
           </div>
         </div>
 

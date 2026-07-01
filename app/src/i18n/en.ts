@@ -175,7 +175,7 @@ export const en: Dict = {
     replay: 'Replay', nextTier: 'Next tier', toLeaderboard: 'See ranking', toStation: 'Back to station',
     share: 'Share my conquest',
     shareTitle: 'Arcadia SubLine',
-    shareText: '⚜ I conquered {station} on Arcadia SubLine, {score} pts. Reclaim your Paris métro line.',
+    shareText: 'I conquered {station} on Arcadia SubLine, {score} pts. Reclaim your Paris métro line.',
     shareCopied: 'Copied, paste it anywhere ✓',
     guestSave: {
       title: 'Save your conquest!',

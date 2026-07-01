@@ -4,6 +4,7 @@ import { pickText, useI18n } from '../i18n';
 import { getStationContent } from '../lib/content';
 import { useArcadia } from '../store';
 import { tap } from '../lib/feedback';
+import { IconLock, IconPlay, IconStar } from './icons';
 
 /**
  * FICHE STATION en bottom-sheet — surgit SUR la carte (tout vit au même endroit,
@@ -56,8 +57,12 @@ export function StationSheet({ slug, name, onClose }: { slug: string; name: stri
                         {unlocked ? t(`station.rules.${tier}`, { shots: p.maxShots, pct: p.targetPct, time: p.timeLimitS }) : t('station.tierLocked')}
                       </span>
                     </span>
-                    <span className="flex-none text-sm font-bold">
-                      {won ? <span className="text-laiton">★</span> : unlocked ? <span className="text-email">▶</span> : <span className="text-pierre-faint">🔒</span>}
+                    <span className="flex-none">
+                      {won
+                        ? <span className="text-laiton"><IconStar size={18} /></span>
+                        : unlocked
+                          ? <span className="text-email"><IconPlay size={18} /></span>
+                          : <span className="text-pierre-faint"><IconLock size={17} /></span>}
                     </span>
                   </button>
                 );

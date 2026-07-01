@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GameProps } from '../contract';
 import { isUsableQuizImage, type QuizParams } from './types';
 import { QuizAudio } from './audio';
+import { IconClock, IconFlame, IconHeart, IconSound } from '../icons';
 
 const TIER_LABEL = { bronze: 'BRONZE', silver: 'ARGENT', gold: 'OR' } as const;
 // teintes encrées lisibles sur fond clair (la couleur médaille pure est trop pâle)
@@ -152,9 +153,9 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
           type="button"
           onClick={(e) => { e.stopPropagation(); const m = !muted; setMuted(m); audio.setMuted(m); }}
           aria-label={tr('Son', 'Sound')}
-          className="flex h-9 w-9 flex-none items-center justify-center rounded-lg border border-rail bg-plomb text-sm active:scale-95"
+          className="flex h-9 w-9 flex-none items-center justify-center rounded-lg border border-rail bg-plomb text-pierre-dim active:scale-95"
         >
-          {muted ? '🔇' : '🔊'}
+          <IconSound size={17} off={muted} />
         </button>
         <div className="flex flex-1 gap-1.5">
           {questions.map((qq, i) => (
@@ -167,12 +168,8 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
         </div>
         <div className="flex flex-none items-center gap-0.5" aria-label={tr('Vies', 'Lives')}>
           {Array.from({ length: params.lives }).map((_, i) => (
-            <span
-              key={i}
-              className="text-[15px] leading-none transition-all duration-300"
-              style={{ opacity: i < lives ? 1 : 0.25, filter: i < lives ? 'none' : 'grayscale(1)' }}
-            >
-              {i < lives ? '❤️' : '🤍'}
+            <span key={i} className="transition-all duration-300" style={{ color: KO }}>
+              <IconHeart size={16} off={i >= lives} />
             </span>
           ))}
         </div>
@@ -192,8 +189,8 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
           </span>
         </div>
         {streak >= 2 && (
-          <span className="animate-pop rounded-full px-2.5 py-1 font-mono text-[11px] font-bold" style={{ background: 'rgba(201,162,39,0.16)', color: '#9c7d18' }}>
-            🔥 {tr('série', 'streak')} {streak}
+          <span className="animate-pop flex items-center gap-1 rounded-full px-2.5 py-1 font-mono text-[11px] font-bold" style={{ background: 'rgba(201,162,39,0.16)', color: '#9c7d18' }}>
+            <IconFlame size={13} /> {tr('série', 'streak')} {streak}
           </span>
         )}
       </div>
@@ -202,11 +199,11 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
       {params.timerS > 0 && (
         <div className="mt-3 flex items-center gap-2.5 px-4">
           <span
-            className={`flex-none font-mono text-sm font-extrabold tabular-nums ${urgent && !ctx.reducedMotion ? 'animate-pop' : ''}`}
+            className={`flex flex-none items-center gap-1 font-mono text-sm font-extrabold tabular-nums ${urgent && !ctx.reducedMotion ? 'animate-pop' : ''}`}
             style={{ color: urgent ? KO : ink, minWidth: 30 }}
             aria-label={tr('Temps restant', 'Time left')}
           >
-            ⏱ {picked === null ? timeLeft : 0}s
+            <IconClock size={14} /> {picked === null ? timeLeft : 0}s
           </span>
           <div className="h-2 flex-1 overflow-hidden rounded-full" style={{ background: 'var(--color-rail)' }}>
             <div
@@ -271,9 +268,11 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
               }`}
               style={{ background: bg, color: fg, boxShadow: `inset 0 0 0 1.5px ${border}`, opacity: isAnswered && !isCorrect && !isPicked ? 0.55 : 1 }}
             >
+              {/* lettre toujours blanche : sur pastille encrée comme sur pastille
+                  translucide (avant : encre-sur-encre = lettre invisible) */}
               <span
-                className="flex h-7 w-7 flex-none items-center justify-center rounded-full text-xs font-extrabold uppercase"
-                style={{ background: badge, color: isAnswered && (isCorrect || isPicked) ? '#fff' : ink }}
+                className="flex h-7 w-7 flex-none items-center justify-center rounded-full text-xs font-extrabold uppercase text-white"
+                style={{ background: badge }}
               >
                 {mark}
               </span>
@@ -295,7 +294,7 @@ export default function QuizGame({ ctx, onFinish, onQuit }: GameProps) {
             {/* zone défilable */}
             <div className="min-h-0 flex-1 overflow-y-auto px-5 pt-4">
               <p className="flex items-center gap-2 font-display text-lg font-extrabold" style={{ color: correct ? OK : timedOut ? '#9c7d18' : KO }}>
-                <span>{correct ? '✓' : timedOut ? '⏱' : '✕'}</span>
+                <span className="flex items-center">{correct ? '✓' : timedOut ? <IconClock size={18} /> : '✕'}</span>
                 {correct ? tr('Bonne réponse !', 'Correct!') : timedOut ? tr('Temps écoulé', "Time's up") : tr('Mauvaise réponse', 'Wrong answer')}
               </p>
 

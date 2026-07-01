@@ -98,7 +98,7 @@ export function LineMapScreen() {
         </header>
         {/* micro-rappel : tue le malentendu géoloc n°1 du playtest */}
         <p className="mt-2 rounded-lg bg-email/10 px-3 py-1.5 text-center font-mono text-[11px] text-email">
-          👆 {t('map.tapHint')}
+          {t('map.tapHint')}
         </p>
       </div>
 
@@ -262,8 +262,8 @@ export function LineMapScreen() {
             onClick={playHero}
             className="relative block w-full overflow-hidden rounded-2xl bg-email p-4 text-left text-white shadow-[0_6px_0_#073f6e,0_10px_22px_rgba(10,90,158,0.3)] ring-2 ring-white/80 ring-inset transition-[transform,box-shadow] duration-75 active:translate-y-[3px] active:shadow-[0_3px_0_#073f6e,0_5px_12px_rgba(10,90,158,0.3)]"
           >
-            <div className="pointer-events-none absolute -right-6 -top-8 text-[88px] text-white opacity-15">⚑</div>
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-laiton-clair">★ {t('map.heroKicker')}</p>
+            
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-laiton-clair">{t('map.heroKicker')}</p>
             <h2 className="mt-1 font-display text-xl font-extrabold tracking-tight text-white">
               {pickText(hero.game.title, locale)}
             </h2>
@@ -278,7 +278,7 @@ export function LineMapScreen() {
                 ))}
               </div>
               <span className="rounded-lg bg-laiton px-3.5 py-1.5 font-display text-xs font-extrabold text-encre">
-                ⚔ {t('map.heroCta')}
+                {t('map.heroCta')}
               </span>
             </div>
           </button>
