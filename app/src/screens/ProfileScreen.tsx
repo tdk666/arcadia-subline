@@ -10,6 +10,7 @@ import { useArcadia } from '../store';
 import { AuthSheet } from '../components/AuthSheet';
 import { Button } from '../components/Button';
 import { IconToken } from '../components/icons';
+import { AchievementIcon, IconLock } from '../components/icons';
 
 export function ProfileScreen() {
   const { t, locale, setLocale } = useI18n();
@@ -133,7 +134,7 @@ export function ProfileScreen() {
                   className={`flex h-12 w-12 items-center justify-center rounded-full border-2 text-xl transition ${got ? 'border-laiton' : 'border-rail grayscale'} ${active ? 'ring-2 ring-email ring-offset-2 ring-offset-plomb' : ''}`}
                   style={{ background: got ? 'var(--color-laiton)' : 'var(--color-craie-2)', opacity: got ? 1 : 0.5 }}
                 >
-                  {got ? a.icon : '🔒'}
+                  {got ? <AchievementIcon icon={a.icon} size={20} /> : <IconLock size={17} />}
                 </span>
                 <span className="line-clamp-2 font-mono text-[8px] uppercase leading-tight tracking-wider text-pierre-faint">
                   {t(`achievements.${a.id}.title` as Parameters<typeof t>[0])}
@@ -149,7 +150,7 @@ export function ProfileScreen() {
           return (
             <div className="animate-slide-up mt-3 flex items-start gap-3 rounded-xl border px-3 py-2.5" style={{ borderColor: got ? 'var(--color-laiton)' : 'var(--color-rail)', background: got ? 'rgba(201,162,39,0.08)' : 'var(--color-craie-2)' }}>
               <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full text-lg" style={{ background: got ? 'var(--color-laiton)' : 'var(--color-rail)' }}>
-                {got ? a.icon : '🔒'}
+                {got ? <AchievementIcon icon={a.icon} size={20} /> : <IconLock size={17} />}
               </span>
               <div className="min-w-0">
                 <p className="font-display text-sm font-extrabold text-pierre">{t(`achievements.${a.id}.title` as Parameters<typeof t>[0])}</p>
@@ -215,7 +216,7 @@ export function ProfileScreen() {
             className="mt-3 w-full rounded-xl border border-ambre/50 bg-ambre/10 py-2.5 font-mono text-sm font-bold text-ambre active:scale-[0.98]"
             onClick={() => (installEvt as Event & { prompt?: () => void }).prompt?.()}
           >
-            ⬇ {t('profile.install')}
+            {t('profile.install')}
           </button>
         )}
       </div>

@@ -11,6 +11,7 @@ import { AuthSheet } from './AuthSheet';
 import { ArchiveCard } from './ArchiveCard';
 import { Confetti } from './Confetti';
 import { Button } from './Button';
+import { IconAscend, IconCrown, IconReplay, IconSeal, IconShare, IconStar } from './icons';
 
 /** Compteur animé (le "juice" du score). */
 function CountUp({ value }: { value: number }) {
@@ -131,7 +132,7 @@ export function ResultView({
 
       {isTraining && (
         <div className="animate-slide-up w-full max-w-xs rounded-2xl border border-ambre/50 bg-ambre/10 px-4 py-3 text-left">
-          <p className="font-display text-sm font-extrabold text-ambre">🎯 {t('result.training')}</p>
+          <p className="font-display text-sm font-extrabold text-ambre">{t('result.training')}</p>
           <p className="mt-1 text-xs leading-relaxed text-pierre-dim">{t('result.trainingHint')}</p>
           <Link
             to={`/station/${result.slug}`}
@@ -192,7 +193,7 @@ export function ResultView({
             )}
           </>
         )}
-        {result.flagged && <p className="text-xs text-vermillon">⚠ {t('result.flagged')}</p>}
+        {result.flagged && <p className="text-xs text-vermillon">{t('result.flagged')}</p>}
         {result.localOnly && (
           <p className="font-mono text-[11px] text-vermillon">◦ {t('result.localOnly')}</p>
         )}
@@ -206,12 +207,13 @@ export function ResultView({
           className="animate-slide-up flex w-full max-w-xs items-center gap-3 rounded-2xl border-2 border-guimard/60 bg-guimard/10 px-4 py-3 text-left transition active:scale-[0.98]"
           style={{ animationDelay: '0.2s' }}
         >
-          <span className={`flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#3f6b4d] text-xl ${archiveIsNew ? 'animate-glow' : ''}`}>
-            ⚜
+          <span className={`flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#3f6b4d] text-[#3f6b4d] ${archiveIsNew ? 'animate-glow' : ''}`}>
+            <IconSeal size={22} />
           </span>
           <span className="flex-1">
-            <span className="block font-display text-sm font-bold text-[#3f6b4d]">
-              {archiveIsNew ? `★ ${t('archive.unlocked')}` : t('station.story.title')}
+            <span className="flex items-center gap-1 font-display text-sm font-bold text-[#3f6b4d]">
+              {archiveIsNew && <IconStar size={13} />}
+              {archiveIsNew ? t('archive.unlocked') : t('station.story.title')}
             </span>
             <span className="block font-mono text-[10px] text-pierre-faint">
               {t('archive.number', { n: station.archive.number })} · {t('archive.open')}
@@ -223,7 +225,7 @@ export function ResultView({
 
       {showGuestSave && (
         <div className="animate-slide-up w-full max-w-xs rounded-2xl border border-laiton/50 bg-laiton/10 p-4" style={{ animationDelay: '0.3s' }}>
-          <p className="font-display font-bold text-laiton">★ {t('result.guestSave.title')}</p>
+          <p className="flex items-center gap-1.5 font-display font-bold text-laiton"><IconStar size={15} /> {t('result.guestSave.title')}</p>
           <p className="mt-1 text-xs text-pierre-dim">{t('result.guestSave.body')}</p>
           <Button variant="gold" size="sm" className="mt-3" onClick={() => setAuthOpen(true)}>
             {t('result.guestSave.cta')}
@@ -234,18 +236,18 @@ export function ResultView({
       <div className="flex w-full max-w-xs flex-col gap-2">
         {result.success && nextTier ? (
           <Button variant="gold" size="md" onClick={() => onNextTier(nextTier)}>
-            ⬆ {t('result.nextTier')} · {t(`station.tiers.${nextTier}`)}
+            <span className="inline-flex items-center gap-1.5"><IconAscend size={16} /> {t('result.nextTier')} · {t(`station.tiers.${nextTier}`)}</span>
           </Button>
         ) : (
           <Button variant="gold" size="md" onClick={onReplay}>
-            ↻ {t('result.replay')}
+            <span className="inline-flex items-center gap-1.5"><IconReplay size={16} /> {t('result.replay')}</span>
           </Button>
         )}
         {/* Partage = vecteur d'acquisition organique #1 (vanité du joueur). En
             « thumb zone », réservé à la victoire (on ne partage pas une défaite). */}
         {result.success && (
           <Button variant="secondary" size="md" onClick={onShare}>
-            ↗ {shareMsg ? t('result.shareCopied') : t('result.share')}
+            <span className="inline-flex items-center gap-1.5"><IconShare size={15} /> {shareMsg ? t('result.shareCopied') : t('result.share')}</span>
           </Button>
         )}
         <div className="flex gap-2">
@@ -259,9 +261,9 @@ export function ResultView({
           <Link
             to="/leaderboard"
             onClick={() => tap()}
-            className="flex-1 rounded-xl border border-rail py-2.5 text-center text-sm text-pierre-dim active:bg-plomb-hi"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-rail py-2.5 text-center text-sm text-pierre-dim active:bg-plomb-hi"
           >
-            ♛ {t('result.toLeaderboard')}
+            <IconCrown size={14} /> {t('result.toLeaderboard')}
           </Link>
         </div>
       </div>

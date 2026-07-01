@@ -4,6 +4,7 @@ import { backend, type LeaderboardEntry } from '../lib/backend';
 import { Mascotte } from '../components/Mascotte';
 import { Leaderboard } from '../components/Leaderboard';
 import { useArcadia } from '../store';
+import { IconCrown } from '../components/icons';
 
 export function LeaderboardScreen() {
   const { t } = useI18n();
@@ -29,7 +30,7 @@ export function LeaderboardScreen() {
           className="flex h-11 w-11 items-center justify-center rounded-full font-display text-xl font-extrabold text-encre"
           style={{ background: 'radial-gradient(circle at 38% 30%,#fbe9a6,#c9a227 62%,#86680f)' }}
         >
-          ♛
+          <IconCrown size={22} />
         </span>
         <div>
           <h1 className="font-display text-2xl font-extrabold tracking-tight">{t('leaderboard.title')}</h1>

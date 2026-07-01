@@ -25,7 +25,8 @@ export interface AchievementSnapshot {
 
 export interface Achievement {
   id: string;
-  /** Glyphe (le motif émaillé/plaque prime sur l'illustration). */
+  /** CLÉ d'icône SVG on-brand (rendue par `AchievementIcon`, icons.tsx) —
+   *  zéro emoji dans l'UI (invariant DA). */
   icon: string;
   /** Atteint pour cet instantané ? */
   reached: (s: AchievementSnapshot) => boolean;
@@ -33,13 +34,13 @@ export interface Achievement {
 
 /** Catalogue — ordonné du plus accessible au plus exigeant (l'ordre d'affichage). */
 export const ACHIEVEMENTS: Achievement[] = [
-  { id: 'premiere_pierre', icon: '🧱', reached: (s) => s.stationsConquered >= 1 },
-  { id: 'erudit', icon: '⚜', reached: (s) => s.archivesUnlocked >= 2 },
-  { id: 'gardien', icon: '🛡', reached: (s) => s.goldCount >= 1 },
-  { id: 'serie_3', icon: '🔥', reached: (s) => s.streak >= 3 },
-  { id: 'tresorier', icon: '🪙', reached: (s) => s.coins >= 100 },
-  { id: 'serie_7', icon: '🔥', reached: (s) => s.streak >= 7 },
-  { id: 'conquerant', icon: '🚇', reached: (s) => s.playableTotal > 0 && s.stationsConquered >= s.playableTotal },
+  { id: 'premiere_pierre', icon: 'pave', reached: (s) => s.stationsConquered >= 1 },
+  { id: 'erudit', icon: 'seal', reached: (s) => s.archivesUnlocked >= 2 },
+  { id: 'gardien', icon: 'shield', reached: (s) => s.goldCount >= 1 },
+  { id: 'serie_3', icon: 'flame', reached: (s) => s.streak >= 3 },
+  { id: 'tresorier', icon: 'token', reached: (s) => s.coins >= 100 },
+  { id: 'serie_7', icon: 'flame', reached: (s) => s.streak >= 7 },
+  { id: 'conquerant', icon: 'network', reached: (s) => s.playableTotal > 0 && s.stationsConquered >= s.playableTotal },
 ];
 
 /** Les ids débloqués pour un instantané (dans l'ordre du catalogue). */

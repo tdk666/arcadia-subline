@@ -48,7 +48,7 @@ export function AuthSheet({ onClose, intro }: { onClose: () => void; intro?: str
 
         {confirmSent ? (
           <div className="mt-4 text-center">
-            <p className="text-sm text-pierre">✉ {t('auth.confirmSent', { email })}</p>
+            <p className="text-sm text-pierre">{t('auth.confirmSent', { email })}</p>
             <button
               type="button"
               className="mt-4 w-full rounded-xl border border-rail py-2.5 text-sm text-pierre-dim active:bg-plomb-hi"

@@ -30,6 +30,21 @@ const HERO_RGB: [number, number, number] = [201, 162, 39]; // laiton maison (#c9
 // la cinématique d'arrivée ne joue qu'UNE fois par session (pas à chaque onglet)
 let introPlayed = false;
 
+/** PLANCHER LOCAL (doctrine offline-first) : si le style distant n'arrive pas
+ *  (tunnel, réseau coupé, tiers down), la carte ne doit JAMAIS être une page
+ *  beige vide — on bascule sur ce style minimal embarqué : papier chaud, et nos
+ *  couches GeoJSON locales (Ligne 1 + stations) dessinent le PLAN DE MÉTRO
+ *  jouable. Dégradé, mais toujours un plateau. */
+const FALLBACK_STYLE: maplibregl.StyleSpecification = {
+  version: 8,
+  name: 'arcadia-plancher',
+  // glyphes : même hôte que le style ; si injoignable, les libellés manquent
+  // mais lignes/pastilles restent (dégradation propre, aucune exception).
+  glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
+  sources: {},
+  layers: [{ id: 'bg', type: 'background', paint: { 'background-color': '#efe6d3' } }],
+};
+
 /**
  * Point pulsant « plaque émaillée » (technique canonique MapLibre StyleImageInterface) :
  * un cœur laiton cerclé d'ivoire + une onde qui se propage en boucle. Donne le
@@ -80,6 +95,9 @@ function makePulsingDot(map: maplibregl.Map, rgb: [number, number, number]) {
 interface Props {
   playableCodes: Set<string>;
   onStation: (slug: string, name: string) => void;
+  /** chrome=false (FTUE) : aucune commande superposée (zoom/boussole/géoloc) —
+   *  le film garde son cadre ; l'attribution OSM reste (obligation ODbL). */
+  chrome?: boolean;
 }
 
 /** Style signature « Métro Clair » : recolore le fond tiers en palette maison,
@@ -119,7 +137,7 @@ function curate(map: maplibregl.Map) {
   } catch { /* setSky indisponible : non bloquant */ }
 }
 
-export function MapView({ playableCodes, onStation }: Props) {
+export function MapView({ playableCodes, onStation, chrome = true }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const onStationRef = useRef(onStation);
   onStationRef.current = onStation;
@@ -144,13 +162,20 @@ export function MapView({ playableCodes, onStation }: Props) {
       new maplibregl.AttributionControl({ compact: true, customAttribution: '© OpenStreetMap' }),
       'bottom-right',
     );
-    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
-    const geo = new maplibregl.GeolocateControl({
-      positionOptions: { enableHighAccuracy: true },
-      trackUserLocation: true,     // suit la localisation (le « jeu du métro »)
-      showUserLocation: false,     // on remplace le point bleu par NOTRE avatar-mascotte
-    });
-    map.addControl(geo, 'top-right');
+    let geo: maplibregl.GeolocateControl | null = null;
+    if (chrome) {
+      // zoom/boussole : pointeur fin seulement (au doigt, pinch/rotation suffisent
+      // — les meilleurs plateaux mobiles n'affichent aucun bouton de zoom)
+      if (window.matchMedia?.('(pointer: fine)').matches) {
+        map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
+      }
+      geo = new maplibregl.GeolocateControl({
+        positionOptions: { enableHighAccuracy: true },
+        trackUserLocation: true,     // suit la localisation (le « jeu du métro »)
+        showUserLocation: false,     // on remplace le point bleu par NOTRE avatar-mascotte
+      });
+      map.addControl(geo, 'top-right');
+    }
 
     // ── AVATAR : 2D instantané (placeholder) puis MARC 3D chargé en lazy ──
     let avatar2d: maplibregl.Marker | null = null;
@@ -167,7 +192,7 @@ export function MapView({ playableCodes, onStation }: Props) {
       el.appendChild(img);
       avatar2d = new maplibregl.Marker({ element: el, anchor: 'bottom' }).setLngLat(lngLat).addTo(map);
     };
-    geo.on('geolocate', (e) => {
+    geo?.on('geolocate', (e) => {
       const c = (e as GeolocationPosition).coords;
       const lngLat: [number, number] = [c.longitude, c.latitude];
       const heading = typeof c.heading === 'number' && !Number.isNaN(c.heading) ? c.heading : undefined;
@@ -185,7 +210,30 @@ export function MapView({ playableCodes, onStation }: Props) {
       }
     });
 
-    map.on('load', () => {
+    // ── PLANCHER : si le style distant échoue (offline/tunnel/tiers down), on
+    // bascule sur le style local — nos couches (lignes + stations) montent quand
+    // même : le plan de métro reste jouable. `setup` est idempotent ; il court
+    // sur le premier style qui aboutit.
+    let setupDone = false;
+    let fellBack = false;
+    const fallBack = () => {
+      if (setupDone || fellBack) return;
+      fellBack = true;
+      try { map.setStyle(FALLBACK_STYLE); } catch { /* noop */ }
+      map.once('idle', () => setup());
+    };
+    map.on('error', (e) => {
+      // seul l'échec du STYLE initial déclenche le plancher (les tuiles/glyphes
+      // manquants sont une dégradation normale, pas une panne de plateau)
+      if (!setupDone && !fellBack && !map.isStyleLoaded() && e?.error) fallBack();
+    });
+    const fallbackTimer = window.setTimeout(() => { if (!setupDone) fallBack(); }, 4000);
+
+    map.on('load', () => setup());
+    const setup = () => {
+      if (setupDone) return;
+      setupDone = true;
+      window.clearTimeout(fallbackTimer);
       curate(map);
 
       // ── relief 3D : extrusion des bâtiments (schéma OpenMapTiles) ──
@@ -361,9 +409,9 @@ export function MapView({ playableCodes, onStation }: Props) {
       });
       map.on('mouseenter', 'lines', () => { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', 'lines', () => { map.getCanvas().style.cursor = ''; });
-    });
+    };
 
-    return () => map.remove();
+    return () => { window.clearTimeout(fallbackTimer); map.remove(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -38,6 +38,30 @@ export default defineConfig({
         navigateFallback: '/index.html',
         // les appels Supabase ne passent jamais par le cache SW
         navigateFallbackDenylist: [/^\/rest/, /^\/auth/],
+        // OFFLINE-FIRST (doctrine : le tunnel ne casse jamais la première
+        // impression) — polices et style de carte servis depuis le cache après
+        // la première visite ; les TUILES restent réseau (trop lourdes).
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'fonts-css', expiration: { maxEntries: 8, maxAgeSeconds: 60 * 60 * 24 * 365 } },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'fonts-woff2',
+              cacheableResponse: { statuses: [0, 200] },
+              expiration: { maxEntries: 24, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/tiles\.openfreemap\.org\/(styles|fonts|sprites)\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'map-style', expiration: { maxEntries: 64, maxAgeSeconds: 60 * 60 * 24 * 30 } },
+          },
+        ],
       },
     }),
   ],

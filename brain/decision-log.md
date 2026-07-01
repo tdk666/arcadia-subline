@@ -522,3 +522,111 @@ Risque assumé (rendu non vérifiable à l'aveugle) ; mitigé par fallbacks.
 
 **Statut.** Appliqué. typecheck (games+app) + 71 tests + build verts. **Validation device obligatoire**
 (le board l'avait posée comme condition) : framing portrait du jeu, feel caméra MapLibre, rythme.
+
+---
+
+## DEC-026 — Plancher local de la carte (offline-first) + déclutter du chrome carte
+
+**Cause.** Première boucle de QA VISUELLE fermée par l'agent (captures Playwright du rendu réel,
+au lieu de déférer au fondateur) : quand le style distant (tiles.openfreemap.org) ne charge pas
+(tunnel, offline, tiers down, proxy), `map.on('load')` ne tire JAMAIS → même nos couches GeoJSON
+locales ne montent pas → le cœur de la FTUE (T1) et l'accueil = **écran beige vide**. Pour une app
+de métro, l'offline est un contexte nominal, pas un edge-case. Constaté aussi : zoom/boussole
+au-dessus du « Passer » de la FTUE, attribution OSM en collision avec le CTA « Défi du jour ».
+
+**Décision.**
+- **Style de secours LOCAL embarqué** (fond papier) : bascule sur erreur du style initial OU après
+  4 s sans chargement ; le `setup()` idempotent pose alors les couches locales (Ligne 1 + stations
+  IDFM embarquées) → le PLAN DE MÉTRO jouable est le plancher, jamais le vide. Vérifié en sandbox
+  (réseau tiers coupé) : la carte de la FTUE et de l'accueil dessinent le réseau entier.
+- **`chrome=false`** (prop MapView) pour l'embed FTUE : zéro commande de carte dans le film ;
+  zoom/boussole réservés au **pointeur fin** (au doigt : pinch) ; attribution OSM remontée
+  au-dessus de la thumb-zone (`bottom: 92px !important` — la feuille maplibre charge en lazy
+  APRÈS index.css, sans quoi la cascade perdait). L'ODbL reste respectée.
+- **PWA runtimeCaching** : polices Google (CacheFirst 1 an) + style/glyphes/sprites openfreemap
+  (StaleWhileRevalidate) → la première impression tient en tunnel après la première visite.
+  Les TUILES restent réseau (trop lourdes).
+
+**Statut.** Appliqué (commit « Or de la première minute »). Vérifié en captures.
+
+---
+
+## DEC-027 — Film « L'Émergence » : chrome unique, plateau persistant, flash plein cadre, marque au T0
+
+**Cause.** Vision du rendu réel (baseline multi-viewports) : (1) barre FTUE (SON/FR/Passer)
+imprimée SOUS le HUD du vrai jeu Bastille en T2 ; (2) money-shot T2b : le flash tradition se
+superposait AU texte du dessous (citation + « 1 station prise » + Archive + Continuer entremêlés,
+voile ne couvrant pas la barre) ; (3) T3 : plateau 400×300 pensé paysage → en portrait, la plaque
+tricolore de Bastille (LE sujet) était HORS-CHAMP, « LOUVRE-RIVOLI » débordait, le CTA wrappait
+sauvagement, Marc était rogné par le bas ; (4) la marque ARCADIA SUBLINE n'apparaissait NULLE PART
+dans la première minute.
+
+**Décision (toutes vérifiées image par image, 375×667 + 430×932, FR + EN).**
+- **Un seul chrome par écran** : la barre FTUE s'efface pendant l'assaut live (le jeu a HUD,
+  mute et ✕ ; le filet « continuer › » reste). Plus aucune collision.
+- **Plateau de Paris PORTRAIT-FIRST** (viewBox 300×400, sujet dans la bande haute + zone sûre
+  x∈[60,240] tenant jusqu'au 19,5:9) et **PERSISTANT T2b→T3** : gros plan sur Bastille (drapeau
+  LIBÉRÉE planté DANS la plaque tricolore, étiquettes éteintes) puis **pull-out caméra continu**
+  (`.board-cam`, ease-authority, reduced-motion = none) vers la ligne entière. La coupe devient
+  un mouvement (règle : chaque transition CONTINUE).
+- **Flash tradition plein cadre** : voile Acier 0.94 au-dessus de TOUT (chrome compris), contenu
+  masqué pendant la citation — la Tradition seule en scène.
+- **T3 recadré** : Bastille conquise + balise Gare de Lyon toujours au-dessus du carton ; CTA à
+  deux étages (« Suis la ligne » / « PROCHAINE · GARE DE LYON › ») sans wrap ; Marc entier
+  (zone sûre bas d'écran).
+- **La marque se dit UNE fois, dans le noir** : wordmark ARCADIA SUBLINE (font-brand) + cartouche
+  émail PARIS au T0, fondus dans la lumière au wipe (identité : le Châssis Acier EST la marque
+  mère — doc Identité §5, Acte 0). Invariant international : pas d'i18n sur la marque.
+- **Bastille portrait (embed FTUE)** : le monde s'ancre aux 2/3 bas (grand ciel, plus de dalle
+  morte sous l'esplanade) et les bandes du ciel suivent la vraie ligne de sol du monde quel que
+  soit le cadrage. Paysage : inchangé (vérifié en capture — le vrai jeu est identique).
+
+**Statut.** Appliqué. typecheck + 71 tests + build verts. Reste à valider on-device (haptique,
+son, 60 fps réels) — voir session-log.
+
+---
+
+## DEC-028 — Zéro emoji sur toute la surface testeur + nuance « fleur-de-lys diégétique »
+
+**Cause.** L'invariant « zéro emoji, zéro fleur-de-lys, icônes = SVG on-brand » (cage du mandat,
+DEC-023) n'était appliqué QU'À l'intro. Vu à l'écran sur la surface exacte du test : brief de jeu
+(⚜ ❤️ 💥 🪨 🎓 ⚔ — une fleur-de-lys en puce d'objectif), quiz Louvre (❤️ 🤍 🔥 🔇 🔊 ⏱), aide Bastille
+(💣 ⚑), fiche/feuille station (🔒 ★ ▶ 👑 ⚜ 🎯), résultat (⚜ ★ ⬆ ↻ ↗ ♛), classements (👑 ♛),
+collection/profil/toast des hauts faits (🧱 ⚜ 🛡 🔥 🪙 🚇), et même le TEXTE DE PARTAGE externe (⚜ —
+une fleur-de-lys expédiée hors de l'app à chaque partage). Le système d'icônes existait
+(`icons.tsx`, « remplace les emojis ») mais n'était pas appliqué.
+
+**Décision.**
+- **Purge complète du périmètre** : +12 icônes au système app (Play/Seal/Crown/Replay/Share/
+  Ascend/Heart/Clock/Blast/Pave/Standard/Shield) + `AchievementIcon` (mapping clé→pictogramme) ;
+  **nouveau `games/src/icons.tsx`** (le package jeux ne peut pas importer l'app) : Heart/Sound/
+  Clock/Flame/Blast/Keg, même langage. `achievements.ts` porte des CLÉS d'icônes, plus d'emoji
+  dans la donnée. Lettres A/B/C/D du quiz toujours blanches (avant : encre-sur-encre, invisibles).
+- **Le sceau d'archive (IconSeal)** remplace toute fleur-de-lys d'interface (archive, faits,
+  hauts faits, partage).
+- **NUANCE actée** : la fleur de lys des étendards royaux du canvas Bastille (engine.ts) est
+  DIÉGÉTIQUE — le symbole monarchique que le joueur abat, du contenu historique au service du
+  « mariage inévitable », pas un motif de marque. Elle reste. La règle vaut pour l'INTERFACE.
+- Hors périmètre assumé : `LineMapScreen` (route orpheline — aucun lien n'y mène ; purgée des
+  glyphes évidents, deux glyphes SVG diégétiques restants) — candidate à suppression dans un
+  sprint hygiène.
+
+**Statut.** Appliqué. Vérifié en captures (brief, quiz, fiche station, FR/EN). i18n à parité.
+
+---
+
+## DEC-029 — LEÇON D'OUTILLAGE : Tailwind v4 ne scanne pas les packages workspace
+
+**Cause.** Vu à l'écran : la carte de reveal du quiz Louvre s'affichait EN HAUT, sans voile ni
+ancrage bas. Diagnostic : `@arcadia/games` est résolu via node_modules (workspace pnpm) → exclu
+de l'auto-détection de contenu Tailwind v4 → **toute classe utilisée UNIQUEMENT dans games/
+manquait silencieusement du CSS final, en dev ET en prod** (`justify-end`, `bg-black/40`,
+`max-h-[90vh]`…). Le bug touchait le cœur de la boucle Louvre-Rivoli depuis l'origine du quiz —
+invisible au typecheck, invisible aux tests, évident à l'écran.
+
+**Décision.** `@source '../../games/src';` dans `app/src/index.css` (directive Tailwind v4 de
+scan explicite). **Règle permanente : tout nouveau package workspace consommé par l'app DOIT être
+ajouté au `@source`** — et toute passe visuelle vérifie le rendu réel, pas la présence des
+classes dans le TSX.
+
+**Statut.** Appliqué. Reveal vérifié en capture (bottom-sheet + voile + CTA sticky).

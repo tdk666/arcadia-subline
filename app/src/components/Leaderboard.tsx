@@ -8,6 +8,7 @@
  */
 import type { LeaderboardEntry } from '../lib/backend/types';
 import { useI18n } from '../i18n';
+import { IconCrown } from './icons';
 
 function initials(name: string): string {
   return (name.trim().slice(0, 2) || '?').toUpperCase();
@@ -46,7 +47,7 @@ function Row({ e, crown }: { e: LeaderboardEntry; crown: boolean }) {
         }
       >
         {initials(e.displayName)}
-        {crown && e.rank === 1 && <span className="absolute -top-3.5 text-base leading-none">👑</span>}
+        {crown && e.rank === 1 && <span className="absolute -top-3.5 leading-none text-laiton"><IconCrown size={15} /></span>}
       </span>
       {/* pseudo */}
       <span className={`min-w-0 flex-1 truncate font-display text-sm ${e.isMe ? 'font-extrabold text-email' : 'font-semibold text-pierre'}`}>

@@ -18,6 +18,27 @@
 
 ## EN COURS
 
+- **SPRINT « OR DE LA PREMIÈRE MINUTE » (PR #7, branche `claude/arcadia-subline-phase-zero-50ojo5`,
+  BASÉE SUR la tête de PR #5 — DEC-026→029, 2026-07-01)** : première session à QA VISUELLE FERMÉE
+  (captures Playwright du rendu réel, 375×667 + 430×932, FR+EN — fini le « à valider en preview »
+  systématique). **Phase 0** : corpus canonique lu en entier (Manifeste, Bible v3.0, Identité,
+  Réservoir v1.0+1.1, Approfondissement) → `brain/canon-comprehension.md` (12 dérives arbitrées).
+  **Or posé** (surface du test uniquement, zéro scoring/migration/station) : (1) **plancher local
+  de la carte** — style de secours embarqué, le plan de métro GeoJSON rend TOUJOURS (avant : écran
+  vide si le tiers échoue — vu à l'écran) + polices/style de carte en cache PWA + chrome de carte
+  décluttré (DEC-026) ; (2) **film sans couture** — marque au T0, un seul chrome par écran (barre
+  FTUE éteinte pendant l'assaut live), plateau portrait-first PERSISTANT T2b→T3 (drapeau planté
+  DANS la plaque tricolore de Bastille → pull-out caméra continu), flash tradition plein cadre,
+  T3 recadré (sujet en champ, CTA deux étages, Marc entier) (DEC-027) ; (3) **zéro emoji sur toute
+  la surface testeur** — brief/quiz/démolition/fiche/résultat/classements/partage en SVG on-brand,
+  fleur-de-lys d'UI morte (sceau d'archive), nuance diégétique actée (DEC-028) ; (4) **fix racine
+  Tailwind** — `@source games/src` : les classes utilisées seulement dans les mini-jeux manquaient
+  du CSS dev+prod (reveal quiz cassé depuis l'origine, réparé + règle permanente) (DEC-029) ;
+  (5) **Bastille portrait digne** (embed FTUE) : monde ancré aux 2/3 bas, ciel calé sur la vraie
+  ligne de sol ; paysage inchangé (vérifié). Livrable stratégique : **`brain/standard-or.md`**
+  (la barre écrite, 10 principes incarnés). typecheck + 71 tests + build verts. **PAS de merge**
+  (fondateur seul) ; ordre de merge : PR #5 d'abord, puis PR #7. ⚠️ Reste on-device : haptique,
+  son, 60 fps, OCR du feel (l'irréductiblement subjectif).
 - **INTRO COLLE AU JEU — vrais composants embarqués (DEC-025)** : décision fondateur (après audit board) = embeds live. **T1 = vraie carte MapLibre** (`MapView`, lazy+Suspense) + copie compréhension + CTA, tap Bastille → assaut. **T2 = vrai jeu Bastille** (`DemolitionGame`/Matter.js, lazy+Suspense) ctx **indulgent** (maxShots 30 / targetPct 0 / hp 0.5) non-bloquant ; `onFinish`/`onQuit` → LIBÉRÉE + flash tradition ; **onFinish NON soumis** (zéro score FTUE, sacré intact). Filets : `IntroBoundary` rattrape les crash → carte ; « Passer » + ✕ toujours dispo. T0/T3 restent SVG (apex = Bastille conquise). typecheck games+app + 71 tests + build verts. ⚠️ **Validation device obligatoire** (framing portrait du jeu, feel MapLibre, rythme) — risque purement perceptuel assumé.
 - **AUDIT BOARD FTUE → suivi (2026-06-24)** : le board a audité le code réel (pas le compte-rendu) — **GREEN** sur tout le statique (handoff `→/` = pas de boss, gating 1×, IntroBoundary, 31 tokens CSS présents, 0 emoji, parité i18n 20=20, poses Marc OK, péché d'Agathe corrigé). **Corrigés** : finding #1 « `firstStation` abstraction qui fuit » → branche morte `boardOrigin` retirée + commentaire honnête (cold-open **ancré Bastille par design**, `firstStation` = copy/analytics). Build complet **rejoué vert** (typecheck games+app + 71 tests + build) = dernier point non vérifié du board clos. **DA inter-agents** : `brain/da-brief-atelier.md` créé (les DEUX labels « Cyberpunk » ET « Paris Souterrain » sont MORTS → deux couches Bible v3.0, à transmettre à l'Atelier). **OUVERT** : « 2e passe » embeds live — insight technique : la VRAIE démolition exige la fronde (viser), pas le tap-spam → casserait l'« imperdable » de la FTUE ; recommandation = garder le film contrôlable (le vrai jeu est à 1 tap après l'intro). Décision fondateur demandée.
 - **FTUE « L'ÉMERGENCE » = FILM 4 TEMPS (DEC-023/024)** : `Emergence.tsx` **réécrit en remplacement total** de la cinématique 7-actes. (A) art-direction portée de Claude Design : easings nommés (`--ease-emergence/conquest/authority`), grain filmique constant, gloss émail-only, 3 transitions continues (light-wipe → push-in → pull-out), apex kinétique lettre-par-lettre, drapeau overshoot. (B) **compréhension** : carte lisiblement métro (noms réels + icônes-âmes = variété), copies FR/EN « Paris, chaque station un jeu » / drapeau LIBÉRÉE (jamais un rang) / échelle « Chef de Station → Empereur » + couronne verrouillée + balise Gare de Lyon (reviens demain). Honnêteté intacte : firstStation=param (défaut Bastille), pas de gate géo, « ta conquête ». Marc réel (poses pointe/celebre/salut) + sfx réels câblés ; **embeds live MapLibre/Matter.js = 2e passe visuelle** (choix « film fiable d'abord » : rendu non vérifiable à l'aveugle). Connecteur Design inaccessible en remote (bundle fourni en local). Tué : 7-actes, « métro boulot dodo », faux quiz/rang, Mémoire n°002, fleur-de-lys, « Commencer sans compte ». typecheck games+app + 71 tests + build verts. À valider en preview (fidélité frames + test de compréhension sur un inconnu).

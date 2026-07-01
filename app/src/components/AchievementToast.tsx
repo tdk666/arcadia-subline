@@ -5,6 +5,7 @@ import { liveStreak } from '../lib/daily';
 import { playableStations } from '../lib/content';
 import { ACHIEVEMENTS, buildSnapshot, unlockedAchievements } from '../lib/achievements';
 import { haptic } from '../lib/feedback';
+import { AchievementIcon } from './icons';
 
 /**
  * HAUT FAIT DÉBLOQUÉ — la célébration de méta-progression (persona Stratège).
@@ -60,8 +61,8 @@ export function AchievementToast() {
       className="fixed inset-x-0 top-[max(env(safe-area-inset-top),0.75rem)] z-[58] mx-auto flex max-w-xs items-center gap-3 rounded-2xl border border-laiton/60 bg-plomb px-4 py-3 text-left shadow-[0_12px_32px_rgba(0,0,0,0.28)] animate-pop"
       style={{ width: 'calc(100% - 2rem)' }}
     >
-      <span className="animate-glow flex h-11 w-11 flex-none items-center justify-center rounded-full border-2 border-laiton text-xl" style={{ background: 'var(--color-laiton)' }}>
-        {a.icon}
+      <span className="animate-glow flex h-11 w-11 flex-none items-center justify-center rounded-full border-2 border-laiton text-encre" style={{ background: 'var(--color-laiton)' }}>
+        <AchievementIcon icon={a.icon} size={20} />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-laiton">{t('achievements.toastTitle')}</span>

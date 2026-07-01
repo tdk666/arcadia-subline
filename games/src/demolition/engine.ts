@@ -850,16 +850,23 @@ export class DemolitionEngine {
     const baseScale = Math.min(cw / level.worldW, ch / level.worldH);
     this.scale = baseScale * this.aimZoom * (1 + this.zoomPulse);
     this.offX = (cw - level.worldW * this.scale) / 2;
-    this.offY = (ch - level.worldH * this.scale) / 2;
+    // PORTRAIT (embed FTUE, préviews) : le monde s'ancre aux 2/3 bas — grand ciel
+    // au-dessus (naturel), plus de dalle de sol morte en dessous. Paysage : centré
+    // comme avant (l'espace libre y est quasi nul, aucun changement de feel).
+    const slackY = ch - level.worldH * this.scale;
+    this.offY = ch > cw && slackY > 0 ? slackY * 0.66 : slackY / 2;
 
-    // ciel du palier : nuit → ambre incandescent → sol brun chaud
+    // ciel du palier : nuit → ambre incandescent → sol brun chaud. Les bandes
+    // suivent la VRAIE ligne de sol du monde (registre exact quel que soit le
+    // cadrage), pas des fractions figées du canvas.
     const sky = TIER_SKY[this.tier];
+    const groundFrac = Math.min(0.98, Math.max(0.4, (this.offY + level.groundY * this.scale) / ch));
     const bg = ctx.createLinearGradient(0, 0, 0, ch);
     bg.addColorStop(0, sky.top);
-    bg.addColorStop(0.42, sky.mid);
-    bg.addColorStop(0.70, sky.horizon);
-    bg.addColorStop(0.80, sky.glow);
-    bg.addColorStop(0.90, '#6e3a1e');
+    bg.addColorStop(groundFrac * 0.6, sky.mid);
+    bg.addColorStop(groundFrac, sky.horizon);
+    bg.addColorStop(Math.min(1, groundFrac + 0.1), sky.glow);
+    bg.addColorStop(Math.min(1, groundFrac + 0.2), '#6e3a1e');
     bg.addColorStop(1, sky.ground);
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, cw, ch);

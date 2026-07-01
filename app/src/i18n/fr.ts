@@ -178,7 +178,7 @@ export const fr = {
     replay: 'Rejouer', nextTier: 'Palier suivant', toLeaderboard: 'Voir le classement', toStation: 'Retour station',
     share: 'Partager ma conquête',
     shareTitle: 'Arcadia SubLine',
-    shareText: '⚜ J’ai conquis {station} sur Arcadia SubLine, {score} pts. Reconquiers ta ligne du métro de Paris.',
+    shareText: 'J’ai conquis {station} sur Arcadia SubLine, {score} pts. Reconquiers ta ligne du métro de Paris.',
     shareCopied: 'Copié, colle-le où tu veux ✓',
     guestSave: {
       title: 'Sauve ta conquête !',

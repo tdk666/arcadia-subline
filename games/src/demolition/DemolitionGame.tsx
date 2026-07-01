@@ -10,6 +10,7 @@ import { DemolitionEngine, type HudState } from './engine';
 import { DemolitionSfx } from './audio';
 import { bastilleLevel } from './levels/bastille';
 import type { DemolitionParams } from './types';
+import { IconBlast, IconClock, IconKeg, IconSound } from '../icons';
 
 const DEFAULTS: DemolitionParams = {
   maxShots: 5,
@@ -255,10 +256,11 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
         <button
           type="button"
           onClick={() => { const m = !muted; setMuted(m); sfx.setMuted(m); }}
+          aria-label={en ? 'Sound' : 'Son'}
           className="rounded-lg px-3.5 py-2 text-xs font-semibold text-[#cdbfa0] active:scale-95"
           style={{ background: 'rgba(15,11,7,0.74)', boxShadow: 'inset 0 0 0 1.5px #3a2f1e' }}
         >
-          {muted ? '🔇' : '🔊'}
+          <IconSound size={16} off={muted} />
         </button>
         {/* aide : revoir l'objectif et les commandes à tout moment (façon Angry Birds) */}
         <button
@@ -285,18 +287,33 @@ export default function DemolitionGame({ ctx, onFinish, onQuit }: GameProps) {
           >
             <p className="font-display text-lg font-extrabold text-pierre">{en ? 'Your objective' : 'Ton objectif'}</p>
             <ul className="mt-2 space-y-1.5 text-sm text-pierre-dim">
-              <li>⚑ {en ? `Knock down the ${hud?.totalTargets ?? 3} royal standards` : `Abats les ${hud?.totalTargets ?? 3} étendards royaux`}</li>
-              {targetPct > 0 && <li>💥 {en ? `Destroy ${targetPct}% of the fortress` : `Détruis ${targetPct}% de la forteresse`}</li>}
-              <li>🪨 {en ? `${maxShots} cannonballs in all` : `${maxShots} boulets en tout`}</li>
+              <li className="flex items-center gap-2">
+                <span className="flex-none" style={{ color: '#bb2e2a' }}><StandardIcon size={15} /></span>
+                {en ? `Knock down the ${hud?.totalTargets ?? 3} royal standards` : `Abats les ${hud?.totalTargets ?? 3} étendards royaux`}
+              </li>
+              {targetPct > 0 && (
+                <li className="flex items-center gap-2">
+                  <span className="flex-none" style={{ color: '#9c7d18' }}><IconBlast size={15} /></span>
+                  {en ? `Destroy ${targetPct}% of the fortress` : `Détruis ${targetPct}% de la forteresse`}
+                </li>
+              )}
+              <li className="flex items-center gap-2">
+                <span className="flex-none"><PaveIcon size={15} /></span>
+                {en ? `${maxShots} cannonballs in all` : `${maxShots} boulets en tout`}
+              </li>
               {Number((ctx.params as Record<string, number>).timeLimitS ?? 0) > 0 && (
-                <li>⏱ {en ? `Before ${(ctx.params as Record<string, number>).timeLimitS}s` : `Avant ${(ctx.params as Record<string, number>).timeLimitS} s`}</li>
+                <li className="flex items-center gap-2">
+                  <span className="flex-none" style={{ color: '#5d5446' }}><IconClock size={15} /></span>
+                  {en ? `Before ${(ctx.params as Record<string, number>).timeLimitS}s` : `Avant ${(ctx.params as Record<string, number>).timeLimitS} s`}
+                </li>
               )}
             </ul>
             <p className="mt-3 border-t border-rail pt-3 text-sm text-pierre-dim">
               {en ? 'Pull the cobblestone back, aim, release.' : 'Tire le pavé vers l’arrière, vise, relâche.'}
             </p>
-            <p className="mt-1.5 text-sm font-semibold" style={{ color: '#9c5f30' }}>
-              {en ? '💣 Hit the powder kegs: they explode and blow away the stone around them.' : '💣 Vise les barils de poudre : ils explosent et soufflent la pierre autour.'}
+            <p className="mt-1.5 flex items-start gap-2 text-sm font-semibold" style={{ color: '#9c5f30' }}>
+              <span className="mt-0.5 flex-none"><IconKeg size={15} /></span>
+              {en ? 'Hit the powder kegs: they explode and blow away the stone around them.' : 'Vise les barils de poudre : ils explosent et soufflent la pierre autour.'}
             </p>
             <button
               type="button"

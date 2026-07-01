@@ -110,7 +110,7 @@ export function NetworkScreen() {
             </span>
             <span className="min-w-0 flex-1">
               <span className="block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-laiton-clair">
-                {challengeDone ? `✓ ${t('network.challengeDone')}` : `★ ${t('network.dailyChallenge')}`}
+                {challengeDone ? t('network.challengeDone') : t('network.dailyChallenge')}
                 {streak > 0 && <span className="text-white/70"> · {t('daily.streakTitle')} {streak}</span>}
               </span>
               <span className="block truncate font-display text-base font-extrabold">

@@ -39,19 +39,31 @@ const MapView = lazy(() => import('../MapView').then((m) => ({ default: m.MapVie
 const DemolitionGame = lazy(getGame('demolition').load);
 const PLAYABLE_CODES = new Set(NETWORK.lines.filter((l) => l.status === 'playable').map((l) => l.code));
 
-// ── Plateau de Paris (T3 uniquement : carton-titre avec Bastille conquise) ──
+// ── Plateau de Paris (T2b : drapeau planté SUR Bastille · T3 : carton-titre) ──
+// PORTRAIT-FIRST : viewBox 300×400 « slice » plein-hauteur → sur téléphone, le
+// crop horizontal ne mange que les marges ; tout contenu vit dans x ∈ [60, 240]
+// (sûr jusqu'aux formats 19,5:9). La ligne vit dans la BANDE HAUTE (y ≤ ~230) :
+// le carton-titre du T3 occupe le bas — le sujet (Bastille tricolore, balise
+// Gare de Lyon) reste toujours AU-DESSUS du dégradé de lisibilité.
 type Soul = 'arch' | 'star' | 'museum' | 'cross' | 'fortress' | 'clock';
 interface Node { x: number; y: number; name: string; soul: Soul; label?: boolean; first?: boolean; east?: boolean }
 const NODES: Node[] = [
-  { x: 36, y: 150, name: 'La Défense', soul: 'arch' },
-  { x: 104, y: 118, name: 'Champs-Élysées', soul: 'star' },
-  { x: 176, y: 158, name: 'Concorde', soul: 'star' },
-  { x: 240, y: 130, name: 'Louvre-Rivoli', soul: 'museum', label: true },
-  { x: 300, y: 164, name: 'Châtelet', soul: 'cross' },
-  { x: 348, y: 138, name: 'Bastille', soul: 'fortress', label: true, first: true },
-  { x: 386, y: 120, name: 'Gare de Lyon', soul: 'clock', east: true },
+  { x: 66, y: 60, name: 'La Défense', soul: 'arch' },
+  { x: 140, y: 74, name: 'Champs-Élysées', soul: 'star' },
+  { x: 92, y: 102, name: 'Concorde', soul: 'star' },
+  { x: 156, y: 118, name: 'Louvre-Rivoli', soul: 'museum', label: true },
+  { x: 88, y: 154, name: 'Châtelet', soul: 'cross' },
+  { x: 180, y: 162, name: 'Bastille', soul: 'fortress', label: true, first: true },
+  { x: 236, y: 180, name: 'Gare de Lyon', soul: 'clock', east: true },
 ];
-const LINE_PATH = 'M 36 150 C 74 122, 90 120, 104 118 S 156 158, 176 158 S 222 130, 240 130 S 286 164, 300 164 S 336 138, 348 138 S 376 122, 386 120';
+const LINE_PATH =
+  'M 66 60 C 92 64, 118 66, 140 74 C 124 84, 106 92, 92 102 C 112 108, 136 112, 156 118 ' +
+  'C 132 130, 106 142, 88 154 C 118 158, 152 158, 180 162 C 200 167, 220 172, 236 180';
+// caméra du plateau : origine = Bastille (180/300 ; 162/400) — IDENTIQUE aux deux
+// cadrages pour que la transition T2b → T3 soit un vrai mouvement de caméra.
+const BOARD_ORIGIN = '60% 40.5%';
+const BOARD_CLOSEUP = 'translate(-56px, 30px) scale(1.6)';
+const BOARD_WIDE = 'translate(0px, 0px) scale(1)';
 
 function SoulIcon({ soul, color }: { soul: Soul; color: string }) {
   const s = { stroke: color, strokeWidth: 1.4, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -65,13 +77,14 @@ function SoulIcon({ soul, color }: { soul: Soul; color: string }) {
   }
 }
 
-function ParisBoard() {
+function ParisBoard({ hideLabels = false }: { hideLabels?: boolean }) {
   return (
-    <svg viewBox="0 0 400 300" className="h-full w-full" preserveAspectRatio="xMidYMid slice" aria-hidden>
+    <svg viewBox="0 0 300 400" className="h-full w-full" preserveAspectRatio="xMidYMid slice" aria-hidden>
       <defs><linearGradient id="emg-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fbf7ec" /><stop offset="1" stopColor="#efe6d2" /></linearGradient></defs>
-      <rect width="400" height="300" fill="url(#emg-sky)" />
-      <path d="M 0 232 C 90 210, 150 250, 220 224 S 330 206, 400 230" fill="none" stroke="#7db4e0" strokeWidth="1.6" opacity="0.5" />
-      <path d={LINE_PATH} fill="none" stroke="var(--color-laiton)" strokeWidth="4.5" strokeLinecap="round" style={{ filter: 'drop-shadow(0 0 5px rgba(201,162,39,0.5))' }} />
+      <rect width="300" height="400" fill="url(#emg-sky)" />
+      {/* la Seine, sous la ligne */}
+      <path d="M 0 226 C 60 208, 140 244, 210 222 C 250 208, 280 214, 300 208" fill="none" stroke="#7db4e0" strokeWidth="5" opacity="0.35" strokeLinecap="round" />
+      <path d={LINE_PATH} fill="none" stroke="var(--color-laiton)" strokeWidth="5" strokeLinecap="round" style={{ filter: 'drop-shadow(0 0 5px rgba(201,162,39,0.5))' }} />
       {NODES.map((nd) => {
         const active = !!nd.first; // Bastille conquise = pleine couleur + tricolore
         return (
@@ -81,8 +94,14 @@ function ParisBoard() {
               fill={active ? '#fff' : '#b9b09b'} stroke={active ? '#bb2e2a' : '#fff'} strokeWidth={active ? 1.8 : 1.2}
               style={active ? { filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.32))' } : undefined} />
             {active && <><rect x={nd.x - 9} y={nd.y - 6.5} width="6" height="13" fill="#0a5a9e" /><rect x={nd.x + 3} y={nd.y - 6.5} width="6" height="13" fill="#bb2e2a" /></>}
-            {nd.label && <text x={nd.x} y={nd.y + 18} textAnchor="middle" fontSize="8.5" letterSpacing="0.8" fontFamily="'Work Sans', sans-serif" fontWeight="700" fill="#2a2118" style={{ textShadow: '0 1px 2px rgba(246,241,230,0.9)' }}>{nd.name.toUpperCase()}</text>}
-            {nd.east && <text x={nd.x} y={nd.y - 24} textAnchor="middle" fontSize="7" letterSpacing="0.6" fontFamily="'Work Sans', sans-serif" fontWeight="700" fill="#5d5446">GARE DE LYON</text>}
+            {/* gros plan (T2b) : étiquettes éteintes — la plaque tricolore et le
+                drapeau planté sont seuls en scène */}
+            {!hideLabels && nd.label && (
+              nd.first
+                ? <text x={nd.x - 14} y={nd.y + 4} textAnchor="end" fontSize="9.5" letterSpacing="0.8" fontFamily="'Work Sans', sans-serif" fontWeight="700" fill="#2a2118" style={{ textShadow: '0 1px 2px rgba(246,241,230,0.9)' }}>{nd.name.toUpperCase()}</text>
+                : <text x={nd.x} y={nd.y + 20} textAnchor="middle" fontSize="9.5" letterSpacing="0.8" fontFamily="'Work Sans', sans-serif" fontWeight="700" fill="#2a2118" style={{ textShadow: '0 1px 2px rgba(246,241,230,0.9)' }}>{nd.name.toUpperCase()}</text>
+            )}
+            {!hideLabels && nd.east && <text x={nd.x - 13} y={nd.y + 3} textAnchor="end" fontSize="8" letterSpacing="0.6" fontFamily="'Work Sans', sans-serif" fontWeight="700" fill="#5d5446">GARE DE LYON</text>}
           </g>
         );
       })}
@@ -174,12 +193,24 @@ export function Emergence({ onDone, onStart, firstStation = DEFAULT_FIRST }: {
       style={{ background: dark ? 'var(--color-acier)' : 'var(--color-craie)', transition: 'background 1s var(--ease-emergence)', color: dark ? 'var(--color-craie)' : 'var(--color-pierre)' }}
       onPointerDown={beat === 'emergence' ? pierce : undefined}
     >
-      {/* ── T1 : LA VRAIE CARTE MapLibre (pleine page, l'intro colle au jeu) ── */}
+      {/* ── T1 : LA VRAIE CARTE MapLibre (pleine page, l'intro colle au jeu).
+           chrome=false : aucune commande de carte dans le film. ── */}
       {beat === 'map' && (
         <div className="absolute inset-0 z-0">
           <Suspense fallback={loading}>
-            <MapView playableCodes={PLAYABLE_CODES} onStation={(slug) => { if (slug === firstStation.slug || slug === 'bastille') takeBastille(); }} />
+            <MapView playableCodes={PLAYABLE_CODES} chrome={false} onStation={(slug) => { if (slug === firstStation.slug || slug === 'bastille') takeBastille(); }} />
           </Suspense>
+        </div>
+      )}
+
+      {/* ── PLATEAU PERSISTANT (T2b → T3) : la MÊME scène, seule la caméra bouge
+           (gros plan Bastille au drapeau → pull-out vers la ligne à l'apex). ── */}
+      {((beat === 'assault' && liberated) || beat === 'apex') && (
+        <div
+          className="board-cam pointer-events-none absolute inset-0 z-0"
+          style={{ transform: beat === 'apex' ? BOARD_WIDE : BOARD_CLOSEUP, transformOrigin: BOARD_ORIGIN }}
+        >
+          <ParisBoard hideLabels={beat !== 'apex'} />
         </div>
       )}
 
@@ -195,7 +226,11 @@ export function Emergence({ onDone, onStart, firstStation = DEFAULT_FIRST }: {
       {/* grain filmique CONSTANT */}
       <div className="film-grain pointer-events-none absolute inset-0 z-[1] opacity-[0.06]" />
 
-      {/* ── BARRE HAUTE : son · langue · passer (toujours un échappatoire) ── */}
+      {/* ── BARRE HAUTE : son · langue · passer (toujours un échappatoire).
+           MASQUÉE pendant l'assaut live : le vrai jeu a déjà son HUD + son ✕ + son
+           mute (un seul chrome par écran — fini la double-barre en collision) ;
+           le filet « continuer › » reste l'échappatoire du temps T2. ── */}
+      {!(beat === 'assault' && !liberated) && (
       <div className="relative z-30 flex items-center justify-between px-4 pt-[max(env(safe-area-inset-top),1rem)]">
         <div className="flex items-center gap-2">
           <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={() => { const m = !muted; setMuted(m); ftueSfx.setMuted(m); }} aria-label="son"
@@ -210,11 +245,23 @@ export function Emergence({ onDone, onStart, firstStation = DEFAULT_FIRST }: {
           className="rounded-full px-3.5 py-1.5 font-mono text-xs backdrop-blur active:scale-95"
           style={{ background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)', color: dark ? 'rgba(244,238,218,0.7)' : 'var(--color-pierre-faint)' }}>{L('ftue.skip')} ›</button>
       </div>
+      )}
 
       {/* ════════ T0 — ÉMERGENCE ════════ */}
       {beat === 'emergence' && (
         <>
           <div className="relative z-10 mt-auto mb-auto flex flex-col items-center px-7 text-center">
+            {/* la marque, une fois, sobrement — l'app dit son nom dans le noir
+                (identité : le Châssis Acier EST la marque mère), puis s'efface
+                dans la lumière. Invariant international : pas d'i18n ici. */}
+            <div className="mb-9 flex flex-col items-center gap-2" style={{ opacity: wiped ? 0 : 1, transition: 'opacity 0.5s var(--ease-emergence)' }}>
+              <span className="font-brand text-[13px] font-bold uppercase" style={{ letterSpacing: '0.32em', textIndent: '0.32em', color: 'rgba(244,238,218,0.88)' }}>
+                Arcadia SubLine
+              </span>
+              <span className="plaque-gloss rounded-[3px] px-2.5 py-0.5 font-mono text-[9px] font-bold uppercase text-white" style={{ letterSpacing: '0.3em', textIndent: '0.3em', background: 'var(--color-email)', boxShadow: 'inset 0 0 0 1.5px rgba(255,255,255,0.85)' }}>
+                Paris
+              </span>
+            </div>
             {!wiped && <div className="animate-map-pulse mb-6 h-3 w-3 rounded-full" style={{ background: '#f2c200', boxShadow: '0 0 30px 12px rgba(242,194,0,0.55)' }} />}
             <svg viewBox="0 0 300 90" className="mb-3 h-16 w-64" aria-hidden style={{ opacity: wiped ? 1 : 0.85, transition: 'opacity 0.6s var(--ease-emergence)' }}>
               <rect x="60" y="30" width="150" height="34" rx="9" fill="#8fc9b9" stroke="#cfe0d9" strokeWidth="2" />
@@ -266,26 +313,24 @@ export function Emergence({ onDone, onStart, firstStation = DEFAULT_FIRST }: {
         </div>
       )}
 
-      {/* ════════ T2b — DRAPEAU LIBÉRÉE + flash tradition (après le vrai assaut) ════════ */}
+      {/* ════════ T2b — DRAPEAU LIBÉRÉE planté SUR Bastille (plateau derrière) ════════ */}
       {beat === 'assault' && liberated && (
-        <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-7 text-center">
-          <div className="flag-plant">
+        <div
+          className="relative z-10 flex flex-1 flex-col items-center justify-center px-7 text-center"
+          style={{ opacity: flash ? 0 : 1, transition: 'opacity 0.35s var(--ease-emergence)' }}
+        >
+          {/* voile de lisibilité : le texte reste net sur le plateau zoomé */}
+          <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(70% 46% at 50% 46%, rgba(246,241,230,0.85) 0%, rgba(246,241,230,0.45) 60%, transparent 100%)' }} />
+          <div className="flag-plant relative">
             <div className="plaque-gloss rounded-[3px] px-4 py-2 text-center" style={{ background: '#0a5a9e', boxShadow: 'inset 0 0 0 2px rgba(255,255,255,0.85), 0 4px 10px rgba(0,0,0,0.3)' }}>
               <span className="font-display text-sm font-extrabold tracking-wide text-white">{L('ftue.t2Liberated')}</span>
             </div>
             <div className="mx-auto h-12 w-1" style={{ background: 'linear-gradient(#c9a227,#86680f)' }} />
           </div>
-          <p className="ftue-rise mt-6 text-sm font-semibold text-pierre-dim" style={{ animationDelay: '0.2s' }}>{L('ftue.t2Countable')}</p>
-          <button type="button" onClick={() => setArchiveOpen(true)} className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-guimard underline-offset-2 active:underline">{L('ftue.t2ArchiveCta')} ›</button>
-          <button type="button" onClick={toApex} className="mt-4 rounded-full px-5 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ background: 'rgba(10,90,158,0.12)', color: 'var(--color-email)' }}>{L('ftue.t2Continue')} ›</button>
+          <p className="ftue-rise relative mt-6 text-sm font-semibold text-pierre-dim" style={{ animationDelay: '0.2s' }}>{L('ftue.t2Countable')}</p>
+          <button type="button" onClick={() => setArchiveOpen(true)} className="relative mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-guimard underline-offset-2 active:underline">{L('ftue.t2ArchiveCta')} ›</button>
+          <button type="button" onClick={toApex} className="relative mt-4 rounded-full px-5 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ background: 'rgba(10,90,158,0.12)', color: 'var(--color-email)' }}>{L('ftue.t2Continue')} ›</button>
 
-          {flash && (
-            <div className="ftue-fade pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center px-8 text-center" style={{ background: 'rgba(17,17,21,0.82)' }}>
-              <p className="font-display text-lg font-bold italic text-craie">« {L('ftue.t2FlashQ')} »</p>
-              <p className="mt-2 font-display text-xl font-extrabold italic" style={{ color: 'var(--color-laiton-clair)' }}>« {L('ftue.t2FlashA')} »</p>
-              <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.3em]" style={{ color: 'var(--color-ambre)' }}>{L('ftue.t2FlashTag')}</p>
-            </div>
-          )}
           {archiveOpen && (
             <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 px-8" onPointerDown={() => setArchiveOpen(false)}>
               <div className="max-w-xs rounded-2xl border-2 p-5 text-center" style={{ background: 'var(--color-plomb)', borderColor: 'var(--color-guimard)' }}><p className="text-sm text-pierre-dim">{L('ftue.t2Archive')}</p></div>
@@ -294,10 +339,21 @@ export function Emergence({ onDone, onStart, firstStation = DEFAULT_FIRST }: {
         </div>
       )}
 
+      {/* Flash tradition — PLEIN CADRE (au-dessus de tout, barre comprise) : le
+          film coupe au noir Acier, la citation seule à l'écran, puis rend la main. */}
+      {flash && (
+        <div className="ftue-fade pointer-events-none absolute inset-0 z-[45] flex flex-col items-center justify-center px-8 text-center" style={{ background: 'rgba(17,17,21,0.94)' }}>
+          <p className="font-display text-lg font-bold italic text-craie">« {L('ftue.t2FlashQ')} »</p>
+          <p className="mt-2 font-display text-xl font-extrabold italic" style={{ color: 'var(--color-laiton-clair)' }}>« {L('ftue.t2FlashA')} »</p>
+          <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.3em]" style={{ color: 'var(--color-ambre)' }}>{L('ftue.t2FlashTag')}</p>
+        </div>
+      )}
+
       {/* ════════ T3 — CARTON-TITRE (Pourquoi revenir) sur le plateau (Bastille conquise) ════════ */}
       {beat === 'apex' && (
         <>
-          <div className="pointer-events-none absolute inset-0 z-0" style={{ transform: 'scale(1.12)', transformOrigin: '87% 46%' }}><ParisBoard /></div>
+          {/* le plateau est déjà là (couche persistante) — seul le dégradé de
+              lisibilité du carton s'ajoute */}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[62%]" style={{ background: 'linear-gradient(to bottom, transparent, var(--color-craie) 58%)' }} />
           <div className="relative z-10 mt-auto flex flex-col items-center px-7 pb-2 text-center">
             <div className="crown-radiate relative mb-3 flex h-14 w-14 items-center justify-center rounded-full" style={{ background: 'radial-gradient(circle at 40% 30%, #fbe9a6, #c9a227 60%, #86680f)' }}>
@@ -318,13 +374,19 @@ export function Emergence({ onDone, onStart, firstStation = DEFAULT_FIRST }: {
               <span className="h-3 w-px bg-rail" />
               <span className="font-mono text-[10px] uppercase tracking-widest" style={{ color: 'rgba(187,46,42,0.6)' }}>● rival</span>
             </div>
+            {/* CTA sur deux étages (jamais de retour à la ligne sauvage) :
+                le verbe en héros, la destination en cartouche dessous */}
             <button type="button" onClick={finish}
-              className="mt-5 inline-flex items-center gap-2 rounded-2xl px-6 py-3.5 font-display text-base font-extrabold text-white active:translate-y-[2px]"
+              className="mt-5 flex w-full max-w-xs flex-col items-center gap-0.5 rounded-2xl px-6 py-3.5 font-display active:translate-y-[2px]"
               style={{ background: 'var(--color-email)', boxShadow: '0 5px 0 #073f6e, 0 8px 18px rgba(10,90,158,0.35)' }}>
-              {L('ftue.t3Go')}<span className="font-mono text-[10px] font-bold uppercase tracking-wider text-laiton-clair">{L('ftue.t3NextLabel')} · Gare de Lyon ›</span>
+              <span className="text-lg font-extrabold leading-tight text-white">{L('ftue.t3Go')}</span>
+              <span className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-laiton-clair">{L('ftue.t3NextLabel')} · Gare de Lyon ›</span>
             </button>
           </div>
-          <div className="relative z-10 flex flex-none items-end justify-center" style={{ height: 84 }}><MarcGuide state={marc} size={84} /></div>
+          {/* Marc entier dans le cadre (zone sûre bas d'écran comprise) */}
+          <div className="relative z-10 flex flex-none items-end justify-center pb-[max(env(safe-area-inset-bottom),0.5rem)]" style={{ height: 96 }}>
+            <MarcGuide state={marc} size={80} />
+          </div>
         </>
       )}
     </div>

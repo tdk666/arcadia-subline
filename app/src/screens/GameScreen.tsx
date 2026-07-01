@@ -13,6 +13,7 @@ import { tap } from '../lib/feedback';
 import { useArcadia, type LastResult } from '../store';
 import { ResultView } from '../components/ResultView';
 import { OrientationGate } from '../components/OrientationGate';
+import { IconBlast, IconClock, IconHeart, IconPave, IconSeal, IconStandard } from '../components/icons';
 
 const TIER_COLOR: Record<DifficultyTier, string> = {
   bronze: '#c08a55', silver: '#b9c0c4', gold: '#e3c463',
@@ -213,11 +214,20 @@ export function GameScreen() {
             <p className="font-mono text-[10px] uppercase tracking-widest text-pierre-faint">{t('brief.objective')}</p>
             {isQuiz ? (
               <>
-                <p className="mt-1.5 text-sm font-semibold text-pierre">
-                  ⚜ {t('brief.quizObjective', { n: Number((quest.params as Record<string, unknown>).draw ?? bank.length) })}
-                  <br />❤️ {t('brief.quizLives', { n: Number(params.lives ?? 3) })}
-                  {Number(params.timerS ?? 0) > 0 && <><br />⏱ {t('brief.quizTimer', { time: Number(params.timerS) })}</>}
+                <p className="mt-1.5 flex items-center gap-2 text-sm font-semibold text-pierre">
+                  <span className="flex-none text-guimard"><IconSeal size={16} /></span>
+                  {t('brief.quizObjective', { n: Number((quest.params as Record<string, unknown>).draw ?? bank.length) })}
                 </p>
+                <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-pierre">
+                  <span className="flex-none text-vermillon"><IconHeart size={16} /></span>
+                  {t('brief.quizLives', { n: Number(params.lives ?? 3) })}
+                </p>
+                {Number(params.timerS ?? 0) > 0 && (
+                  <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-pierre">
+                    <span className="flex-none text-pierre-dim"><IconClock size={16} /></span>
+                    {t('brief.quizTimer', { time: Number(params.timerS) })}
+                  </p>
+                )}
                 <p className="mt-2 border-t border-rail pt-2 font-mono text-[10px] leading-relaxed text-pierre-faint">
                   {t('brief.quizHowto')}
                 </p>
@@ -225,13 +235,18 @@ export function GameScreen() {
             ) : (
               <>
                 {/* objectif PRINCIPAL en gros (les étendards), conditions en secondaire */}
-                <p className="mt-1.5 text-lg font-extrabold leading-snug text-pierre">
-                  ⚜ {t('brief.objectiveText', { targets: 3 })}
+                <p className="mt-1.5 flex items-center gap-2.5 text-lg font-extrabold leading-snug text-pierre">
+                  <span className="flex-none text-vermillon"><IconStandard size={20} /></span>
+                  {t('brief.objectiveText', { targets: 3 })}
                 </p>
-                <p className="mt-1 text-xs leading-relaxed text-pierre-dim">
-                  {params.targetPct > 0 && <>💥 {t('brief.objectiveExtra', { pct: params.targetPct })} · </>}
-                  {params.timeLimitS > 0 && <>⏱ {t('brief.objectiveTime', { time: params.timeLimitS })} · </>}
-                  🪨 {t('brief.objectiveAmmo', { n: params.maxShots })}
+                <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs leading-relaxed text-pierre-dim">
+                  {params.targetPct > 0 && (
+                    <span className="flex items-center gap-1"><IconBlast size={13} /> {t('brief.objectiveExtra', { pct: params.targetPct })}</span>
+                  )}
+                  {params.timeLimitS > 0 && (
+                    <span className="flex items-center gap-1"><IconClock size={13} /> {t('brief.objectiveTime', { time: params.timeLimitS })}</span>
+                  )}
+                  <span className="flex items-center gap-1"><IconPave size={13} /> {t('brief.objectiveAmmo', { n: params.maxShots })}</span>
                 </p>
                 <p className="mt-2 border-t border-rail pt-2 font-mono text-[10px] leading-relaxed text-pierre-faint">
                   {t('brief.howto')}
@@ -257,7 +272,7 @@ export function GameScreen() {
             className="animate-pop w-full max-w-xs rounded-2xl py-4 font-display text-lg font-extrabold text-encre shadow-[0_5px_0_rgba(0,0,0,0.22),0_0_30px_rgba(242,194,0,0.35)] ring-1 ring-inset ring-white/40 transition-[transform,box-shadow] duration-75 active:translate-y-[3px] active:shadow-[0_2px_0_rgba(0,0,0,0.22),0_0_20px_rgba(242,194,0,0.3)]"
             style={{ background: TIER_COLOR[difficulty], animationDelay: '0.25s' }}
           >
-            {isQuiz ? '🎓' : '⚔'} {t(isQuiz ? 'brief.quizCta' : 'brief.cta')}
+            {t(isQuiz ? 'brief.quizCta' : 'brief.cta')}
           </button>
           <button
             type="button"
